@@ -1,0 +1,23 @@
+# Role Design Brief
+
+- Date:
+- Owner:
+- Proposed slug:
+- Why this role should exist now:
+- Claude name:
+- Claude description:
+- Claude tools:
+- Claude model:
+- Codex name:
+- Codex description:
+- Codex model:
+- Codex reasoning effort:
+- Codex sandbox mode:
+- Codex nicknames:
+- Core responsibilities:
+- Non-goals:
+- Must-read docs:
+- Volatile-topic default:
+- Output contract:
+- Risks of adding this role:
+- Why an existing role is not enough:

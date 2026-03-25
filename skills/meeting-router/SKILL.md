@@ -1,0 +1,17 @@
+---
+name: meeting-router
+description: Use when a founder-facing meeting needs to be routed to the correct canonical meeting skill.
+---
+
+Read [../../docs/workflows/founder-meeting-taxonomy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-meeting-taxonomy.md).
+
+Route the current request to exactly one of:
+
+- `governance-meeting`
+- `vision-meeting`
+- `acceptance-review`
+- `requirements-meeting`
+- `brainstorming-session`
+
+Do not mix multiple meeting types into one output.
+If the topic touches volatile external facts, follow the freshness and research-dispatch requirements in the selected downstream skill.
