@@ -2,7 +2,33 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
+
+memo_template_path="$repo_root/skills/research/templates/research-memo.md"
+
+render_research_memo_template() {
+  linked_work_items="$1"
+  memo_date="$2"
+  memo_title="$3"
+
+  [ -f "$memo_template_path" ] || {
+    echo "missing template: $memo_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v linked_work_items="$linked_work_items" \
+    -v memo_date="$memo_date" \
+    -v memo_title="$memo_title" \
+    '
+      /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
+      /^- Date:$/ { $0 = "- Date: " memo_date }
+      /^- Question:$/ { $0 = "- Question: " memo_title }
+      { print }
+    ' \
+    "$memo_template_path"
+}
 
 work_item_id=""
 promote_governance=0
@@ -85,27 +111,7 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-cat >"$target" <<EOF
-# Research Memo
-
-- Linked work items: ${work_item_id:-n/a}
-- Date: $date
-- Owner:
-- Question: $title
-- Scope:
-- Research dispatch: .harness/tasks/<task-id>/attachments/...-research-dispatch.md / promoted governance dispatch / n/a
-- Verification date:
-- Verification mode: internal-only / web-verified / mixed
-- Freshness level: stable / volatile
-- Sources reviewed:
-- Conflicting sources:
-- Earliest-source check:
-- Strongest evidence:
-- Strongest counter-evidence:
-- Unknowns:
-- Risks:
-- Recommendation:
-EOF
+render_research_memo_template "${work_item_id:-n/a}" "$date" "$title" >"$target"
 
 if [ -n "$work_item_id" ]; then
   require_explicit_state_actor "$actor" "$0"

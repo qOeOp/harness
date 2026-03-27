@@ -2,7 +2,33 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
+
+dispatch_template_path="$repo_root/skills/research/templates/research-dispatch.md"
+
+render_research_dispatch_template() {
+  linked_work_items="$1"
+  dispatch_date="$2"
+  dispatch_title="$3"
+
+  [ -f "$dispatch_template_path" ] || {
+    echo "missing template: $dispatch_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v linked_work_items="$linked_work_items" \
+    -v dispatch_date="$dispatch_date" \
+    -v dispatch_title="$dispatch_title" \
+    '
+      /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
+      /^- Date:$/ { $0 = "- Date: " dispatch_date }
+      /^- Topic:$/ { $0 = "- Topic: " dispatch_title }
+      { print }
+    ' \
+    "$dispatch_template_path"
+}
 
 work_item_id=""
 promote_governance=0
@@ -74,22 +100,7 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-cat >"$target" <<EOF
-# Research Dispatch
-
-- Linked work items: ${work_item_id:-n/a}
-- Date: $date
-- Dispatcher:
-- Topic: $title
-- Volatile status: volatile-by-default / stable / unknown
-- Research owner:
-- Required freshness window:
-- Required source types:
-- Required deliverable:
-- Downstream consumer:
-- Blocking status: open / blocked / satisfied / not-needed
-- Notes:
-EOF
+render_research_dispatch_template "${work_item_id:-n/a}" "$date" "$title" >"$target"
 
 if [ -n "$work_item_id" ]; then
   require_explicit_state_actor "$actor" "$0"

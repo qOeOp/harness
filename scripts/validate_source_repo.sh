@@ -108,6 +108,8 @@ require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task
 require_contains "skills/research/SKILL.md" 'This bundle owns the `research` capability as one bounded entity.'
 require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
 require_contains "skills/research/manifest.toml" 'operation_modes = ['
+require_contains "scripts/new_research.sh" 'skills/research/templates/research-memo.md'
+require_contains "scripts/new_research_dispatch.sh" 'skills/research/templates/research-dispatch.md'
 require_contains "skills/research-dispatch/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "skills/research-memo/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
