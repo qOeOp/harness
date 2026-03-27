@@ -1,6 +1,6 @@
 # Volatile Research Default
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-27`
 
 ## 目的
 
@@ -145,7 +145,7 @@ Claude 具备 `UserPromptSubmit`、`SubagentStart` 这类 hooks 能力。
 
 1. 写 `Verification mode`
 2. 写 `Sources reviewed`
-3. 至少引用一个 URL 或 `.harness/workspace/research/sources/` 下的 source note
+3. 至少引用一个 URL、`.harness/tasks/<task-id>/refs/sources/` 下的 source note，或显式 promote 后的 `.harness/workspace/research/sources/` source note
 
 Source note 必须包含：
 
@@ -155,6 +155,8 @@ Source note 必须包含：
 4. `Accessed date`
 5. `Trust level`
 6. `Notes`
+
+默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。
 
 ## Hard Truth
 

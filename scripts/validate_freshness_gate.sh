@@ -12,8 +12,17 @@ append_file() {
 }
 
 collect_all_files() {
-  find .harness/workspace/research/sources .harness/workspace/research/dispatches .harness/workspace/decisions/log .harness/workspace/briefs .harness/workspace/departments \
-    -type f -name '*.md' 2>/dev/null | sort
+  for dir in \
+    .harness/tasks \
+    .harness/workspace/research/sources \
+    .harness/workspace/research/dispatches \
+    .harness/workspace/decisions/log \
+    .harness/workspace/briefs \
+    .harness/workspace/departments
+  do
+    [ -d "$dir" ] || continue
+    find "$dir" -type f -name '*.md'
+  done | sort
 }
 
 collect_staged_files() {
@@ -22,6 +31,7 @@ collect_staged_files() {
 
 is_governed_artifact() {
   case "$1" in
+    .harness/tasks/*/refs/*.md|.harness/tasks/*/refs/sources/*.md|.harness/tasks/*/working/*.md|.harness/tasks/*/working/*/*.md|.harness/tasks/*/outputs/*.md|.harness/tasks/*/closure/*.md|\
     .harness/workspace/research/sources/*.md|.harness/workspace/research/dispatches/*.md|.harness/workspace/decisions/log/*.md|.harness/workspace/briefs/*.md|.harness/workspace/departments/*/workspace/memos/*.md|.harness/workspace/departments/*/workspace/outputs/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -38,6 +48,7 @@ is_governed_artifact() {
 
 is_dispatch_note() {
   case "$1" in
+    .harness/tasks/*/working/*-research-dispatch.md|\
     .harness/workspace/research/dispatches/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -54,6 +65,7 @@ is_dispatch_note() {
 
 is_source_note() {
   case "$1" in
+    .harness/tasks/*/refs/sources/*.md|\
     .harness/workspace/research/sources/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -198,7 +210,7 @@ require_external_reference_if_needed() {
 
   case "$mode" in
     web-verified|mixed)
-      if ! printf '%s\n' "$sources" | grep -Eq 'https?://|.harness/workspace/research/sources/'; then
+      if ! printf '%s\n' "$sources" | grep -Eq 'https?://|.harness/tasks/[A-Za-z0-9._-]+/refs/sources/|.harness/workspace/research/sources/'; then
         printf '%s\n' "freshness gate failed: $file is '$mode' but 'Sources reviewed' has no URL or source-note reference" >&2
         return 1
       fi
@@ -211,7 +223,9 @@ require_external_reference_if_needed() {
 validate_referenced_source_notes() {
   file="$1"
   mode=$(field_content "$file" "Verification mode")
-  refs=$(grep -Eo '.harness/workspace/research/sources/[A-Za-z0-9._/-]+\.md' "$file" | sort -u || true)
+  refs=$(
+    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/refs/sources/[A-Za-z0-9._/-]+\.md|\.harness/workspace/research/sources/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
+  )
 
   case "$mode" in
     web-verified|mixed)
@@ -235,7 +249,9 @@ validate_referenced_source_notes() {
 
 validate_referenced_dispatches() {
   file="$1"
-  refs=$(grep -Eo '.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md' "$file" | sort -u || true)
+  refs=$(
+    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/working/[A-Za-z0-9._/-]+-research-dispatch\.md|\.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
+  )
 
   [ -n "$refs" ] || return 0
 
@@ -260,7 +276,7 @@ require_dispatch_reference_if_needed() {
 
   case "$mode" in
     web-verified|mixed)
-      if ! printf '%s\n' "$dispatch" | grep -Eq '.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md'; then
+      if ! printf '%s\n' "$dispatch" | grep -Eq '.harness/tasks/[A-Za-z0-9._-]+/working/[A-Za-z0-9._/-]+-research-dispatch\.md|.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md'; then
         printf '%s\n' "freshness gate failed: $file is '$mode' but 'Research dispatch' does not reference a dispatch artifact" >&2
         return 1
       fi

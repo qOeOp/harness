@@ -9,7 +9,12 @@ actor="${STATE_ACTOR:-}"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  echo "usage: $0 [--work-item <WI-xxxx>] [company|<department>] <title>" >&2
+  cat <<EOF >&2
+usage: $0 [--work-item <WI-xxxx>] [company|<department>] <title>
+
+Defaults to the active .harness/current-task when present.
+In minimum-core runtime, decision packs must bind to a task instead of falling back to workspace-wide decision logs.
+EOF
   exit 1
 }
 
@@ -29,19 +34,27 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-scope="${1:-company}"
-title="${2:-untitled-decision}"
+if [ "$#" -le 1 ]; then
+  scope="company"
+  title="${1:-untitled-decision}"
+else
+  scope="$1"
+  title="${2:-untitled-decision}"
+fi
 slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)
+resolved_work_item_id=$(resolve_task_artifact_work_item_id "$work_item_id" || true)
 
-if [ -n "$work_item_id" ]; then
-  require_work_item "$work_item_id" >/dev/null
+if [ -n "$resolved_work_item_id" ]; then
+  work_item_id="$resolved_work_item_id"
   ensure_task_directory_skeleton "$work_item_id"
   set_current_task_id "$work_item_id"
   target="$(canonical_work_item_refs_dir "$work_item_id")/${date}-${slug}-decision-pack.md"
 elif [ "$scope" = "company" ]; then
+  require_governance_mode_for_workspace_artifact "decision pack" || exit 1
   target=".harness/workspace/decisions/log/${date}-${slug}.md"
 else
+  require_governance_mode_for_workspace_artifact "department decision pack" || exit 1
   target=".harness/workspace/departments/${scope}/workspace/outputs/${date}-${slug}.md"
 fi
 
@@ -58,7 +71,7 @@ cat >"$target" <<EOF
 - Owner:
 - Decision: $title
 - Why now:
-- Research dispatch: .harness/workspace/research/dispatches/...md / n/a
+- Research dispatch: .harness/tasks/<task-id>/working/...-research-dispatch.md / promoted governance dispatch / n/a
 - Verification date:
 - Verification mode: internal-only / web-verified / mixed
 - Sources reviewed:

@@ -25,6 +25,12 @@ require_exec() {
   [ -x "$1" ] || fail "not executable: $1"
 }
 
+require_contains() {
+  file="$1"
+  pattern="$2"
+  grep -Fq "$pattern" "$file" || fail "missing pattern '$pattern' in $file"
+}
+
 forbidden_path() {
   [ ! -e "$1" ] || fail "source repo must not contain consumer/runtime surface: $1"
 }
@@ -37,15 +43,20 @@ require_dir "docs"
 require_dir "references"
 
 require_file "docs/project-structure.md"
+require_file "docs/memory/memory-architecture.md"
 require_file "references/layering.md"
 require_file "references/runtime-workspace.md"
 require_dir "references/contracts"
 require_file "references/contracts/minimum-core-runtime-tree.toml"
 require_file "references/top-level-surface.md"
+require_file "references/specs/README.md"
+require_file "roles/README.md"
+require_file "docs/workflows/agent-operator-contract.md"
+require_file "docs/workflows/task-artifact-routing.md"
+require_file "docs/workflows/provider-deltas/gemini.md"
+require_file "docs/workflows/tool-adapter-capability-map.md"
 require_file "roles/README.md"
 
-require_exec "scripts/sync_agent_projections.sh"
-require_exec "scripts/sync_claude_skill_projections.sh"
 require_exec "scripts/materialize_runtime_fixture.sh"
 require_exec "scripts/run_state_validation_slice.sh"
 require_exec "scripts/audit_role_schema.sh"
@@ -57,12 +68,45 @@ forbidden_path ".agents/skills/harness"
 forbidden_path "AGENTS.md"
 forbidden_path "CLAUDE.md"
 forbidden_path "GEMINI.md"
+forbidden_path ".claude"
+forbidden_path ".codex"
+forbidden_path ".gemini"
+forbidden_path "references/specs/2026-03-25-harness-invoke-first-vnext-spec-v1.md"
+forbidden_path "references/specs/2026-03-25-harness-vnext-round1-reduction-inventory-v1.toml"
+forbidden_path "references/specs/2026-03-26-harness-surface-buckets-v1.md"
+forbidden_path "references/specs/2026-03-27-codex-worktree-convergence-matrix-v1.md"
+
+require_contains "docs/memory/memory-architecture.md" '默认 runtime memory 是 `task-scoped`'
+require_contains "docs/memory/memory-architecture.md" '.harness/tasks/<task-id>/task.md'
+require_contains "docs/memory/memory-architecture.md" 'advanced governance mode'
+require_contains "docs/memory/memory-architecture.md" '不要把 `.harness/workspace/current` 当成默认 runtime 的当前任务真相。'
+require_contains "docs/workflows/agent-operator-contract.md" '在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`'
+require_contains "docs/workflows/agent-operator-contract.md" '在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`'
+require_contains "docs/workflows/task-artifact-routing.md" '`task-local first, governance by explicit promotion`'
+require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task-id>/working/<date>-<slug>-research-dispatch.md'
+require_contains "skills/research-dispatch/SKILL.md" '.harness/tasks/<task-id>/working/'
+require_contains "skills/research-memo/SKILL.md" '.harness/tasks/<task-id>/refs/'
+require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/refs/'
+require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
+require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
+require_contains "roles/README.md" '本仓库不再维护 provider-owned generated role mirrors'
+require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 
 if rg -n '/Users/[^/]+/.+/(\\.agents/skills/harness|\\.harness)/|/Users/[^/]+/.+/AGENTS\\.md|/Users/[^/]+/.+/CLAUDE\\.md|/Users/[^/]+/.+/GEMINI\\.md|/Users/[^/]+/.+/(\\.codex|\\.gemini)/' \
   --glob '!references/archive/**' \
   --glob '!docs/research/frontier-practices-2026.md' \
   . >/dev/null 2>&1; then
   fail "found consumer-specific absolute paths outside archive/"
+fi
+
+if rg -n -i '\bprojection\b|\boverlay\b|carrier' \
+  docs \
+  references \
+  roles \
+  SKILL.md \
+  --glob '!references/archive/**' \
+  --glob '!docs/research/**' >/dev/null 2>&1; then
+  fail "found retired projection/overlay/carrier language in active source docs"
 fi
 
 if [ "$ok" -eq 1 ]; then

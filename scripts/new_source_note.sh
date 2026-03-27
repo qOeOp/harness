@@ -9,7 +9,12 @@ actor="${STATE_ACTOR:-}"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  echo "usage: $0 [--work-item <WI-xxxx>] <title>" >&2
+  cat <<EOF >&2
+usage: $0 [--work-item <WI-xxxx>] <title>
+
+Defaults to the active .harness/current-task when present.
+In minimum-core runtime, a workspace-scoped source note is not allowed without a task context.
+EOF
   exit 1
 }
 
@@ -32,13 +37,15 @@ done
 title="${1:-untitled-source}"
 slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)
+resolved_work_item_id=$(resolve_task_artifact_work_item_id "$work_item_id" || true)
 
-if [ -n "$work_item_id" ]; then
-  require_work_item "$work_item_id" >/dev/null
+if [ -n "$resolved_work_item_id" ]; then
+  work_item_id="$resolved_work_item_id"
   ensure_task_directory_skeleton "$work_item_id"
   set_current_task_id "$work_item_id"
   target="$(canonical_work_item_refs_dir "$work_item_id")/sources/${date}-${slug}.md"
 else
+  require_governance_mode_for_workspace_artifact "source note" || exit 1
   target=".harness/workspace/research/sources/${date}-${slug}.md"
 fi
 

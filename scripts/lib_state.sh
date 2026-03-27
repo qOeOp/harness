@@ -976,6 +976,49 @@ ensure_current_task_pointer() {
   fi
 }
 
+resolve_task_artifact_work_item_id() {
+  requested_id="${1:-}"
+
+  if [ -n "$requested_id" ]; then
+    require_work_item "$requested_id" >/dev/null
+    printf '%s\n' "$requested_id"
+    return 0
+  fi
+
+  ensure_current_task_pointer
+  current_id=$(read_current_task_id 2>/dev/null || true)
+  if [ -z "$current_id" ]; then
+    return 1
+  fi
+
+  current_path=$(work_item_path "$current_id")
+  if [ ! -f "$current_path" ]; then
+    return 1
+  fi
+
+  current_status=$(field_value "$current_path" "Status")
+  if ! is_open_work_item_status "$current_status"; then
+    return 1
+  fi
+
+  printf '%s\n' "$current_id"
+}
+
+require_governance_mode_for_workspace_artifact() {
+  artifact_kind="$1"
+
+  if runtime_governance_enabled; then
+    return 0
+  fi
+
+  cat >&2 <<EOF
+$artifact_kind requires a work-item context in minimum-core runtime.
+Pass --work-item <WI-xxxx> or ensure .harness/current-task points at the active task.
+Workspace-scoped governance artifacts are only allowed when advanced governance mode is enabled.
+EOF
+  return 1
+}
+
 progress_field_value_or_none() {
   progress_path="$1"
   label="$2"

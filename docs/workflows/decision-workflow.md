@@ -1,6 +1,6 @@
 # Decision Workflow
 
-更新日期：`2026-03-23`
+更新日期：`2026-03-27`
 
 ## 目的
 
@@ -180,12 +180,20 @@ Founder 只做：
 
 Owner: `Knowledge & Memory Lead`
 
-必须回写到：
+默认闭环不是直接写 company-level workspace，而是先把决策和证据收回当前 task：
+
+- `.harness/tasks/<task-id>/refs/`
+- `.harness/tasks/<task-id>/outputs/`
+- 必要时刷新 `.harness/tasks/<task-id>/progress.md` 或 `closure/`
+
+只有当 runtime 已显式升级到 `advanced governance mode`，且该结论确实需要跨任务沉淀时，才 promote 到：
 
 - `.harness/workspace/decisions/log`
 - `.harness/workspace/status/snapshots`
 
-没有完成 writeback，本轮工作视为未闭环。
+默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。
+
+没有完成 task-local writeback，本轮工作视为未闭环；需要治理提升时，再追加 promotion。
 
 ## 常驻运营回路
 

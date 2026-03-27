@@ -1,6 +1,6 @@
 # Internal Research Routing
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-27`
 
 ## 目的
 
@@ -44,8 +44,11 @@ dispatch 必须回答：
 
 dispatch 不是聊天记录，而是一个单独 artifact：
 
-- 路径：`.harness/workspace/research/dispatches/<date>-<slug>.md`
+- 默认路径：`.harness/tasks/<task-id>/working/<date>-<slug>-research-dispatch.md`
+- 只有显式升级到 `advanced governance mode` 后，才允许 promote 到 `.harness/workspace/research/dispatches/<date>-<slug>.md`
 - 模板： [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
+
+默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。
 
 ## 路由出口
 

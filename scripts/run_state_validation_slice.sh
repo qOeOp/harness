@@ -81,9 +81,6 @@ run_current_task_pointer_regression() {
 
   (
     cd "$pointer_sandbox"
-    if [ -d "$PWD/.agents/skills/harness" ]; then
-      HARNESS_ROOT_OVERRIDE="$PWD/.agents/skills/harness"
-    fi
     . "$script_dir/lib_state.sh"
     export STATE_ACTOR="validation-slice"
     export STATE_INVOKER="${STATE_INVOKER:-$(default_harness_command "run_state_validation_slice.sh")}"
@@ -256,6 +253,106 @@ run_current_task_pointer_regression() {
   )
 }
 
+run_node_free_control_loop_regression() {
+  node_free_sandbox="$tmp_root/node-free-control-loop"
+
+  "$script_dir/materialize_runtime_fixture.sh" \
+    --target "$node_free_sandbox" \
+    --source-repo "$repo_root" >/dev/null
+
+  (
+    cd "$node_free_sandbox"
+    . "$script_dir/lib_state.sh"
+    export STATE_ACTOR="validation-slice"
+    export STATE_INVOKER="${STATE_INVOKER:-$(default_harness_command "run_state_validation_slice.sh")}"
+    no_node_path="/usr/bin:/bin:/usr/sbin:/sbin"
+
+    task_version() {
+      task_id="$1"
+      field_value "$(canonical_work_item_path "$task_id")" "State version"
+    }
+
+    control_item=$("$script_dir/new_work_item.sh" governance "Node-Free Control Loop")
+    control_id=$(field_value "$control_item" "ID")
+
+    "$script_dir/update_work_item_fields.sh" \
+      --expected-version "$(task_version "$control_id")" \
+      --operation-id "${control_id}-seed-fields" \
+      "$control_id" \
+      "Objective" "Prove the minimum-core open/start/complete control loop works without node in PATH." \
+      "Ready criteria" "The item can reach ready without node-backed JSON parsing." \
+      "Done criteria" "The item can reach review with node removed from PATH." >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status backlog \
+      --expected-version "$(task_version "$control_id")" \
+      --operation-id "${control_id}-to-framing" \
+      "$control_id" \
+      framing \
+      none \
+      none \
+      "node-free framing" >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status framing \
+      --expected-version "$(task_version "$control_id")" \
+      --operation-id "${control_id}-to-planning" \
+      "$control_id" \
+      planning \
+      none \
+      none \
+      "node-free planning" >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status planning \
+      --expected-version "$(task_version "$control_id")" \
+      --operation-id "${control_id}-to-ready" \
+      "$control_id" \
+      ready \
+      none \
+      none \
+      "node-free ready" >/dev/null
+
+    ctl_command="$script_dir/work_item_ctl.sh"
+
+    PATH="$no_node_path" "$ctl_command" status --json company >/dev/null
+    PATH="$no_node_path" "$ctl_command" start --json company >/dev/null
+    PATH="$no_node_path" "$ctl_command" close --json --target-status review company >/dev/null
+
+    if [ "$(field_value "$(canonical_work_item_path "$control_id")" "Status")" != "review" ]; then
+      echo "validation slice failed: node-free control loop did not reach review" >&2
+      exit 1
+    fi
+  )
+}
+
+run_runtime_surface_boundary_regression() {
+  runtime_sandbox="$tmp_root/runtime-surface-boundary"
+
+  "$script_dir/materialize_runtime_fixture.sh" \
+    --target "$runtime_sandbox" \
+    --source-repo "$repo_root" >/dev/null
+
+  (
+    cd "$runtime_sandbox"
+
+    for forbidden_path in \
+      ".agents" \
+      "AGENTS.md" \
+      "CLAUDE.md" \
+      "GEMINI.md" \
+      ".claude" \
+      ".codex" \
+      ".gemini"
+    do
+      if [ -e "$forbidden_path" ]; then
+        echo "validation slice failed: runtime fixture materialized forbidden surface $forbidden_path" >&2
+        exit 1
+      fi
+    done
+  )
+}
+
 trap cleanup EXIT HUP INT TERM
 
 [ -f "$repo_root/SKILL.md" ] || {
@@ -274,9 +371,6 @@ trap cleanup EXIT HUP INT TERM
 
 (
   cd "$sandbox"
-  if [ -d "$PWD/.agents/skills/harness" ]; then
-    HARNESS_ROOT_OVERRIDE="$PWD/.agents/skills/harness"
-  fi
   . "$script_dir/lib_state.sh"
   export STATE_ACTOR="validation-slice"
   export STATE_INVOKER="${STATE_INVOKER:-$(default_harness_command "run_state_validation_slice.sh")}"
@@ -290,6 +384,21 @@ trap cleanup EXIT HUP INT TERM
   }
 
   "$script_dir/validate_workspace.sh" --mode core >/dev/null
+
+  if "$script_dir/new_research_dispatch.sh" "Dispatch Without Task Context" >/dev/null 2>&1; then
+    echo "validation slice failed: minimum-core runtime allowed a dispatch without task context" >&2
+    exit 1
+  fi
+
+  if "$script_dir/new_research.sh" "Research Without Task Context" >/dev/null 2>&1; then
+    echo "validation slice failed: minimum-core runtime allowed a research memo without task context" >&2
+    exit 1
+  fi
+
+  if "$script_dir/new_decision.sh" "Decision Without Task Context" >/dev/null 2>&1; then
+    echo "validation slice failed: minimum-core runtime allowed a decision pack without task context" >&2
+    exit 1
+  fi
 
   validation_item=$("$script_dir/new_work_item.sh" governance "Harness Runtime Smoke Chain" "Workflow & Automation Lead" high chief-of-staff)
   validation_id=$(field_value "$validation_item" "ID")
@@ -408,9 +517,16 @@ trap cleanup EXIT HUP INT TERM
   "$script_dir/upsert_work_item_progress.sh" \
     "$validation_id" \
     "Generate task-local artifacts with the canonical creation scripts." \
-    "$new_decision_command --work-item $validation_id \"Runtime Smoke Decision\"" >/dev/null
+    "$new_decision_command \"Runtime Smoke Decision\"" >/dev/null
 
-  validation_dispatch=$("$script_dir/new_research_dispatch.sh" --work-item "$validation_id" "Runtime Smoke Dispatch")
+  validation_dispatch=$("$script_dir/new_research_dispatch.sh" "Runtime Smoke Dispatch")
+  case "$validation_dispatch" in
+    ".harness/tasks/$validation_id/working/"*-research-dispatch.md) ;;
+    *)
+      echo "validation slice failed: dispatch did not default to the current task-local working directory" >&2
+      exit 1
+      ;;
+  esac
   "$script_dir/link_work_item_artifact.sh" \
     --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-approve-dispatch" \
@@ -419,7 +535,14 @@ trap cleanup EXIT HUP INT TERM
     "research-dispatch" \
     "approved" >/dev/null
 
-  validation_source=$("$script_dir/new_source_note.sh" --work-item "$validation_id" "Runtime Smoke Source")
+  validation_source=$("$script_dir/new_source_note.sh" "Runtime Smoke Source")
+  case "$validation_source" in
+    ".harness/tasks/$validation_id/refs/sources/"*.md) ;;
+    *)
+      echo "validation slice failed: source note did not default to the current task-local refs/sources directory" >&2
+      exit 1
+      ;;
+  esac
   "$script_dir/link_work_item_artifact.sh" \
     --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-approve-source" \
@@ -428,7 +551,14 @@ trap cleanup EXIT HUP INT TERM
     "source-note" \
     "approved" >/dev/null
 
-  validation_research=$("$script_dir/new_research.sh" --work-item "$validation_id" company "Runtime Smoke Research Memo")
+  validation_research=$("$script_dir/new_research.sh" "Runtime Smoke Research Memo")
+  case "$validation_research" in
+    ".harness/tasks/$validation_id/refs/"*-research-memo.md) ;;
+    *)
+      echo "validation slice failed: research memo did not default to the current task-local refs directory" >&2
+      exit 1
+      ;;
+  esac
   "$script_dir/link_work_item_artifact.sh" \
     --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-approve-research" \
@@ -437,7 +567,14 @@ trap cleanup EXIT HUP INT TERM
     "research-memo" \
     "approved" >/dev/null
 
-  validation_decision=$("$script_dir/new_decision.sh" --work-item "$validation_id" company "Runtime Smoke Decision")
+  validation_decision=$("$script_dir/new_decision.sh" "Runtime Smoke Decision")
+  case "$validation_decision" in
+    ".harness/tasks/$validation_id/refs/"*-decision-pack.md) ;;
+    *)
+      echo "validation slice failed: decision pack did not default to the current task-local refs directory" >&2
+      exit 1
+      ;;
+  esac
   "$script_dir/link_work_item_artifact.sh" \
     --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-link-decision" \
@@ -506,6 +643,8 @@ trap cleanup EXIT HUP INT TERM
 )
 
 run_current_task_pointer_regression
+run_node_free_control_loop_regression
+run_runtime_surface_boundary_regression
 
 if [ "$keep_tmp" -eq 1 ]; then
   printf 'kept sandbox at %s\n' "$sandbox"
