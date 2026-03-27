@@ -10,9 +10,9 @@ Create a research memo that separates:
 - unknowns
 - recommendation
 
-Use [../../docs/templates/research-memo.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/research-memo.md).
-Read [../../docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md).
-Read [../../docs/workflows/internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md).
+Use [../../docs/templates/research-memo.md](../../docs/templates/research-memo.md).
+Read [../../docs/workflows/volatile-research-default.md](../../docs/workflows/volatile-research-default.md).
+Read [../../docs/workflows/internal-research-routing.md](../../docs/workflows/internal-research-routing.md).
 For volatile topics, create or reference a research dispatch, then gather fresh external sources or source-note references before recommending.
 If running inside a department context, write to that department `workspace/memos/`.
 Otherwise write to `.harness/workspace/briefs/`.

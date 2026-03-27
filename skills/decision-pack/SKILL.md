@@ -16,9 +16,9 @@ Required sections:
 7. Ask from Founder
 8. Next 7 days
 
-Use [../../docs/templates/decision-pack.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/decision-pack.md) as the canonical template.
-Read [../../docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md).
-Read [../../docs/workflows/internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md).
+Use [../../docs/templates/decision-pack.md](../../docs/templates/decision-pack.md) as the canonical template.
+Read [../../docs/workflows/volatile-research-default.md](../../docs/workflows/volatile-research-default.md).
+Read [../../docs/workflows/internal-research-routing.md](../../docs/workflows/internal-research-routing.md).
 If a volatile external claim lacks a linked research dispatch, fresh source-note support, or a current URL, treat it as exploratory rather than final.
 Founder-facing output goes to `.harness/workspace/decisions/log/`.
 Department-local output goes to the current department `workspace/outputs/`.

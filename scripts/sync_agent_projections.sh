@@ -1,10 +1,21 @@
 #!/bin/sh
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname "$0")/../../../.." && pwd)
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
 cd "$repo_root"
 
-canonical_root=".agents/skills/harness/roles"
+if [ -f "SKILL.md" ] && [ -d "roles" ]; then
+  canonical_root="roles"
+  canonical_rel_prefix="../../roles"
+elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
+  canonical_root=".agents/skills/harness/roles"
+  canonical_rel_prefix="../../.agents/skills/harness/roles"
+else
+  echo "unable to resolve canonical roles directory" >&2
+  exit 1
+fi
+
 claude_root=".claude/agents"
 codex_root=".codex/agents"
 
@@ -59,7 +70,7 @@ for canonical_role in "$canonical_root"/*.md; do
   codex_nicknames=$(frontmatter_value "$canonical_role" "codex_nicknames")
   body=$(role_body "$canonical_role" | sed '/./,$!d')
   canonical_abs="$repo_root/$canonical_role"
-  canonical_rel="../../.agents/skills/harness/roles/$(basename "$canonical_role")"
+  canonical_rel="$canonical_rel_prefix/$(basename "$canonical_role")"
 
   [ "$schema_version" = "1" ] || {
     echo "unsupported schema_version '$schema_version' in $canonical_role" >&2

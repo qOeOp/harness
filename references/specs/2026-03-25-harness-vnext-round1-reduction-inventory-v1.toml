@@ -1,0 +1,285 @@
+version = 1
+status = "proposal"
+date = "2026-03-25"
+design_center = "references/specs/2026-03-25-harness-invoke-first-vnext-spec-v1.md"
+purpose = "Round 1 narrative reduction inventory for moving harness from install-first to invoke-first."
+
+[[item]]
+path = "references/specs/2026-03-25-harness-framework-and-dogfood-layering-spec-v2.md"
+kind = "spec"
+action = "delete-from-active"
+priority = "high"
+reason = "Defines source/install/runtime as the default product model and keeps consumer overlay in the main story."
+next_step = "Keep history only in archive and update active references to the invoke-first vNext spec."
+
+[[item]]
+path = "references/specs/2026-03-25-top-level-surface-reduction-spec-v1.md"
+kind = "spec"
+action = "delete-from-active"
+priority = "high"
+reason = "Encodes installed carrier and top-level migration as default product behavior instead of optional internal plumbing."
+next_step = "Keep history only in archive and replace active references with a task-runtime reduction rule."
+
+[[item]]
+path = "references/layering.md"
+kind = "reference"
+action = "rewrite"
+priority = "high"
+reason = "Current layering is framework source -> installed carrier -> runtime. vNext should be invoke -> optional lazy runtime -> internal packaging."
+next_step = "Rewrite around session mode and stateful task mode."
+
+[[item]]
+path = "references/runtime-workspace.md"
+kind = "reference"
+action = "rewrite"
+priority = "high"
+reason = "Assumes installation first and a broad predeclared runtime scaffold. vNext needs a minimal lazily materialized task runtime."
+next_step = "Replace scaffold with a minimum runtime contract centered on tasks, progress, artifacts, and archive."
+
+[[item]]
+path = "references/top-level-surface.md"
+kind = "reference"
+action = "rewrite"
+priority = "high"
+reason = "Treats installed carrier and provider shims as default top-level dispositions for consumer repos."
+next_step = "Rewrite around zero-ceremony invocation and no default top-level takeover."
+
+[[item]]
+path = "docs/charter/company-charter.md"
+kind = "charter"
+action = "rewrite"
+priority = "high"
+reason = "Current product sentence still describes a distributable installable framework projected into consumer repos."
+next_step = "Redefine product identity around invoke-first task execution with optional persistence."
+
+[[item]]
+path = "docs/project-structure.md"
+kind = "doc"
+action = "rewrite"
+priority = "high"
+reason = "Current repo identity centers framework source, installation logic, and consumer projection. That should become internal packaging context, not the product front door."
+next_step = "Reframe this repo as implementation source for harness internals, not the primary user mental model."
+
+[[item]]
+path = "docs/workflows/document-routing-and-lifecycle.md"
+kind = "workflow"
+action = "rewrite"
+priority = "high"
+reason = "Current first hop assumes root redirects and a broad operating-state system. vNext should begin from /harness invocation and only create runtime when needed."
+next_step = "Replace root entrypoint assumptions with invoke-first routing and lazy runtime escalation."
+
+[[item]]
+path = "docs/memory/memory-architecture.md"
+kind = "doc"
+action = "rewrite"
+priority = "high"
+reason = "Current memory architecture presumes a company OS stack before value is proven. vNext should center on task-scoped persistence."
+next_step = "Reduce the default memory model to task, progress, artifacts, and archive."
+
+[[item]]
+path = "docs/workflows/tool-adapter-capability-map.md"
+kind = "workflow"
+action = "demote-from-primary-story"
+priority = "high"
+reason = "Still useful for internal adapter honesty, but it is framework plumbing rather than user-facing product semantics."
+next_step = "Keep as internal architecture reference; remove from default reading order."
+
+[[item]]
+path_glob = "docs/workflows/provider-deltas/*.md"
+kind = "workflow"
+action = "demote-from-primary-story"
+priority = "high"
+reason = "Provider deltas are implementation details and should not shape the user's first understanding of harness."
+next_step = "Retain only as internal adapter notes."
+
+[[item]]
+path = "roles/README.md"
+kind = "doc"
+action = "demote-from-primary-story"
+priority = "medium"
+reason = "Projection metadata and generation rules remain useful for framework maintenance, but they no longer belong in the core product story."
+next_step = "Keep as internal source-maintainer documentation."
+
+[[item]]
+path = "scripts/sync_agent_projections.sh"
+kind = "script"
+action = "demote-to-internal"
+priority = "high"
+reason = "Projection sync is packaging plumbing, not part of the user-facing vNext experience."
+next_step = "Keep only for framework maintenance and distribution builds."
+
+[[item]]
+path = "scripts/sync_claude_skill_projections.sh"
+kind = "script"
+action = "demote-to-internal"
+priority = "high"
+reason = "Claude projection generation should not define the primary product entrypoint."
+next_step = "Keep only for optional provider packaging."
+
+[[item]]
+path = "scripts/sync_tool_entrypoints.sh"
+kind = "script"
+action = "deprecate"
+priority = "high"
+reason = "Root entrypoint mirroring encodes overlay-first repo behavior that vNext is explicitly moving away from."
+next_step = "Stop treating mirrored root files as required for the default experience."
+
+[[item]]
+path = "scripts/validate_workspace.sh"
+kind = "script"
+action = "rewrite"
+priority = "high"
+reason = "Currently validates an installed carrier plus root entry files and provider projections. vNext needs a runtime validator that works after lazy materialization."
+next_step = "Replace installed-workspace assumptions with task-runtime validation."
+
+[[item]]
+path = "scripts/audit_document_system.sh"
+kind = "script"
+action = "rewrite"
+priority = "high"
+reason = "Assumes consumer root redirects and installed carrier references in the active document system."
+next_step = "Audit invoke-first task routing and minimal runtime consistency instead."
+
+[[item]]
+path = "scripts/audit_tool_parity.sh"
+kind = "script"
+action = "delete"
+priority = "medium"
+reason = "Cross-provider root parity is no longer a core default requirement if harness is invoked explicitly."
+next_step = "Remove the script and all active references to it."
+
+[[item]]
+path = "scripts/validate_source_repo.sh"
+kind = "script"
+action = "rewrite"
+priority = "medium"
+reason = "Useful to keep, but should stop enforcing assumptions that optimize for installed consumer overlays as the main product path."
+next_step = "Retain source hygiene checks while removing install-first rhetoric from the success criteria."
+
+[[item]]
+path = "scripts/run_governance_surface_diagnostic.sh"
+kind = "script"
+action = "rewrite"
+priority = "medium"
+reason = "Still useful, but its source/consumer framing and installed-carrier inventory reflect the old narrative center."
+next_step = "Add an invoke-first mode focused on task runtime and optional advanced surfaces."
+
+[[item]]
+path_glob = "docs/organization/*.md"
+kind = "doc-family"
+action = "gate-behind-upgrade"
+priority = "high"
+reason = "Company OS and department governance are too heavy for the default harness experience. They should be optional advanced mode, not baseline."
+next_step = "Move out of the core story and label as advanced organizational runtime."
+
+[[item]]
+path_glob = "docs/workflows/founder-*.md"
+kind = "workflow-family"
+action = "gate-behind-upgrade"
+priority = "high"
+reason = "Founder meeting machinery belongs to a company-governance expansion pack, not default task execution."
+next_step = "Keep available, but remove from default harness onboarding."
+
+[[item]]
+path = "docs/workflows/process-compounding-cadence.md"
+kind = "workflow"
+action = "gate-behind-upgrade"
+priority = "high"
+reason = "Cadence design is an advanced governance layer rather than a default task protocol."
+next_step = "Reframe as optional operating system extension."
+
+[[item]]
+path = "docs/workflows/governance-surface-audit.md"
+kind = "workflow"
+action = "gate-behind-upgrade"
+priority = "medium"
+reason = "Still valid for a company-mode deployment, but not part of the default invoke-first narrative."
+next_step = "Move behind an explicit governance upgrade boundary."
+
+[[item]]
+path = "docs/workflows/company-bootstrap-loop.md"
+kind = "workflow"
+action = "gate-behind-upgrade"
+priority = "medium"
+reason = "Bootstrapping departments and governance leads is not baseline harness behavior anymore."
+next_step = "Keep only for advanced company-mode activation."
+
+[[item]]
+path = "scripts/new_company_digest.sh"
+kind = "script"
+action = "gate-behind-upgrade"
+priority = "medium"
+reason = "Useful only in the advanced governance layer."
+next_step = "Keep outside the default vNext control surface."
+
+[[item]]
+path = "scripts/new_daily_report.sh"
+kind = "script"
+action = "gate-behind-upgrade"
+priority = "medium"
+reason = "Daily reporting is company-mode behavior, not default task execution."
+next_step = "Keep as optional governance extension."
+
+[[item]]
+path = "scripts/new_retro.sh"
+kind = "script"
+action = "gate-behind-upgrade"
+priority = "medium"
+reason = "Retro cadence belongs to the advanced governance mode."
+next_step = "Move out of the primary narrative and default command surface."
+
+[[item]]
+path = "scripts/new_checkpoint.sh"
+kind = "script"
+action = "rewrite"
+priority = "medium"
+reason = "Checkpointing remains valuable, but it should align with task-scoped persistence instead of broad company memory layering."
+next_step = "Retain under the new task-runtime model."
+
+[[item]]
+path = "scripts/new_work_item.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Task creation remains central to invoke-first harness."
+next_step = "Adapt semantics to task-scoped runtime if needed."
+
+[[item]]
+path = "scripts/work_item_ctl.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Task selection and controlled transitions are still core to the vNext experience."
+next_step = "Simplify around /harness invocation and minimal runtime."
+
+[[item]]
+path = "scripts/open_current_work_item.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Opening the current task is still part of the core loop."
+next_step = "Retain, but remove assumptions about broad consumer overlays."
+
+[[item]]
+path = "scripts/start_work_item.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Stateful task mode still needs explicit controlled entry."
+next_step = "Retain under lazy materialization."
+
+[[item]]
+path = "scripts/upsert_work_item_progress.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Progress persistence is central to cross-session recovery."
+next_step = "Keep and align with the minimum runtime contract."
+
+[[item]]
+path = "scripts/complete_work_item.sh"
+kind = "script"
+action = "retain-core"
+priority = "high"
+reason = "Task closure remains central to task-scoped harness."
+next_step = "Retain under the reduced runtime surface."

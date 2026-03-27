@@ -60,8 +60,8 @@
 
 见：
 
-- [docs/workflows/internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md)
-- [docs/templates/research-dispatch.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/research-dispatch.md)
+- [docs/workflows/internal-research-routing.md](./internal-research-routing.md)
+- [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
 
 ## 自治 Agent 默认规则
 

@@ -18,22 +18,22 @@
 ## 与其他文件的边界
 
 1. 仓库级 first hop、routing 与 active truth
-   - 先看 [.harness/entrypoint.md](/Users/vx/WebstormProjects/trading-agent/.harness/entrypoint.md)
-   - 详细 workflow source 再看 [document-routing-and-lifecycle.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/document-routing-and-lifecycle.md)
+   - 先看 `.harness/entrypoint.md`
+   - 详细 workflow source 再看 [document-routing-and-lifecycle.md](./document-routing-and-lifecycle.md)
 2. 跨 agent 的 review contract
-   - 见 [code_review.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/code_review.md)
+   - 见 [code_review.md](./code_review.md)
 3. tool adapter capability 边界
-   - 见 [tool-adapter-capability-map.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/tool-adapter-capability-map.md)
+   - 见 [tool-adapter-capability-map.md](./tool-adapter-capability-map.md)
 4. volatile external research 默认规则
-   - 见 [volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
+   - 见 [volatile-research-default.md](./volatile-research-default.md)
 5. internal research dispatch 协议
-   - 见 [internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md)
+   - 见 [internal-research-routing.md](./internal-research-routing.md)
 6. worktree 并行规则
-   - 见 [worktree-parallelism.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/worktree-parallelism.md)
+   - 见 [worktree-parallelism.md](./worktree-parallelism.md)
 7. state / progress / interrupt 协议
-   - 见 [.harness/workspace/state/README.md](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/state/README.md)
-   - 见 [work-item-progress-protocol.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/work-item-progress-protocol.md)
-   - 见 [work-item-interrupt-protocol.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/work-item-interrupt-protocol.md)
+   - 先看 [document-routing-and-lifecycle.md](./document-routing-and-lifecycle.md)
+   - 见 [work-item-progress-protocol.md](./work-item-progress-protocol.md)
+   - 见 [work-item-interrupt-protocol.md](./work-item-interrupt-protocol.md)
 
 本文件定义共性 operator rules，不定义 provider-specific command、hook、subagent syntax、MCP 安装方式或 config 格式。
 
@@ -41,8 +41,8 @@
 
 当前至少包括：
 
-1. [provider-deltas/codex.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/provider-deltas/codex.md)
-2. [provider-deltas/gemini.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/provider-deltas/gemini.md)
+1. [provider-deltas/codex.md](./provider-deltas/codex.md)
+2. [provider-deltas/gemini.md](./provider-deltas/gemini.md)
 
 ## Current Stage Bias
 
@@ -203,14 +203,14 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 
 对 state mutation，优先使用：
 
-1. [work_item_ctl.sh](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/scripts/work_item_ctl.sh)
+1. [work_item_ctl.sh](../../scripts/work_item_ctl.sh)
 2. `start / pause / resume / complete` 相关脚本
 3. `upsert_work_item_progress.sh`
 4. `update_work_item_fields.sh`
 
 不要：
 
-1. 手工 patch `.harness/workspace/state/items/*.md` 伪造状态迁移
+1. 手工 patch `.harness/tasks/*/task.md` 或 legacy `.harness/workspace/state/items/*.md` 伪造状态迁移
 2. 跳过 transition event 直接宣称状态已变更
 3. 在 founder-facing 或 canonical artifact 中包装未验证结论
 
@@ -227,7 +227,7 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 
 1. 能跑 tests/checks 就跑
 2. 不能跑时必须明确说明原因
-3. review 应遵守 [code_review.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/code_review.md)
+3. review 应遵守 [code_review.md](./code_review.md)
 
 对 volatile external conclusion：
 
@@ -276,7 +276,7 @@ provider-specific 差异只应记录在对应 delta 文件中。
 
 当前路径：
 
-1. [provider-deltas/codex.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/provider-deltas/codex.md)
+1. [provider-deltas/codex.md](./provider-deltas/codex.md)
 
 ## Hard Truth
 

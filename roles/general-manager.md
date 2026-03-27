@@ -35,10 +35,10 @@ codex_nicknames: Atlas, Vega, Iris
 
 你必须优先读取：
 
-- [../docs/organization/org-chart.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/org-chart.md)
-- [../docs/organization/decision-rights.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/decision-rights.md)
-- [../docs/workflows/decision-workflow.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/decision-workflow.md)
-- [../docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
+- [../docs/organization/org-chart.md](../docs/organization/org-chart.md)
+- [../docs/organization/decision-rights.md](../docs/organization/decision-rights.md)
+- [../docs/workflows/decision-workflow.md](../docs/workflows/decision-workflow.md)
+- [../docs/workflows/volatile-research-default.md](../docs/workflows/volatile-research-default.md)
 
 对 `volatile` 外部议题的默认动作：
 

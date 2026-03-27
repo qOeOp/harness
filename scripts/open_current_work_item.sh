@@ -5,9 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/open_current_work_item.sh [--json|--path-only] [company|founder|department <slug>]
-EOF
+  printf 'usage: %s [--json|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "open_current_work_item.sh")" >&2
 }
 
 require_command() {
@@ -168,6 +166,8 @@ case "$scope" in
 esac
 
 require_command node
+progress_command_template=$(default_harness_command "upsert_work_item_progress.sh")
+resume_command_template=$(default_harness_command "resume_work_item.sh")
 
 if selector_output=$("$script_dir/select_work_item.sh" --json "$scope" ${department:+"$department"} 2>/dev/null); then
   selector_status=0
@@ -272,15 +272,15 @@ if [ "$result" = "actionable" ]; then
 
   case "$progress_sync_state" in
     missing|unlinked)
-      progress_command="./.agents/skills/harness/scripts/upsert_work_item_progress.sh --expected-version $state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      progress_command="$progress_command_template --expected-version $state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
     stale|current)
-      progress_command="./.agents/skills/harness/scripts/upsert_work_item_progress.sh \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      progress_command="$progress_command_template \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
   esac
 
   if [ "$selected_status" = "paused" ] && ! value_is_missing "$interrupt_marker"; then
-    resume_command="./.agents/skills/harness/scripts/resume_work_item.sh --expected-version $state_version \"$selected_id\" \"[next-handoff]\" \"[reason]\""
+    resume_command="$resume_command_template --expected-version $state_version \"$selected_id\" \"[next-handoff]\" \"[reason]\""
     interrupt_action=$(interrupt_recommended_action "$interrupt_marker")
     if [ -n "$interrupt_action" ]; then
       action="$interrupt_action"
@@ -297,7 +297,7 @@ elif [ "$result" = "blocked" ] && [ -n "$blocked_path" ] && [ -f "$blocked_path"
   blocked_resume_target=$(field_value_or_none "$blocked_path" "Resume target")
 
   if [ "$blocked_status" = "paused" ] && ! value_is_missing "$blocked_interrupt_marker"; then
-    blocked_resume_command="./.agents/skills/harness/scripts/resume_work_item.sh --expected-version $blocked_state_version \"$blocked_id\" \"[next-handoff]\" \"[reason]\""
+    blocked_resume_command="$resume_command_template --expected-version $blocked_state_version \"$blocked_id\" \"[next-handoff]\" \"[reason]\""
     interrupt_action=$(interrupt_recommended_action "$blocked_interrupt_marker")
     if [ -n "$interrupt_action" ]; then
       action="$interrupt_action"

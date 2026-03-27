@@ -18,10 +18,10 @@ This includes:
 
 ## Core Rule
 
-The harness has only two functional homes:
+The harness has two distinct homes, but this repository owns only one of them:
 
-1. clean framework source in the local `harness` skill carrier
-2. repo-local runtime and instance state in `.harness/`
+1. clean framework source in this repository
+2. repo-local runtime and instance state in a separate consumer repo under `.harness/`
 
 Do not introduce a third functional layer such as:
 
@@ -34,7 +34,8 @@ Do not introduce a third functional layer such as:
 
 1. [references/layering.md](references/layering.md)
 2. [references/runtime-workspace.md](references/runtime-workspace.md)
-3. [references/top-level-surface.md](references/top-level-surface.md)
+3. [references/contracts/minimum-core-runtime-tree.toml](references/contracts/minimum-core-runtime-tree.toml)
+4. [references/top-level-surface.md](references/top-level-surface.md)
 
 Only read additional framework specs if the task needs historical derivation.
 
@@ -51,8 +52,9 @@ Avoid producing free-floating analysis without a concrete control artifact.
 
 ## Working Rules
 
-1. Treat `.agents/skills/harness/` as the future clean framework carrier.
-2. Treat `.harness/` as the only repo-local runtime workspace.
-3. If a file does not belong to either, it should be deleted.
-4. Prefer machine-readable contracts over prose-only plans.
-5. Do not multiply provider-specific projections unless the projection strategy itself is the task.
+1. Treat this repository root as the clean framework source carrier.
+2. Treat `.harness/` as consumer-repo runtime, not as part of this source repo.
+3. Treat installed `.agents/skills/harness/` as a projection target, not as source-of-truth inside this repo.
+4. If a file does not belong to framework source or installation/projection logic, it should be deleted.
+5. Prefer machine-readable contracts over prose-only plans.
+6. Do not multiply provider-specific projections unless the projection strategy itself is the task.

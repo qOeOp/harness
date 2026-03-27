@@ -8,6 +8,7 @@ actor="${STATE_ACTOR:-}"
 require_explicit_state_actor "$actor" "$0"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 selection="${1:-all}"
+acquire_runtime_lock
 
 insert_interrupt_fields() {
   file="$1"
@@ -40,6 +41,7 @@ insert_interrupt_fields() {
 process_work_item() {
   work_item_file="$1"
   work_item_id=$(field_value "$work_item_file" "ID")
+  work_item_file=$(require_work_item_for_write "$work_item_id")
   current_status=$(field_value "$work_item_file" "Status")
   current_version=$(field_value "$work_item_file" "State version")
   interrupt_marker=$(field_value_or_none "$work_item_file" "Interrupt marker")
@@ -53,9 +55,6 @@ process_work_item() {
   next_version=$((current_version + 1))
 
   insert_interrupt_fields "$work_item_file"
-  replace_field "$work_item_file" "Updated at" "$(date +%F)"
-  replace_field "$work_item_file" "State version" "$next_version"
-  replace_field "$work_item_file" "Last operation ID" "$operation_id"
   event_path=$(write_transition_event \
     "$work_item_id" \
     "$current_status" \
@@ -72,7 +71,11 @@ process_work_item() {
     "none" \
     "none" \
     "schema-migration")
-  replace_field "$work_item_file" "Last transition event" "$event_path"
+  rewrite_work_item_header_snapshot "$work_item_file" \
+    "Updated at" "$(date +%F)" \
+    "State version" "$next_version" \
+    "Last operation ID" "$operation_id" \
+    "Last transition event" "$event_path"
   sync_progress_snapshot_if_present "$work_item_file"
 }
 
@@ -83,7 +86,7 @@ case "$selection" in
     done
     ;;
   WI-*)
-    process_work_item "$(require_work_item "$selection")"
+    process_work_item "$(require_work_item_for_write "$selection")"
     ;;
   *)
     echo "usage: $0 [all|WI-xxxx]" >&2
@@ -91,5 +94,5 @@ case "$selection" in
     ;;
 esac
 
-"$script_dir/refresh_boards.sh" >/dev/null
+refresh_boards_if_enabled
 echo "interrupt fields: ok"

@@ -4,7 +4,7 @@
 
 ## 目的
 
-记录 Codex 相对于 [agent-operator-contract.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/agent-operator-contract.md) 的 provider-specific delta。
+记录 Codex 相对于 [agent-operator-contract.md](../agent-operator-contract.md) 的 provider-specific delta。
 
 本文件只记录 Codex 特有差异，不复述共性 operator rules。
 
@@ -12,10 +12,10 @@
 
 当前仓库里与 Codex 直接相关的 adapter surface 主要是：
 
-1. [AGENTS.md](/Users/vx/WebstormProjects/trading-agent/AGENTS.md)
-2. [`.codex/config.toml`](/Users/vx/WebstormProjects/trading-agent/.codex/config.toml)
-3. [`.codex/agents/`](/Users/vx/WebstormProjects/trading-agent/.codex/agents)
-4. [`.agents/skills/harness/roles/`](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/roles)
+1. `AGENTS.md`
+2. `.codex/config.toml`
+3. `.codex/agents/`
+4. [`.agents/skills/harness/roles/`](../../../roles)
 
 当前 `.codex/agents/` 应视为 generated projection，而不是手工正文。
 
@@ -45,7 +45,7 @@ Codex 支持 agent delegation，但默认不应固定 fan-out。
 2. 中等改动
    - 主线程 + 2 个并行 reviewer
 3. 高风险或跨层改动
-   - 根据 [code_review.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/code_review.md) 的 relevant dimensions 动态扩展 reviewer
+   - 根据 [code_review.md](../code_review.md) 的 relevant dimensions 动态扩展 reviewer
 
 不要把 review dimensions 误写成固定数量的 reviewer。
 
@@ -55,16 +55,16 @@ Codex 的只读 sidecar exploration 不需要默认升级成独立 worktree。
 
 只有在出现真实并行写入、长回合实现、或隔离实验时，才应走：
 
-1. [`new_worktree.sh`](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/scripts/new_worktree.sh)
-2. [worktree-parallelism.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/worktree-parallelism.md)
+1. [`new_worktree.sh`](../../../scripts/new_worktree.sh)
+2. [worktree-parallelism.md](../worktree-parallelism.md)
 
 ### 4. State Mutation Must Prefer Repo Scripts
 
 Codex 在本仓库里修改运行态时，应优先走正式脚本，而不是直接 patch state files：
 
-1. [`work_item_ctl.sh`](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/scripts/work_item_ctl.sh)
-2. [`upsert_work_item_progress.sh`](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/scripts/upsert_work_item_progress.sh)
-3. [`update_work_item_fields.sh`](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/scripts/update_work_item_fields.sh)
+1. [`work_item_ctl.sh`](../../../scripts/work_item_ctl.sh)
+2. [`upsert_work_item_progress.sh`](../../../scripts/upsert_work_item_progress.sh)
+3. [`update_work_item_fields.sh`](../../../scripts/update_work_item_fields.sh)
 
 ### 5. Missing Adapter Capability Should Produce Honest Output
 

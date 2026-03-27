@@ -45,7 +45,7 @@ dispatch 必须回答：
 dispatch 不是聊天记录，而是一个单独 artifact：
 
 - 路径：`.harness/workspace/research/dispatches/<date>-<slug>.md`
-- 模板： [docs/templates/research-dispatch.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/research-dispatch.md)
+- 模板： [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
 
 ## 路由出口
 

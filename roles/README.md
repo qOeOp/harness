@@ -4,7 +4,7 @@
 
 ## 目的
 
-本目录是公司 OS 的 canonical agent / role source。
+本目录是 `harness` framework source repo 的 canonical agent / role source。
 
 这里定义：
 
@@ -47,29 +47,29 @@ provider-specific files 只是投影，不再手工双写正文。
 
 ## Projection Rules
 
-1. Claude projection 输出到 `.claude/agents/*.md`
-2. Codex projection 输出到 `.codex/agents/*.toml`
+1. Claude projection 默认输出到 `.claude/agents/*.md`
+2. Codex projection 默认输出到 `.codex/agents/*.toml`
 3. Gemini 当前不默认投影 agent files
 4. 任何 provider projection 都必须由脚本生成，不手工维护
 
 同步命令：
 
 ```bash
-./.agents/skills/harness/scripts/sync_agent_projections.sh
+./scripts/sync_agent_projections.sh
 ```
 
 专门审计命令：
 
 ```bash
-./.agents/skills/harness/scripts/audit_role_schema.sh
+./scripts/audit_role_schema.sh
 ```
 
 初始化新 role：
 
 ```bash
-./.agents/skills/harness/scripts/new_role.sh --print-template
+./scripts/new_role.sh --print-template
 
-./.agents/skills/harness/scripts/new_role.sh \
+./scripts/new_role.sh \
   --slug example-lead \
   --claude-description "Claude-facing description" \
   --codex-description "Codex-facing description"
@@ -84,13 +84,13 @@ cat docs/templates/role-design-brief.md
 或直接：
 
 ```bash
-./.agents/skills/harness/scripts/new_role.sh --print-template
+./scripts/new_role.sh --print-template
 ```
 
 然后再初始化 canonical role：
 
 ```bash
-./.agents/skills/harness/scripts/new_role.sh \
+./scripts/new_role.sh \
   --slug example-lead \
   --claude-description "Claude-facing description" \
   --codex-description "Codex-facing description"
@@ -106,9 +106,9 @@ cat docs/templates/role-design-brief.md
 编辑已有 role：
 
 ```bash
-./.agents/skills/harness/scripts/edit_role.sh --slug workflow-automation-lead --print-current
+./scripts/edit_role.sh --slug workflow-automation-lead --print-current
 
-./.agents/skills/harness/scripts/edit_role.sh \
+./scripts/edit_role.sh \
   --slug workflow-automation-lead \
   --claude-description "Updated Claude-facing description" \
   --codex-description "Updated Codex-facing description"

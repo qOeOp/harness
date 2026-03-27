@@ -5,5 +5,5 @@ description: Use when consolidating recent department daily reports into a compa
 
 Create a company daily digest from recent files in `departments/*/workspace/reports/daily/`.
 
-Use [../../docs/templates/company-daily-digest.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/company-daily-digest.md).
+Use [../../docs/templates/company-daily-digest.md](../../docs/templates/company-daily-digest.md).
 Write the result into `.harness/workspace/status/digests/`.

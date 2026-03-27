@@ -62,7 +62,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 active_refs=$(
-  rg -n -F "$source_file" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" 2>/dev/null || true
+  rg -n -F "$source_file" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" "$task_runtime_dir" 2>/dev/null || true
 )
 
 if [ -n "$active_refs" ]; then

@@ -36,7 +36,7 @@ codex_nicknames: Vector, Latch, Orbit
 - [../../departments/position-operations/README.md](../../departments/position-operations/README.md)
 - [../../departments/position-operations/charter.md](../../departments/position-operations/charter.md)
 - [../../departments/position-operations/interfaces.md](../../departments/position-operations/interfaces.md)
-- [../docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
+- [../docs/workflows/volatile-research-default.md](../docs/workflows/volatile-research-default.md)
 
 对 `volatile` 外部议题的默认动作：
 

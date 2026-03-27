@@ -4,7 +4,7 @@
 
 ## 目的
 
-定义公司 OS 在 Claude / Codex / Gemini 之间的统一语义层与 provider-specific adapter 边界。
+定义 `harness` framework source 在 Claude / Codex / Gemini 之间的统一语义层与 provider-specific adapter 边界。
 
 ## Canonical Capability Surface
 
@@ -12,15 +12,15 @@
 
 1. `agents`
    - 表示稳定角色、职责边界与可并行执行单元
-   - canonical contract 是 `.agents/skills/harness/roles/` 下的角色 slug、职责语义与 canonical instructions，而不是某个 provider 的文件格式
+   - canonical contract 是 `roles/` 下的角色 slug、职责语义与 canonical instructions，而不是某个 provider 的文件格式
 2. `skills`
    - 表示可复用、可渐进披露的能力包
-   - canonical source 当前收敛为 `.agents/skills/harness/skills/`
+   - canonical source 当前收敛为 `skills/`
 
 补充约束：
 
 1. 根 `AGENTS.md / CLAUDE.md / GEMINI.md` 只负责 routing，不属于 capability layer
-2. 真正硬约束下沉到 `.agents/skills/harness/scripts/`、audit、CI、tool permissions 与 canonical docs
+2. 真正硬约束下沉到 `scripts/`、audit、CI、tool permissions 与 canonical docs
 3. 任何关键能力都不能只活在某个 provider 的 `command` 或 `hook` 里
 
 ## Adapter-Only Surface
@@ -50,23 +50,22 @@
 
 | Surface | Canonical meaning | Claude | Codex | Gemini | 当前仓库策略 |
 | --- | --- | --- | --- | --- | --- |
-| Root entry | routing only | `CLAUDE.md` redirect | `AGENTS.md` redirect | `GEMINI.md` redirect | 同义镜像 |
-| Skills | reusable capability packages | `.claude/skills/` generated projection | 直接消费 `.agents/skills/harness/skills/` | 直接消费 `.agents/skills/harness/skills/` 官方 workspace alias | `.agents/skills/harness/skills/` 为 canonical source；Claude projection 由 `./.agents/skills/harness/scripts/sync_claude_skill_projections.sh` 生成；Codex 与 Gemini 直接消费 canonical |
-| Agents | role / execution units | `.claude/agents/*.md` generated projection | `.codex/agents/*.toml` generated projection | `.gemini/agents/*.md`（experimental） | `.agents/skills/harness/roles/` 为 canonical source；Claude/Codex 由 `./.agents/skills/harness/scripts/sync_agent_projections.sh` 生成；Gemini 暂不投影 |
+| Root entry | routing only | consumer repo `CLAUDE.md` redirect | consumer repo `AGENTS.md` redirect | consumer repo `GEMINI.md` redirect | source repo 不直接承载 |
+| Skills | reusable capability packages | `.claude/skills/` generated projection | 直接消费安装后的 `.agents/skills/harness/skills/` | 直接消费安装后的 `.agents/skills/harness/skills/` alias | `skills/` 为 canonical source；Claude projection 由 `./scripts/sync_claude_skill_projections.sh` 生成；安装后再落 consumer carrier |
+| Agents | role / execution units | `.claude/agents/*.md` generated projection | `.codex/agents/*.toml` generated projection | `.gemini/agents/*.md`（experimental） | `roles/` 为 canonical source；Claude/Codex 由 `./scripts/sync_agent_projections.sh` 生成；Gemini 暂不投影 |
 | Commands | UX alias only | 可选 | 可选 | 可选 | 不再视为一等层 |
 | Hooks | event automation only | 可选，能力最强 | 当前公开面未见同级 project-local hooks | 可选 | 不再视为一等层 |
 | Scripts / audits | deterministic enforcement | 通用 | 通用 | 通用 | 公司 OS 真正硬控制面 |
 
 ## Current Repository Read
 
-截至 `2026-03-24`，当前仓库的真实状态是：
+截至 `2026-03-25`，当前 source repo 的真实状态是：
 
-1. `.agents/skills/harness/skills/` 是 canonical skill layer
-2. `.agents/skills/harness/roles/` 是 canonical agent / role layer
-3. `.claude/skills/` 现在只保留从 canonical skill 派生的 projection wrappers
-4. `.claude/agents/` 与 `.codex/agents/` 现在都应视为 generated projections，而不是手工正文
-5. `.gemini/` 当前只保留 `settings.json` 这类协议入口；workspace skills 直接通过 Gemini 官方支持的 `.agents/skills/harness/skills/` alias 被发现
-6. Gemini custom subagents 当前仍是 experimental，且项目级目录是 `.gemini/agents/*.md`；当前虽然已有 `.agents/skills/harness/roles/` canonical source，但 Gemini 仍未进入默认执行面，因此这层暂不默认投影
+1. `skills/` 是 canonical skill layer
+2. `roles/` 是 canonical agent / role layer
+3. `.claude/skills/`、`.claude/agents/`、`.codex/agents/` 若存在，都应视为 generated projections，而不是手工正文
+4. consumer repo 安装后再生成或同步 `.agents/skills/harness/`、`.claude/`、`.codex/`、`.gemini/`
+5. Gemini custom subagents 仍是 experimental，因此不作为默认 projection 面
 
 因此本轮设计不是追求“文件数量对称”，而是追求：
 
@@ -74,8 +73,8 @@
 
 ## Migration Rules
 
-1. 新增能力时，先落 `.agents/skills/harness/skills/`，不要先写 provider-specific command
-2. 新增 agent role 时，先落 `.agents/skills/harness/roles/`，不要先写 provider-specific agent file
+1. 新增能力时，先落 `skills/`，不要先写 provider-specific command
+2. 新增 agent role 时，先落 `roles/`，不要先写 provider-specific agent file
 3. Claude/Codex agent projection 通过脚本同步，不再手工双写 agent 正文
 4. Claude skill projection 通过脚本同步，不再手工双写 skill 正文
 5. Gemini 默认不新增 `.gemini/skills/` projection；只有在未来确实需要 provider-specific metadata，或官方 alias 行为变化时，才单独补 adapter

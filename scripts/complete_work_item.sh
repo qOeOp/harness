@@ -6,14 +6,17 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/complete_work_item.sh [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]
-EOF
+  printf 'usage: %s [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]\n' "$(default_harness_command "complete_work_item.sh")" >&2
 }
 
 resolve_board_path() {
   scope="$1"
   department="$2"
+
+  if ! runtime_governance_enabled; then
+    printf '%s\n' "none"
+    return 0
+  fi
 
   case "$scope" in
     company)
@@ -301,20 +304,15 @@ fi
 
 if [ -z "$complete_reason" ]; then
   case "$target_status" in
-    review) complete_reason="work item moved to review via ./.agents/skills/harness/scripts/complete_work_item.sh" ;;
-    done) complete_reason="work item completed via ./.agents/skills/harness/scripts/complete_work_item.sh" ;;
-    killed) complete_reason="work item killed via ./.agents/skills/harness/scripts/complete_work_item.sh" ;;
+    review) complete_reason="work item moved to review via $(default_harness_command "complete_work_item.sh")" ;;
+    done) complete_reason="work item completed via $(default_harness_command "complete_work_item.sh")" ;;
+    killed) complete_reason="work item killed via $(default_harness_command "complete_work_item.sh")" ;;
   esac
 fi
 
 require_command node
 
 if [ -n "$explicit_work_item_id" ]; then
-  ensure_boards_in_sync || {
-    echo "failed to synchronize boards before explicit completion" >&2
-    exit 1
-  }
-
   board_path=$(resolve_board_path "$scope" "$department")
   selected_scope="$scope"
   selected_department="$department"

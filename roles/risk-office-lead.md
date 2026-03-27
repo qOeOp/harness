@@ -36,7 +36,7 @@ codex_nicknames: Sentinel, Aegis, Talon
 - [../../departments/risk-office/README.md](../../departments/risk-office/README.md)
 - [../../departments/risk-office/charter.md](../../departments/risk-office/charter.md)
 - [../../departments/risk-office/interfaces.md](../../departments/risk-office/interfaces.md)
-- [../docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
+- [../docs/workflows/volatile-research-default.md](../docs/workflows/volatile-research-default.md)
 
 对 `volatile` 外部议题的默认动作：
 

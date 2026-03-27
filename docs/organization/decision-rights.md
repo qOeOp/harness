@@ -106,7 +106,7 @@
 
 1. 角色间争议先由 Chief of Staff 裁决。
 2. 如果争议触及使命、风险豁免、预算或高权限自动化，升级给 Founder。
-3. 任何未经回写到 [.harness/workspace/decisions/log](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/decisions/log) 的决定无效。
+3. 任何未经回写到 `.harness/workspace/decisions/log` 的决定无效。
 
 ## Owned Paths Policy
 

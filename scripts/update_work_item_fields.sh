@@ -158,6 +158,21 @@ validate_field_update() {
   esac
 }
 
+field_value_after_updates() {
+  work_item_file="$1"
+  pair_file="$2"
+  target_field="$3"
+
+  while IFS=$(printf '\t') read -r field value; do
+    if [ "$field" = "$target_field" ]; then
+      printf '%s\n' "$value"
+      return 0
+    fi
+  done <"$pair_file"
+
+  field_value "$work_item_file" "$target_field"
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --expected-version)
@@ -198,7 +213,8 @@ if ! is_nonnegative_integer "$expected_version"; then
   exit 1
 fi
 
-work_item_file=$(require_work_item "$work_item_id")
+acquire_work_item_lock "$work_item_id"
+work_item_file=$(require_work_item_for_write "$work_item_id")
 current_status=$(field_value "$work_item_file" "Status")
 current_version=$(field_value "$work_item_file" "State version")
 last_operation_id=$(field_value "$work_item_file" "Last operation ID")
@@ -268,14 +284,11 @@ if [ -z "$operation_id" ]; then
   operation_id=$(default_operation_id "$work_item_id" "update-fields")
 fi
 
-while IFS=$(printf '\t') read -r field value; do
-  replace_field "$work_item_file" "$field" "$value"
-done <"$pair_file"
-
 next_version=$((current_version + 1))
-replace_field "$work_item_file" "Updated at" "$(date +%F)"
-replace_field "$work_item_file" "State version" "$next_version"
-replace_field "$work_item_file" "Last operation ID" "$operation_id"
+next_current_blocker=$(field_value_after_updates "$work_item_file" "$pair_file" "Current blocker")
+next_handoff=$(field_value_after_updates "$work_item_file" "$pair_file" "Next handoff")
+next_interrupt_marker=$(field_value_after_updates "$work_item_file" "$pair_file" "Interrupt marker")
+next_resume_target=$(field_value_after_updates "$work_item_file" "$pair_file" "Resume target")
 
 event_path=$(write_transition_event \
   "$work_item_id" \
@@ -283,18 +296,28 @@ event_path=$(write_transition_event \
   "$current_status" \
   "$actor" \
   "work item fields updated: $changed_fields" \
-  "$(field_value "$work_item_file" "Current blocker")" \
-  "$(field_value "$work_item_file" "Next handoff")" \
+  "$next_current_blocker" \
+  "$next_handoff" \
   "$operation_id" \
   "$current_status" \
   "$expected_version" \
   "$current_version" \
   "$next_version" \
-  "$(field_value_or_none "$work_item_file" "Interrupt marker")" \
-  "$(field_value_or_none "$work_item_file" "Resume target")" \
+  "$next_interrupt_marker" \
+  "$next_resume_target" \
   "field-update")
-replace_field "$work_item_file" "Last transition event" "$event_path"
+set -- "$work_item_file" \
+  "Updated at" "$(date +%F)" \
+  "State version" "$next_version" \
+  "Last operation ID" "$operation_id" \
+  "Last transition event" "$event_path"
+
+while IFS=$(printf '\t') read -r field value; do
+  set -- "$@" "$field" "$value"
+done <"$pair_file"
+
+rewrite_work_item_header_snapshot "$@"
 sync_progress_snapshot_if_present "$work_item_file"
-"$script_dir/refresh_boards.sh" >/dev/null
+refresh_boards_if_enabled
 
 echo "$work_item_file"

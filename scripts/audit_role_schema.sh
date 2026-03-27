@@ -4,9 +4,22 @@ set -eu
 quiet="${1:-}"
 ok=1
 
-canonical_root=".agents/skills/harness/roles"
+if [ -f "SKILL.md" ] && [ -d "roles" ]; then
+  canonical_root="roles"
+elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
+  canonical_root=".agents/skills/harness/roles"
+else
+  echo "unable to resolve canonical roles directory" >&2
+  exit 1
+fi
+
 claude_root=".claude/agents"
 codex_root=".codex/agents"
+check_claude_projection=0
+check_codex_projection=0
+
+[ -d "$claude_root" ] && check_claude_projection=1
+[ -d "$codex_root" ] && check_codex_projection=1
 
 say() {
   [ "$quiet" = "--quiet" ] || echo "$1"
@@ -86,16 +99,20 @@ for role_file in "$canonical_root"/*.md; do
     fail "missing Canonical Instructions section in $role_file"
   fi
 
-  if [ ! -f "$claude_root/$claude_file" ]; then
-    fail "missing Claude projection '$claude_root/$claude_file' for $role_file"
-  elif ! grep -Fq "AUTO-GENERATED projection" "$claude_root/$claude_file"; then
-    fail "Claude projection missing generated marker in $claude_root/$claude_file"
+  if [ "$check_claude_projection" -eq 1 ]; then
+    if [ ! -f "$claude_root/$claude_file" ]; then
+      fail "missing Claude projection '$claude_root/$claude_file' for $role_file"
+    elif ! grep -Fq "AUTO-GENERATED projection" "$claude_root/$claude_file"; then
+      fail "Claude projection missing generated marker in $claude_root/$claude_file"
+    fi
   fi
 
-  if [ ! -f "$codex_root/$codex_file" ]; then
-    fail "missing Codex projection '$codex_root/$codex_file' for $role_file"
-  elif ! grep -Fq "AUTO-GENERATED projection" "$codex_root/$codex_file"; then
-    fail "Codex projection missing generated marker in $codex_root/$codex_file"
+  if [ "$check_codex_projection" -eq 1 ]; then
+    if [ ! -f "$codex_root/$codex_file" ]; then
+      fail "missing Codex projection '$codex_root/$codex_file' for $role_file"
+    elif ! grep -Fq "AUTO-GENERATED projection" "$codex_root/$codex_file"; then
+      fail "Codex projection missing generated marker in $codex_root/$codex_file"
+    fi
   fi
 done
 

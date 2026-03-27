@@ -1,10 +1,21 @@
 #!/bin/sh
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname "$0")/../../../.." && pwd)
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
 cd "$repo_root"
 
-canonical_root=".agents/skills/harness/skills"
+if [ -f "SKILL.md" ] && [ -d "skills" ]; then
+  canonical_root="skills"
+  canonical_rel_prefix="../../../skills"
+elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/skills" ]; then
+  canonical_root=".agents/skills/harness/skills"
+  canonical_rel_prefix="../../../.agents/skills/harness/skills"
+else
+  echo "unable to resolve canonical skills directory" >&2
+  exit 1
+fi
+
 projection_root=".claude/skills"
 
 description_for() {
@@ -48,7 +59,7 @@ for canonical_skill in "$canonical_root"/*/SKILL.md; do
   projection_dir="$projection_root/$slug"
   projection_file="$projection_dir/SKILL.md"
   canonical_abs="$repo_root/$canonical_skill"
-  canonical_rel="../../../.agents/skills/harness/skills/$slug/SKILL.md"
+  canonical_rel="$canonical_rel_prefix/$slug/SKILL.md"
   skill_name=$(name_for "$canonical_skill")
   skill_description=$(description_for "$canonical_skill")
   allowed_tools=$(allowed_tools_for_slug "$slug")

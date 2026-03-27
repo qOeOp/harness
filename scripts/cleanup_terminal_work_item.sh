@@ -52,7 +52,9 @@ if ! is_nonnegative_integer "$expected_version"; then
   exit 1
 fi
 
-work_item_file=$(require_work_item "$work_item_id")
+acquire_runtime_lock
+acquire_work_item_lock "$work_item_id"
+work_item_file=$(require_work_item_for_write "$work_item_id")
 status=$(field_value "$work_item_file" "Status")
 current_version=$(field_value "$work_item_file" "State version")
 
@@ -97,55 +99,6 @@ if [ "$status" = "killed" ] && ! value_is_missing "$dependent_items"; then
   exit 1
 fi
 
-if [ "$status" = "done" ] && ! value_is_missing "$dependent_items"; then
-  old_ifs=${IFS- }
-  IFS=','
-  set -- $dependent_items
-  IFS=$old_ifs
-
-  for dependent_id in "$@"; do
-    dependent_id=$(trim "$dependent_id")
-    [ -n "$dependent_id" ] || continue
-    dependent_file=$(require_work_item "$dependent_id")
-    dependent_status=$(field_value "$dependent_file" "Status")
-    dependent_blocked_by=$(field_value "$dependent_file" "Blocked by")
-    dependent_current_version=$(field_value "$dependent_file" "State version")
-    dependent_current_blocker=$(field_value "$dependent_file" "Current blocker")
-    dependent_next_handoff=$(field_value "$dependent_file" "Next handoff")
-    updated_blocked_by=$(csv_remove_value "$dependent_blocked_by" "$work_item_id")
-
-    if [ "$updated_blocked_by" = "$dependent_blocked_by" ]; then
-      continue
-    fi
-
-    dependent_operation_id="${operation_id}-release-${dependent_id}"
-    dependent_next_version=$((dependent_current_version + 1))
-
-    replace_field "$dependent_file" "Blocked by" "$updated_blocked_by"
-    replace_field "$dependent_file" "Updated at" "$(date +%F)"
-    replace_field "$dependent_file" "State version" "$dependent_next_version"
-    replace_field "$dependent_file" "Last operation ID" "$dependent_operation_id"
-    dependent_event=$(write_transition_event \
-      "$dependent_id" \
-      "$dependent_status" \
-      "$dependent_status" \
-      "$actor" \
-      "released blocker $work_item_id during terminal cleanup" \
-      "$dependent_current_blocker" \
-      "$dependent_next_handoff" \
-      "$dependent_operation_id" \
-      "$dependent_status" \
-      "$dependent_current_version" \
-      "$dependent_current_version" \
-      "$dependent_next_version" \
-      "$(field_value_or_none "$dependent_file" "Interrupt marker")" \
-      "$(field_value_or_none "$dependent_file" "Resume target")" \
-      "blocker-release")
-    replace_field "$dependent_file" "Last transition event" "$dependent_event"
-    sync_progress_snapshot_if_present "$dependent_file"
-  done
-fi
-
 blocked_by=$(field_value "$work_item_file" "Blocked by")
 blocks=$(field_value "$work_item_file" "Blocks")
 current_blocker=$(field_value "$work_item_file" "Current blocker")
@@ -161,26 +114,15 @@ for candidate_value in "$blocked_by" "$blocks" "$current_blocker" "$next_handoff
   fi
 done
 
-if [ "$status" = "done" ] && ! value_is_missing "$dependent_items"; then
-  root_cleanup_needed=1
-fi
-
 if [ "$root_cleanup_needed" -ne 1 ]; then
-  "$script_dir/refresh_boards.sh" >/dev/null
+  clear_current_task_id_if_matches "$work_item_id"
+  ensure_current_task_pointer
+  refresh_boards_if_enabled
   echo "$work_item_file"
   exit 0
 fi
 
 next_version=$((current_version + 1))
-replace_field "$work_item_file" "Blocked by" "none"
-replace_field "$work_item_file" "Blocks" "none"
-replace_field "$work_item_file" "Current blocker" "none"
-replace_field "$work_item_file" "Next handoff" "none"
-replace_field "$work_item_file" "Interrupt marker" "none"
-replace_field "$work_item_file" "Resume target" "none"
-replace_field "$work_item_file" "Updated at" "$(date +%F)"
-replace_field "$work_item_file" "State version" "$next_version"
-replace_field "$work_item_file" "Last operation ID" "$operation_id"
 event_path=$(write_transition_event \
   "$work_item_id" \
   "$status" \
@@ -197,8 +139,20 @@ event_path=$(write_transition_event \
   "none" \
   "none" \
   "terminal-cleanup")
-replace_field "$work_item_file" "Last transition event" "$event_path"
+rewrite_work_item_header_snapshot "$work_item_file" \
+  "Blocked by" "none" \
+  "Blocks" "none" \
+  "Current blocker" "none" \
+  "Next handoff" "none" \
+  "Interrupt marker" "none" \
+  "Resume target" "none" \
+  "Updated at" "$(date +%F)" \
+  "State version" "$next_version" \
+  "Last operation ID" "$operation_id" \
+  "Last transition event" "$event_path"
 sync_progress_snapshot_if_present "$work_item_file"
-"$script_dir/refresh_boards.sh" >/dev/null
+clear_current_task_id_if_matches "$work_item_id"
+ensure_current_task_pointer
+refresh_boards_if_enabled
 
 echo "$work_item_file"

@@ -45,7 +45,7 @@ Founder 与公司之间当前存在 5 类正式会议：
 
 详细流程见：
 
-- [docs/workflows/founder-governance-meeting-loop.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-governance-meeting-loop.md)
+- [docs/workflows/founder-governance-meeting-loop.md](./founder-governance-meeting-loop.md)
 
 ### `vision`
 
@@ -153,6 +153,6 @@ canonical meeting router 是 `meeting-router` skill。
 
 详细的研究路由和治理输入，分别见：
 
-- [docs/workflows/internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md)
-- [docs/workflows/founder-governance-meeting-loop.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-governance-meeting-loop.md)
-- [docs/workflows/process-compounding-cadence.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/process-compounding-cadence.md)
+- [docs/workflows/internal-research-routing.md](./internal-research-routing.md)
+- [docs/workflows/founder-governance-meeting-loop.md](./founder-governance-meeting-loop.md)
+- [docs/workflows/process-compounding-cadence.md](./process-compounding-cadence.md)

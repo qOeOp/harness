@@ -13,17 +13,29 @@ case "$mode" in
   ""|--write) ;;
   --check) check_only=1 ;;
   *)
-    echo "usage: $0 [--check]" >&2
+    printf 'usage: %s [--check]\n' "$(default_harness_command "refresh_boards.sh")" >&2
     exit 1
     ;;
 esac
 
 if [ "$check_only" -ne 1 ]; then
   require_explicit_state_actor "$actor" "$0"
+  acquire_runtime_lock
 fi
 
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
-ensure_state_dirs
+ensure_core_runtime_dirs
+
+if ! runtime_governance_enabled; then
+  if [ "$check_only" -eq 1 ]; then
+    echo "boards disabled in core runtime"
+  fi
+  exit 0
+fi
+
+ensure_governance_runtime_dirs
+runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "$default_runtime_mode")
+refresh_command=$(default_harness_command "refresh_boards.sh")
 
 company_tmp=$(mktemp)
 founder_tmp=$(mktemp)
@@ -65,9 +77,11 @@ cat >"$company_tmp" <<EOF
 # Company Board
 
 - Generated at: $(date +%F)
-- Generated only: true
-- Source of truth: .harness/workspace/state/items/
-- Refresh command: ./.agents/skills/harness/scripts/refresh_boards.sh
+- Derived only: true
+- Source of truth: .harness/tasks/*/task.md
+- Compatibility read fallback: .harness/workspace/state/items/*.md
+- Runtime mode: $runtime_mode
+- Refresh command: $refresh_command
 
 | Work Item | Type | Status | Interrupt Marker | Priority | Owner | Required Departments | Current Blocker | Founder Escalation | Last Updated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -77,9 +91,11 @@ cat >"$founder_tmp" <<EOF
 # Founder Board
 
 - Generated at: $(date +%F)
-- Generated only: true
+- Derived only: true
+- Source of truth: .harness/tasks/*/task.md
+- Compatibility read fallback: .harness/workspace/state/items/*.md
 - Scope: pending founder decisions and acceptance items only
-- Refresh command: ./.agents/skills/harness/scripts/refresh_boards.sh
+- Refresh command: $refresh_command
 
 | Work Item | Status | Interrupt Marker | Why It Matters | Decision Needed | Deadline | Supporting Pack |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -153,9 +169,11 @@ for department in $(list_departments); do
 # Department Board: $dept_title
 
 - Generated at: $(date +%F)
-- Generated only: true
+- Derived only: true
+- Source of truth: .harness/tasks/*/task.md
 - Scope: work items with explicit participation for $department
-- Refresh command: ./.agents/skills/harness/scripts/refresh_boards.sh
+- Governance surface: true
+- Refresh command: $refresh_command
 
 | Work Item | Participation | Local Status | Interrupt Marker | Upstream Dependency | Next Handoff | Artifact Due |
 | --- | --- | --- | --- | --- | --- | --- |

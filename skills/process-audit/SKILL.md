@@ -10,4 +10,4 @@ Create a process audit focused on:
 - workflow bottlenecks
 - candidate operating system improvements
 
-Use [../../docs/templates/process-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/process-audit.md).
+Use [../../docs/templates/process-audit.md](../../docs/templates/process-audit.md).

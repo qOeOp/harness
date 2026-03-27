@@ -4,7 +4,7 @@
 
 ## 目的
 
-记录 Gemini 相对于 [agent-operator-contract.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/agent-operator-contract.md) 的 provider-specific delta。
+记录 Gemini 相对于 [agent-operator-contract.md](../agent-operator-contract.md) 的 provider-specific delta。
 
 本文件只记录 Gemini 特有差异，不复述共性 operator rules。
 
@@ -12,8 +12,8 @@
 
 当前仓库里与 Gemini 直接相关的 adapter surface 主要是：
 
-1. [GEMINI.md](/Users/vx/WebstormProjects/trading-agent/GEMINI.md)
-2. [`.gemini/settings.json`](/Users/vx/WebstormProjects/trading-agent/.gemini/settings.json)
+1. `GEMINI.md`
+2. `.gemini/settings.json`
 3. 未来如有必要才会出现的 `/.gemini/agents/`
 
 ## Gemini-Specific Operating Notes
@@ -26,8 +26,8 @@ Gemini 通过 `GEMINI.md` 层级上下文提供 repo 指令，并允许在 `sett
 
 1. 根 `GEMINI.md` 只保留 redirect stub
 2. `.gemini/settings.json` 只负责把 Gemini 路由到 `GEMINI.md`
-3. canonical root first hop 已切到 [.harness/entrypoint.md](/Users/vx/WebstormProjects/trading-agent/.harness/entrypoint.md)
-4. 详细 workflow source 当前仍是 [document-routing-and-lifecycle.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/document-routing-and-lifecycle.md)
+3. canonical root first hop 已切到 `.harness/entrypoint.md`
+4. 详细 workflow source 当前仍是 [document-routing-and-lifecycle.md](../document-routing-and-lifecycle.md)
 
 不要把 `GEMINI.md` 再长回第二套宪法。
 

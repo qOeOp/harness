@@ -1,27 +1,65 @@
 # Runtime Workspace
 
-Canonical runtime root:
+Canonical runtime root in any consumer repo:
 
-`/Users/vx/WebstormProjects/trading-agent/.harness/`
+`.harness/`
 
-Current scaffold:
+The runtime is lazily materialized.
 
-1. `.harness/install.toml`
-2. `.harness/compatibility.toml`
-3. `.harness/migration-inventory.toml`
-4. `.harness/top-level-surface.toml`
-5. `.harness/workspace/`
+It should appear only when a task needs:
 
-Runtime workspace owns:
+1. cross-session recovery
+2. explicit task tracking
+3. reviewable artifacts
+4. decision or evidence writeback
+5. resumable local truth beyond the current chat
 
-1. `current/`
-2. `briefs/`
-3. `decisions/log/`
-4. `state/`
-5. `logs/`
-6. `runs/`
-7. `status/snapshots/`
+Minimum runtime contract:
 
-Legacy top-level runtime roots still awaiting migration:
+1. `.harness/manifest.toml`
+   - local runtime metadata
+2. `.harness/tasks/`
+   - task-scoped truth and artifacts
+3. `.harness/archive/`
+   - closed and compacted task history
+4. `.harness/locks/`
+   - runtime lock files during controlled state mutation
 
-none
+Canonical minimum-core tree:
+
+```text
+.harness/
+  manifest.toml
+  entrypoint.md
+  README.md
+  tasks/
+    <task-id>/
+      task.md
+      progress.md
+      refs/
+      working/
+      outputs/
+      closure/
+      history/
+        transitions/
+  archive/
+    tasks/
+  locks/
+```
+
+Machine-readable contract:
+
+1. `references/contracts/minimum-core-runtime-tree.toml`
+   - source-repo contract for the generated consumer scaffold
+
+Generation and verification:
+
+1. `./scripts/materialize_runtime_fixture.sh`
+   - materializes a consumer sandbox from the pure source repo
+2. `./scripts/run_state_validation_slice.sh`
+   - proves the generated runtime can execute one end-to-end state chain
+
+This source repository does not own a live `.harness/` tree.
+It only defines the minimum runtime contract that consumer repos may materialize on demand.
+
+Heavier structures such as organization trees, cadence artifacts, department workspaces, or governance reports belong to `advanced governance mode`, not to the default task runtime.

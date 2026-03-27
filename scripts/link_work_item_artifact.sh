@@ -68,7 +68,8 @@ if ! is_valid_artifact_status "$artifact_status"; then
   exit 1
 fi
 
-work_item_file=$(require_work_item "$work_item_id")
+acquire_work_item_lock "$work_item_id"
+work_item_file=$(require_work_item_for_write "$work_item_id")
 current_version=$(field_value "$work_item_file" "State version")
 current_status=$(field_value "$work_item_file" "Status")
 current_last_operation_id=$(field_value "$work_item_file" "Last operation ID")
@@ -106,15 +107,19 @@ if [ "$existing_entry" = "$desired_entry" ] && artifact_has_work_item_link "$art
   exit 0
 fi
 
-upsert_linked_artifact_entry "$work_item_file" "$artifact_path" "$artifact_type" "$artifact_status"
-replace_field "$work_item_file" "Updated at" "$(date +%F)"
-replace_field "$work_item_file" "State version" "$((current_version + 1))"
-replace_field "$work_item_file" "Last operation ID" "$operation_id"
+updated_artifact_entries=$(updated_linked_artifacts_value "$(field_value "$work_item_file" "Linked artifacts")" "$artifact_path" "$artifact_type" "$artifact_status")
+upsert_task_ref_index_entry "$work_item_id" "$artifact_path" "$artifact_type" "$artifact_status"
+next_version=$((current_version + 1))
 upsert_artifact_work_item_links "$artifact_path" "$work_item_id"
-event_path=$(write_transition_event "$work_item_id" "$current_status" "$current_status" "$actor" "artifact link updated" "$(field_value "$work_item_file" "Current blocker")" "$(field_value "$work_item_file" "Next handoff")" "$operation_id" "$current_status" "$expected_version" "$current_version" "$((current_version + 1))" "$(field_value_or_none "$work_item_file" "Interrupt marker")" "$(field_value_or_none "$work_item_file" "Resume target")" "artifact-link")
-replace_field "$work_item_file" "Last transition event" "$event_path"
+event_path=$(write_transition_event "$work_item_id" "$current_status" "$current_status" "$actor" "artifact link updated" "$(field_value "$work_item_file" "Current blocker")" "$(field_value "$work_item_file" "Next handoff")" "$operation_id" "$current_status" "$expected_version" "$current_version" "$next_version" "$(field_value_or_none "$work_item_file" "Interrupt marker")" "$(field_value_or_none "$work_item_file" "Resume target")" "artifact-link")
+rewrite_work_item_header_snapshot "$work_item_file" \
+  "Linked artifacts" "$updated_artifact_entries" \
+  "Updated at" "$(date +%F)" \
+  "State version" "$next_version" \
+  "Last operation ID" "$operation_id" \
+  "Last transition event" "$event_path"
 sync_progress_snapshot_if_present "$work_item_file"
-"$script_dir/refresh_boards.sh" >/dev/null
+refresh_boards_if_enabled
 
 echo "$work_item_file"
 echo "$artifact_path"

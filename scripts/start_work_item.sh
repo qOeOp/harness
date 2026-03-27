@@ -6,9 +6,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/start_work_item.sh [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]
-EOF
+  printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]\n' "$(default_harness_command "start_work_item.sh")" >&2
 }
 
 require_command() {
@@ -254,10 +252,11 @@ case "$scope" in
 esac
 
 if [ -z "$start_reason" ]; then
-  start_reason="execution started via ./.agents/skills/harness/scripts/start_work_item.sh"
+  start_reason="execution started via $(default_harness_command "start_work_item.sh")"
 fi
 
 require_command node
+progress_command_template=$(default_harness_command "upsert_work_item_progress.sh")
 
 if opener_output=$("$script_dir/open_current_work_item.sh" --json "$scope" ${department:+"$department"} 2>/dev/null); then
   opener_status=0
@@ -406,10 +405,10 @@ refresh_progress_context() {
 
   case "$progress_sync_state" in
     missing|unlinked)
-      progress_command="./.agents/skills/harness/scripts/upsert_work_item_progress.sh --expected-version $selected_state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      progress_command="$progress_command_template --expected-version $selected_state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
     stale|current)
-      progress_command="./.agents/skills/harness/scripts/upsert_work_item_progress.sh \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      progress_command="$progress_command_template \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
   esac
 }
@@ -445,6 +444,7 @@ case "$selected_status" in
     selected_next_handoff=$(field_value "$selected_path" "Next handoff")
     selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
     refresh_progress_context
+    set_current_task_id "$selected_id"
     transition_event="$selected_last_transition_event"
     transition_performed=true
     starter_reason="$start_reason"
@@ -452,6 +452,7 @@ case "$selected_status" in
     ;;
   in-progress)
     refresh_progress_context
+    set_current_task_id "$selected_id"
     transition_event="$selected_last_transition_event"
     starter_reason="selected work item is already in-progress"
     result="active"

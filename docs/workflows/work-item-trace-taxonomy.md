@@ -4,7 +4,7 @@
 
 ## 目的
 
-给 `.harness/workspace/state/transitions/` 里的 item-scoped transition event 增加显式、可审计、可脚本消费的最小分类。
+给 `.harness/tasks/<task-id>/history/transitions/` 里的 item-scoped transition event 增加显式、可审计、可脚本消费的最小分类。
 
 本文件只定义 work item state layer 的 trace taxonomy。
 它不引入新的全局 trace ledger，也不提前设计 product runtime span model。
@@ -12,7 +12,7 @@
 ## 核心原则
 
 1. `Event type` 分类的是 transition event，不是 work item。
-2. `items/` 仍然是运行态 source of truth；taxonomy 只是让 `transitions/` 更可解释。
+2. `task.md` 仍然是运行态 source of truth；taxonomy 只是让 transition ledger 更可解释。
 3. v1 只覆盖 state harness 当前已经稳定存在的受控 mutation。
 4. 旧 event 可以没有 `Event type`；新写入 event 必须带类型。
 5. `board-refresh` 在 v1 里只保留为 reserved class，不进入当前 item-scoped ledger。

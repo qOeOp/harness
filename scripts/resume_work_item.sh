@@ -9,7 +9,7 @@ expected_version=""
 operation_id=""
 
 usage() {
-  echo "usage: $0 --expected-version <version> [--operation-id <id>] <work-item-id> [next-handoff] [reason]" >&2
+  printf 'usage: %s --expected-version <version> [--operation-id <id>] <work-item-id> [next-handoff] [reason]\n' "$(default_harness_command "resume_work_item.sh")" >&2
   exit 1
 }
 
@@ -62,11 +62,11 @@ if value_is_missing "$interrupt_marker" || value_is_missing "$resume_target"; th
 fi
 
 if [ -z "$reason" ]; then
-  reason="work item resumed after $interrupt_marker via ./.agents/skills/harness/scripts/resume_work_item.sh"
+  reason="work item resumed after $interrupt_marker via $(default_harness_command "resume_work_item.sh")"
 fi
 
 if [ -n "$operation_id" ]; then
-  exec "$script_dir/transition_work_item.sh" \
+  transition_output=$("$script_dir/transition_work_item.sh" \
     --expected-from-status paused \
     --expected-version "$expected_version" \
     --operation-id "$operation_id" \
@@ -76,16 +76,19 @@ if [ -n "$operation_id" ]; then
     "$resume_target" \
     none \
     "$next_handoff" \
-    "$reason"
+    "$reason")
+else
+  transition_output=$("$script_dir/transition_work_item.sh" \
+    --expected-from-status paused \
+    --expected-version "$expected_version" \
+    --interrupt-marker none \
+    --resume-target none \
+    "$work_item_id" \
+    "$resume_target" \
+    none \
+    "$next_handoff" \
+    "$reason")
 fi
 
-exec "$script_dir/transition_work_item.sh" \
-  --expected-from-status paused \
-  --expected-version "$expected_version" \
-  --interrupt-marker none \
-  --resume-target none \
-  "$work_item_id" \
-  "$resume_target" \
-  none \
-  "$next_handoff" \
-  "$reason"
+set_current_task_id "$work_item_id"
+printf '%s\n' "$transition_output"

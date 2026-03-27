@@ -6,9 +6,12 @@
 
 审计公司的治理表面，控制文档膨胀、重复规则和错误的控制面升级。
 
-默认周期性入口：
+默认周期性入口按仓库模式区分：
 
-- `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh`
+- source repo:
+  - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+- consumer / dogfood repo:
+  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 ## 治理表面
 
@@ -88,7 +91,10 @@
 
 建议先跑一次聚合诊断，再进入人工判断：
 
-- `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh`
+- source repo:
+  - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+- consumer / dogfood repo:
+  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 ## Audit-the-Auditors
 

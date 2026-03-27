@@ -1,45 +1,38 @@
 # Document Routing And Lifecycle
 
-更新日期：`2026-03-25`
+更新日期：`2026-03-26`
 
 ## 目的
 
-为新开的 coding agent 提供稳定入口，并把 active truth、active work item 与历史快照分离。
+为 `/harness` 提供稳定入口，并把当前任务、恢复状态、任务产物与归档历史分离。
 
 ## Current Placement
 
-本文件不再是根层 canonical first hop。
+本文件定义默认 `core task runtime` 的 routing / lifecycle 规则。
 
-根 `AGENTS.md`、`CLAUDE.md`、`GEMINI.md` 现在先重定向到：
+默认产品入口是：
 
-1. [.harness/entrypoint.md](/Users/vx/WebstormProjects/trading-agent/.harness/entrypoint.md)
+1. `/harness`
 
-本文件当前保留为：
+repo-local runtime 只在需要持久化时出现：
 
-1. 详细 routing / lifecycle workflow source
-2. 正在向 `harness` skill source 压缩中的 workflow 正文
-3. 旧执行面仍在迁移期间的说明正文
+1. `.harness/`
 
-因此：
-
-1. 不要再在三份根入口镜像里分别维护完整宪法
-2. 根层 first hop 已经收敛到 `.harness/entrypoint.md`
-3. 本文件继续承载详细 routing / lifecycle 规则，直到并入 `harness` skill source
-4. 工具差异仍只允许存在于 `.claude/`、`.codex/`、`.gemini/`
+本文件不再围绕 root overlay、board-first 路由或广义 company workspace 组织默认体验。
 
 ## 设计要求
 
-1. 新员工不应该靠扫描全仓库来理解系统
-2. 当前生效的 truth 必须有稳定路径
-3. 执行中的主对象必须有稳定入口
-4. 历史版本必须保留，但不应该继续占据 active 工作区
-5. 文档如果没有 owner、入口和生命周期，就只是上下文垃圾
+1. 用户不应该靠扫描全仓库来理解当前任务。
+2. 当前正在执行的 task 必须有稳定路径。
+3. 恢复信息必须独立于聊天上下文。
+4. 历史任务必须保留，但不应该继续占据 active surface。
+5. 默认 runtime 不得先天长成公司治理树。
 
 ## 当前阶段
 
 - 阶段：`pre-code`
-- 目标：先把公司治理、文档路由、记忆分层、`agents + skills` canonical surface 与 rules/scripts 骨架做稳
-- 暂不做：业务实现、复杂无人值守自动化、重度多 agent 写代码
+- 目标：先把 `/harness` 默认入口、任务状态模型、恢复协议与最小 writeback 闭环做稳
+- 暂不做：公司治理默认化、复杂无人值守自动化、重度多 agent 写代码
 - 纪律：当前 stage 没做到极致，不推进下一 stage
 
 ## 硬规则
@@ -47,75 +40,77 @@
 1. 不要默认扫描全仓库 markdown。
 2. 任何决定没有 artifact 就视为不存在。
 3. 一个问题只能有一个 DRI。
-4. `.harness/workspace/current/` 先于历史快照。
-5. 一个线程一个 worktree，不共享同一工作目录并行编辑。
-6. 公司级 `workspace/` 只允许 append-only 写入，不维护共享总表。
-7. Founder-facing demo 必须是独立可运行的垂直切片。
-8. 外部 `volatile` 主题必须带验证日期、来源和 `Verification mode`。
-9. 工具差异只能存在于 `.claude/`、`.codex/`、`.gemini/`，公司 OS 语义必须一致。
+4. `.harness/tasks/<task-id>/task.md` 是默认 task source of truth。
+5. `.harness/tasks/<task-id>/progress.md` 只承担恢复协议，不承担决策本体。
+6. 一个线程一个 worktree，不共享同一工作目录并行编辑。
+7. 外部 `volatile` 主题必须带验证日期、来源和 `Verification mode`。
+8. 默认 runtime 不得自动长出 departments、boards、cadence trees。
+9. 工具差异只能存在于 provider-specific adapter，不得反客为主。
 10. 如果当前层基础不稳，必须 `stop-the-line`，不要为了推进进度继续叠下一层。
 
 ## Routing Order
 
-任何新开的 coding agent，都不应直接扫全仓库。
+任何新开的 `/harness` 任务，都不应直接扫全仓库。
 
 正确顺序是：
 
-1. `.harness/entrypoint.md`
-   - 先确认 hosted-kernel first hop 与当前 runtime root
-2. 本文件
-   - 再理解详细 stage、硬规则、入口与生命周期
-   - 先理解如何找 active truth，而不是先看历史
-3. `.harness/workspace/current/`
-   - 先读当前生效的 Founder 锁定信息
-4. `.harness/workspace/state/boards/`
-   - 公司级协同、排期、执行任务先读 `.harness/workspace/state/boards/company.md`
-   - Founder 验收、升级、拍板任务先读 `.harness/workspace/state/boards/founder.md`
-5. `.harness/workspace/state/items/WI-xxxx.md`
-   - 统一入口优先运行 `./.agents/skills/harness/scripts/work_item_ctl.sh <select|open|start|complete> ...`
-   - 人工执行通常运行 `./.agents/skills/harness/scripts/work_item_ctl.sh open company`、`./.agents/skills/harness/scripts/work_item_ctl.sh open founder` 或 `./.agents/skills/harness/scripts/work_item_ctl.sh open department <slug>`
-   - 若要原子接单并记录进入执行的 event，运行 `./.agents/skills/harness/scripts/work_item_ctl.sh start <scope>`
-   - 若要受控暂停执行中的事项，运行 `./.agents/skills/harness/scripts/work_item_ctl.sh pause --expected-from-status ... --expected-version ... --interrupt-marker ... WI-xxxx`
-   - 若要恢复已暂停事项，运行 `./.agents/skills/harness/scripts/work_item_ctl.sh resume --expected-version ... WI-xxxx`
-   - 若要原子收口，运行 `./.agents/skills/harness/scripts/work_item_ctl.sh complete --target-status review|done|killed <scope>`
-   - 若当前事项已在 `in-progress`，同时检查 `.harness/workspace/state/progress/WI-xxxx.md`；若缺失、未链接或过期，先用 `./.agents/skills/harness/scripts/upsert_work_item_progress.sh` 刷新恢复信息
-   - 若当前事项处于 `paused`，同时检查 `Interrupt marker`、`Resume target`，并优先使用 `./.agents/skills/harness/scripts/resume_work_item.sh` 恢复，不要手工改字段
-   - 若由 automation / agent 消费，优先运行 `./.agents/skills/harness/scripts/select_work_item.sh --json ...`
-   - 若 selector 返回 `WI-xxxx`，再进入该 item 作为运行态 source of truth
-   - 若 selector 返回 no actionable item，则回看 board 识别 blocked / waiting-founder / waiting-handoff
-6. 按任务类型进入对应规则层
-   - 公司治理任务：`docs/organization/`、`docs/workflows/`
-   - 产品方向任务：`.harness/workspace/current/product-vision.md`
-   - 部门任务：对应 `.harness/workspace/departments/<department>/README.md`、`AGENTS.md / CLAUDE.md / GEMINI.md`、`charter.md`、`interfaces.md`
-   - code change / code review 任务：先读 [code_review.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/code_review.md)，再读 [agent-operator-contract.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/agent-operator-contract.md)
-7. 只在需要时读取历史快照
-   - `.harness/workspace/archive/`
-   - `.agents/skills/harness/references/archive/harness/`
-   - `.harness/workspace/decisions/log/`
-   - `.harness/workspace/status/snapshots/`
+1. 若任务预计一轮内自然收口：
+   - 保持 ephemeral session mode
+   - 不创建 `.harness/`
+2. 若任务需要跨回合追踪、恢复、review、decision 或 research writeback：
+   - materialize 最小 runtime
+   - 创建 `.harness/manifest.toml`
+   - 创建 `.harness/current-task`
+   - 创建 `.harness/tasks/<task-id>/task.md`
+   - 按需创建 `.harness/tasks/<task-id>/progress.md`
+   - 按需创建 `.harness/tasks/<task-id>/refs/` 与 `.harness/tasks/<task-id>/outputs/`
+3. 若 runtime 已存在：
+   - 先读 `.harness/current-task`
+   - 再读 `.harness/tasks/<task-id>/task.md`
+   - 若当前状态为 `in-progress` 或 `paused`，再读 `.harness/tasks/<task-id>/progress.md`
+   - 新 intake、ready task 的 progress writeback，不得偷改一个已在执行中的 `.harness/current-task`
+4. 若当前事项处于 `paused`：
+   - 先读 `Interrupt marker` 与 `Resume target`
+   - 再决定是否恢复，不要靠聊天记忆猜
+   - 一旦显式执行 resume，恢复后的 task 应重新认领 `.harness/current-task`
+5. 按任务类型进入对应规则层
+   - code change / code review：先读 [code_review.md](./code_review.md)，再读 [agent-operator-contract.md](./agent-operator-contract.md)
+   - volatile external task：再读 [volatile-research-default.md](./volatile-research-default.md) 与 [internal-research-routing.md](./internal-research-routing.md)
+   - advanced governance task：只有显式升级后，才进入 `docs/organization/` 与 governance workflows
+6. 只在需要时读取历史
+   - `.harness/archive/`
+   - `references/archive/harness/`
 
-## Operating State Entry
+## Current Implementation Note
 
-当仓库已经启用 operating state system 时：
+当前 source repo 里的 task kernel 仍主要由脚本实现。
 
-1. 根入口必须先把 agent 路由到 board，再由 board 路由到具体 work item。
-2. `.harness/workspace/state/items/` 是运行态 source of truth，board 只是派生视图。
-3. `./.agents/skills/harness/scripts/work_item_ctl.sh` 是统一控制面，只负责路由子命令，不复制状态机逻辑。
-4. `./.agents/skills/harness/scripts/select_work_item.sh` 是 canonical selector，负责从 board 语义里选出首个 actionable work item，并提供 machine-readable `--json` 输出。
-5. `./.agents/skills/harness/scripts/open_current_work_item.sh` 是 human-facing opener，负责把 selector 结果展开成当前执行 handoff packet。
-6. `./.agents/skills/harness/scripts/start_work_item.sh` 是 atomic starter，负责把 `ready` 项推进到 `in-progress` 并写入正式 transition event。
-7. `./.agents/skills/harness/scripts/complete_work_item.sh` 是默认 atomic closer，要求显式 `--target-status review|done|killed`；其中 `done / killed` 会下沉到 `./.agents/skills/harness/scripts/finalize_work_item.sh`，避免把送审和终结混成隐式动作。
-8. 长回合恢复协议见 [work-item-progress-protocol.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/work-item-progress-protocol.md)。
-9. 受控暂停 / 恢复协议见 [work-item-interrupt-protocol.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/work-item-interrupt-protocol.md)。
-10. canonical root entry 不应直接硬编码某个长期有效的 `WI-xxxx`，避免入口与运行态漂移。
+迁移期边界说明：
+
+1. `task` 与 `progress` 的 canonical truth 在 task 目录
+2. transition ledger 的 canonical truth 在 `.harness/tasks/<task-id>/history/transitions/`
+3. `.harness/workspace/state/transitions/` 只保留为 legacy fallback 读取面
+4. boards 只属于 governance-derived surface，不属于默认 core routing
+
+当前实现常用入口包括：
+
+1. `scripts/work_item_ctl.sh`
+2. `scripts/open_current_work_item.sh`
+3. `scripts/start_work_item.sh`
+4. `scripts/pause_work_item.sh`
+5. `scripts/resume_work_item.sh`
+6. `scripts/complete_work_item.sh`
+7. `scripts/upsert_work_item_progress.sh`
+
+这些是当前实现细节，不应继续决定产品层的用户心智。
 
 ## Operator Contracts
 
 凡是进入 code change / code review / workflow implementation 场景，除了 routing 与 state protocol，还应读取：
 
-1. [code_review.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/code_review.md)
+1. [code_review.md](./code_review.md)
    - 定义跨 agent 的 canonical review contract
-2. [agent-operator-contract.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/agent-operator-contract.md)
+2. [agent-operator-contract.md](./agent-operator-contract.md)
    - 定义跨 agent 的 canonical operator contract
 3. `docs/workflows/provider-deltas/`
    - 只承载 provider-specific delta，不得复制第二套 operator constitution
@@ -126,96 +121,92 @@
 
 1. `Research Memo`
 2. `Decision Pack`
-3. 必要时的 `Decision Log Entry`
-4. 必要时的 `Status Snapshot`
+3. 必要时的 task-scoped artifact writeback
+4. 只有显式升级到治理模式时，才追加更重的 governance artifact
 
 ## Common Validation
 
-常用校验入口：
+常用校验入口必须按仓库模式区分：
+
+framework source repo：
 
 ```bash
-./.agents/skills/harness/scripts/validate_workspace.sh
-./.agents/skills/harness/scripts/audit_document_system.sh
-./.agents/skills/harness/scripts/audit_tool_parity.sh
-./.agents/skills/harness/scripts/validate_freshness_gate.sh --staged
+./scripts/validate_source_repo.sh
+./scripts/audit_role_schema.sh
+./scripts/run_governance_surface_diagnostic.sh --mode source
+```
+
+materialized task runtime：
+
+```bash
+./scripts/validate_workspace.sh --mode core
+./scripts/audit_state_system.sh --mode core
+./scripts/audit_document_system.sh
+./scripts/validate_freshness_gate.sh --staged
+./scripts/run_governance_surface_diagnostic.sh --mode consumer
+```
+
+advanced governance runtime：
+
+```bash
+./scripts/validate_workspace.sh --mode governance
+./scripts/audit_state_system.sh --mode governance
+./scripts/audit_document_system.sh
+./scripts/validate_freshness_gate.sh --staged
+./scripts/run_governance_surface_diagnostic.sh --mode consumer
 ```
 
 ## Version Lifecycle
 
-正确做法不是让 `v1-v60` 永久堆在 active 目录。
+正确做法不是让任务历史永久堆在 active 目录。
 
 正确生命周期是：
 
-1. `in-flight draft`
-   - 放在 `.harness/workspace/briefs/`
-2. `founder-locked snapshot`
-   - 产品 / repo-local runtime 对象迁入 `.harness/workspace/archive/`
-   - harness framework 推导正文迁入 `.agents/skills/harness/references/archive/harness/`
-   - 若 append-only artifact 仍引用旧路径，原路径只保留 redirect stub，不再保留完整正文
-3. `current canonical pointer`
-   - 在 `.harness/workspace/current/` 更新为最新稳定路径
+1. `active task`
+   - 当前 task 保持在 `.harness/tasks/<task-id>/task.md`
+2. `active recovery`
+   - 若任务仍在执行，用 `.harness/tasks/<task-id>/progress.md` 承担恢复信息
+3. `artifact accumulation`
+   - task 产物进入 `.harness/tasks/<task-id>/refs/`、`.harness/tasks/<task-id>/outputs/` 与 `closure/`
 4. `historical recall`
    - 需要回溯时再去 archive 读旧版本
+5. `close and compact`
+   - 任务完成后迁入 `.harness/archive/`
 
-## Stable Entry Rules
-
-对于 Founder 已拍板的主题：
-
-1. 必须有一个稳定的 current 文件
-2. current 文件负责回答：
-   - 现在生效的是什么
-   - 指向哪份历史快照
-   - supersede 了什么
-   - 哪些问题仍未解决
-3. current 文件的头部必须保持单行、可解析，至少包含 `Status`、`Last updated`、`Active snapshot`、`Supersedes`
-
-当前要求至少存在：
-
-1. `.harness/workspace/current/product-vision.md`
-
-## Tool Adapter Parity
+## Tool Adapter Boundary
 
 公司 OS 必须是工具中立的。
 
 因此：
 
-1. 根层 `AGENTS.md`、`CLAUDE.md`、`GEMINI.md` 必须保持同义，并都只承担 redirect stub 语义
-2. 部门层也采用同样镜像规则
-3. 公司 OS 的 canonical capability surface 收敛为 `agents + skills`
-4. `commands`、`hooks` 只允许作为 provider-specific optional adapters 存在，不得承载唯一真相
-5. 工具差异只允许存在于：
+1. 公司 OS 的 canonical capability surface 收敛为 `agents + skills`
+2. `commands`、`hooks` 只允许作为 provider-specific optional adapters 存在，不得承载唯一真相
+3. 工具差异只允许存在于：
    - `.claude/`
    - `.codex/`
    - `.gemini/`
-6. canonical root first hop 由 `.harness/entrypoint.md` 承担
-7. 本文件只承担详细 workflow source，不再承担根入口 first hop
-8. 入口文件不负责承载工具专属细节
-9. 详细投影规则见 [tool-adapter-capability-map.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/tool-adapter-capability-map.md)
-
-检查脚本：
-
-1. `./.agents/skills/harness/scripts/sync_tool_entrypoints.sh`
-2. `./.agents/skills/harness/scripts/audit_tool_parity.sh`
+4. `/harness` 是默认产品入口
+5. 本文件只承担详细 workflow source
+6. 默认体验不依赖根层镜像入口文件保持逐字一致
+7. 详细投影规则见 [tool-adapter-capability-map.md](./tool-adapter-capability-map.md)
 
 ## Audit Rules
 
 定期检查至少包括：
 
-1. 新员工入口是否仍然明确
-2. `.harness/workspace/current/` 是否仍指向真实存在的快照
-3. `.harness/workspace/briefs/` 是否出现 `v1-vN` 污染
-4. active 目录中是否遗留 superseded 版本
-5. 若旧路径仍被历史 artifact 引用，`.harness/workspace/briefs/` 中是否只留下短 redirect stub，而不是继续保留完整正文
-6. 路由文档与目录结构是否同步
+1. 默认入口是否仍围绕 `/harness`
+2. `.harness/current-task` 是否仍指向真实存在的 task 文件
+3. 进行中的 task 是否拥有对应的 progress artifact
+4. active surface 是否遗留已关闭但未归档的任务
+5. 路由文档与最小 runtime contract 是否同步
 
 对应脚本：
 
-1. `./.agents/skills/harness/scripts/audit_document_system.sh`
-2. `./.agents/skills/harness/scripts/audit_tool_parity.sh`
+1. `./scripts/audit_document_system.sh`
 
 ## 禁止事项
 
 1. 不要让新员工默认扫描全仓库 markdown
-2. 不要把历史版本长期留在 `.harness/workspace/briefs/`
-3. 不要让 `.harness/workspace/current/` 里出现版本号文件名
+2. 不要把 advanced governance tree 默认长进最小 runtime
+3. 不要把 `.harness/current-task` 写成第二个 source of truth
 4. 不要把聊天上下文当成长期 source of truth

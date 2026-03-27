@@ -1,118 +1,99 @@
 # Project Structure
 
-更新日期：`2026-03-25`
+更新日期：`2026-03-26`
 
-> 注意：
-> 当前仓库仍处于两代结构并存的过渡态。
-> canonical 功能性 surface 只允许三种命运：
-> 1. 并入 `.agents/skills/harness/`
-> 2. 并入 `.harness/`
-> 3. 删除
->
-> 顶层 provider adapter 是唯一例外：
-> `.claude/`、`.codex/`、`.gemini/` 允许继续保留为薄 adapter。
+## Repo Identity
 
-## 顶层目录
+这个仓库是 `harness` 的 implementation source repo。
 
-下列条目分为：
+它只负责三类东西：
 
-1. `当前仍存在`
-2. `最终目标去向`
+1. `core task runtime` 的 canonical logic
+2. 可选的 `advanced governance mode` 设计与材料
+3. source-maintainer 侧的 contracts、references、scripts 与 audits
 
-- `README.md`: 仓库总览
-- `.harness/entrypoint.md`: 当前 canonical first hop
-- `.agents/skills/harness/docs/workflows/document-routing-and-lifecycle.md`: detailed routing / lifecycle workflow source，已并入 `harness`
-- `CLAUDE.md`: Claude redirect stub，转发到 `.harness/entrypoint.md`
-- `AGENTS.md`: AGENTS redirect stub，转发到 `.harness/entrypoint.md`
-- `GEMINI.md`: Gemini redirect stub，转发到 `.harness/entrypoint.md`
-- `docs/`: 已删除；由 `.agents/skills/harness/docs/` 完全接管
-- `workspace/`: 已删除；由 `.harness/workspace/` 完全接管
-- `.claude/`: Claude provider adapter，最终保留为顶层薄 adapter
-- `.codex/`: Codex provider adapter，最终保留为顶层薄 adapter
-- `.gemini/`: Gemini provider adapter（当前只保留 settings；workspace skills 直接消费 `.agents/skills/` alias；custom agents 仍未启用），最终保留为顶层薄 adapter
-- `.agents/skills/`: 当前 canonical skill source；`harness/` 已创建为唯一目标 carrier，最终压缩为单一 `.agents/skills/harness/`
-- `.agents/skills/harness/scripts/`: 当前唯一脚本与审计入口，已并入 `harness`
-- `.harness/`: 新建中的 repo-local runtime workspace，最终承接当前实例态与运行态
+它不直接承载：
 
-说明：
+1. 任意 consumer repo 的 live task runtime truth
+2. root `AGENTS.md / CLAUDE.md / GEMINI.md` 的默认产品入口语义
+3. 安装仪式或 overlay-first 接入体验
 
-1. 公司 OS 的 canonical capability surface 收敛为 `single harness skill source + repo-local .harness runtime`
-2. `.claude/`、`.codex/`、`.gemini/` 当前仍是 provider adapters，最终继续保留为顶层薄 adapter
-3. `commands`、`hooks` 若存在，只是 adapter，不是 canonical truth
-4. `.claude/skills/` 当前是物理 projection 副本，不是软链接
-5. `.agents/skills/harness/` 已存在，当前作为最终 skill carrier 的先行 scaffold
+## Product Layers
 
-## 最终收口目标
+当前产品叙事只保留两层：
 
-### Move Into `.agents/skills/harness/`
+1. `core task runtime`
+   - 默认 `/harness` 进入的任务执行层
+   - 关注 framing、state、resume、artifacts、closure
+2. `advanced governance mode`
+   - 用户显式升级后才出现的组织治理层
+   - 关注 cadence、roles、escalation、cross-task coordination
 
-- 无剩余顶层 source 候选
+另有一层内部面：
 
-已完成：
+1. `internal plumbing`
+   - source repo 维护、provider packaging、projection、audit、diagnostic
+   - 对用户来说不是主入口
+   - 包括 runtime scaffold 与 smoke-chain verification
 
-- `docs/ -> .agents/skills/harness/docs/`
-- `scripts/ -> .agents/skills/harness/scripts/`
-- 现有并列 skill 目录 -> `.agents/skills/harness/skills/`
-- `codex/ -> .agents/skills/harness/references/provider-adapters/codex/`
-- `.agents/roles/ -> .agents/skills/harness/roles/`
+## Source Repo Layout
 
-### Keep As Top-Level Provider Adapters
+当前 source-of-truth 目录：
 
-- `.claude/`
-- `.codex/`
-- `.gemini/`
+- `SKILL.md`
+  - 根 skill 入口
+- `skills/`
+  - 可复用 skill 包
+- `roles/`
+  - 内部 execution design 与 canonical role source
+- `scripts/`
+  - runtime、audit、source maintenance 脚本
+- `docs/`
+  - workflow、charter、organization 与 templates
+- `references/`
+  - active references、runtime contracts、vNext spec 与历史资料
 
-### Move Into `.harness/`
+## Runtime Contract
 
-- 无剩余顶层 runtime 候选
-- 已完成：
-  - `workspace/ -> .harness/workspace/`
-  - `departments/ -> .harness/workspace/departments/`
+`harness` 的默认 runtime root 仍然是 `.harness/`，但它不再被视为前置安装物。
 
-### Delete
+只有当任务需要跨回合追踪、恢复、reviewable artifact 或决策回写时，才按需 materialize。
 
-- 不属于 clean skill source、也不属于 repo-local runtime 的功能性目录
+默认最小 runtime 应围绕：
 
-## `.agents/skills/harness/docs/`
+- `tasks/`
+  - task 目录本体，内部承载 `task.md`、`progress.md`、`refs/`、`outputs/` 与 `closure/`
+- `archive/`
+  - 关闭后的任务记录
+- `locks/`
+  - 受控状态写入时的运行时锁
+- `manifest.toml`
+  - repo-local runtime metadata
 
-- `charter/`: 使命、阶段边界、原则
-- `organization/`: org chart、decision rights
-- `workflows/`: 决策与 review 流程
-- `memory/`: 记忆架构说明
-- `research/`: 前沿实践与技术调研
-- `templates/`: 标准化输出模板
+source repo 不保留 live `.harness/`。
 
-## .harness/workspace/departments/
+source repo 只保留：
 
-每个部门目录的标准结构：
+- runtime contract
+- runtime materializer
+- smoke-chain validation
 
-- `README.md`: 本部门职责与 owned paths
-- `AGENTS.md`: canonical 局部指令
-- `CLAUDE.md`: Claude 局部镜像入口
-- `GEMINI.md`: Gemini 局部镜像入口
-- `charter.md`: 部门章程
-- `interfaces.md`: 输入输出协议
-- `workspace/`: 本部门运行态文档
+当前最小链路由以下脚本负责：
 
-推荐子结构：
+- `scripts/materialize_runtime_fixture.sh`
+- `scripts/run_state_validation_slice.sh`
 
-- `workspace/intake/`
-- `workspace/memos/`
-- `workspace/outputs/`
-- `workspace/reports/daily/`
-- `workspace/reports/retros/`
+迁移期说明：
 
-## `.harness/workspace/`
+- `task`、`progress` 与 transition history 的 canonical source of truth 已收敛到 task 目录
+- `.harness/workspace/state/transitions/` 只保留给 legacy fallback 读取，不再是默认写入面
 
-repo-local runtime workspace 的主要目录：
+只有在用户显式升级到 `advanced governance mode` 时，才值得扩到更重的公司治理树。
 
-- `current/`: 当前稳定 truth
-- `briefs/`: in-flight brief 与必要 redirect stub
-- `departments/`: 各部门 runtime workspace 与本地 charter/interface
-- `intake/`: inbox / triage
-- `research/`: dispatches / sources
-- `decisions/log/`: append-only 决策落账
-- `status/`: digests / process-audits / snapshots / demos
-- `state/`: items / boards / transitions / progress / board-refreshes
-- `runs/`: dogfood / evolution run
-- `archive/`: repo-local 历史快照
+## Design Rule
+
+所有文件都要先回答一个问题：
+
+它属于 `core task runtime`、`advanced governance mode`、`internal plumbing`，还是根本不该存在。
+
+如果三边都不属于，就不该存在于 canonical surface。

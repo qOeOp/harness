@@ -5,8 +5,18 @@ const path = require("path");
 const { pathToFileURL } = require("url");
 const { spawnSync } = require("child_process");
 
-const repoRoot = path.resolve(__dirname, "..", "..", "..", "..");
+const harnessRoot = path.resolve(__dirname, "..");
+const installedHarnessSuffix = `${path.sep}.agents${path.sep}skills${path.sep}harness`;
+const harnessLayout = harnessRoot.endsWith(installedHarnessSuffix) ? "consumer" : "carrier";
+const repoRoot = harnessLayout === "consumer" ? path.resolve(harnessRoot, "../../..") : harnessRoot;
+const scriptsRoot = harnessLayout === "consumer" ? "./.agents/skills/harness/scripts" : "./scripts";
 const stateRoot = path.join(repoRoot, ".harness/workspace/state");
+const taskRoot = path.join(repoRoot, ".harness/tasks");
+const manifestPath = path.join(repoRoot, ".harness/manifest.toml");
+
+function scriptCommand(name) {
+  return `${scriptsRoot}/${name}`;
+}
 
 function pad(value) {
   return String(value).padStart(2, "0");
@@ -24,7 +34,7 @@ const today = localDateValue();
 
 function usage() {
   console.error(
-    "usage: ./.agents/skills/harness/scripts/render_founder_review_page.sh [--work-item <WI-xxxx> | --scope company|founder|department <slug>] [--output <path>]"
+    `usage: ${scriptCommand("render_founder_review_page.sh")} [--work-item <WI-xxxx> | --scope company|founder|department <slug>] [--output <path>]`
   );
   process.exit(1);
 }
@@ -46,6 +56,101 @@ function run(command, args, options = {}) {
 
 function mustReadFile(filePath) {
   return fs.readFileSync(filePath, "utf8");
+}
+
+function canonicalWorkItemPath(workItemId) {
+  return path.join(taskRoot, workItemId, "task.md");
+}
+
+function legacyWorkItemPath(workItemId) {
+  return path.join(stateRoot, "items", `${workItemId}.md`);
+}
+
+function resolveWorkItemPath(workItemId) {
+  const canonicalPath = canonicalWorkItemPath(workItemId);
+  if (fs.existsSync(canonicalPath)) {
+    return canonicalPath;
+  }
+
+  const legacyPath = legacyWorkItemPath(workItemId);
+  if (fs.existsSync(legacyPath)) {
+    return legacyPath;
+  }
+
+  return "";
+}
+
+function canonicalProgressPath(workItemId) {
+  return path.join(taskRoot, workItemId, "progress.md");
+}
+
+function legacyProgressPath(workItemId) {
+  return path.join(stateRoot, "progress", `${workItemId}.md`);
+}
+
+function resolveProgressPath(workItemId) {
+  const canonicalPath = canonicalProgressPath(workItemId);
+  if (fs.existsSync(canonicalPath) || fs.existsSync(path.join(taskRoot, workItemId))) {
+    return canonicalPath;
+  }
+
+  return legacyProgressPath(workItemId);
+}
+
+function listWorkItemPaths() {
+  const paths = [];
+  const canonicalIds = new Set();
+
+  if (fs.existsSync(taskRoot)) {
+    for (const entry of fs.readdirSync(taskRoot)) {
+      const workItemPath = path.join(taskRoot, entry, "task.md");
+      if (!fs.existsSync(workItemPath)) {
+        continue;
+      }
+      canonicalIds.add(entry);
+      paths.push(workItemPath);
+    }
+  }
+
+  const legacyItemsDir = path.join(stateRoot, "items");
+  if (fs.existsSync(legacyItemsDir)) {
+    for (const entry of fs.readdirSync(legacyItemsDir)) {
+      if (!entry.endsWith(".md") || entry === "README.md") {
+        continue;
+      }
+      const workItemId = entry.replace(/\.md$/, "");
+      if (canonicalIds.has(workItemId)) {
+        continue;
+      }
+      paths.push(path.join(legacyItemsDir, entry));
+    }
+  }
+
+  return paths.sort();
+}
+
+function readManifestValue(key) {
+  if (!fs.existsSync(manifestPath)) {
+    return "";
+  }
+
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escapedKey}\\s*=\\s*(.+)$`, "m");
+  const match = mustReadFile(manifestPath).match(pattern);
+  if (!match) {
+    return "";
+  }
+
+  return match[1].trim().replace(/^"/, "").replace(/"$/, "");
+}
+
+function runtimeValidationMode() {
+  const runtimeMode = readManifestValue("runtime_mode");
+  const governanceEnabled = readManifestValue("advanced_governance_enabled");
+  if (runtimeMode === "advanced-governance" || governanceEnabled === "true") {
+    return "governance";
+  }
+  return "core";
 }
 
 function escapeHtml(value) {
@@ -131,15 +236,10 @@ function existingArtifactWorkItemLinks(filePath) {
 
 function linkedWorkItemsForArtifact(outputPath) {
   const artifactPath = path.relative(repoRoot, outputPath);
-  const itemsDir = path.join(stateRoot, "items");
   const linkedIds = new Set();
 
-  for (const entry of fs.readdirSync(itemsDir)) {
-    if (!entry.endsWith(".md") || entry === "README.md") {
-      continue;
-    }
-
-    const itemMarkdown = mustReadFile(path.join(itemsDir, entry));
+  for (const workItemPath of listWorkItemPaths()) {
+    const itemMarkdown = mustReadFile(workItemPath);
     const workItemId = fieldValue(itemMarkdown, "ID");
     const artifacts = parseLinkedArtifacts(fieldValue(itemMarkdown, "Linked artifacts"));
     if (artifacts.some((artifact) => artifact.artifactPath === artifactPath)) {
@@ -151,10 +251,11 @@ function linkedWorkItemsForArtifact(outputPath) {
 }
 
 function parseChecks() {
+  const validationMode = runtimeValidationMode();
   const checks = [
-    ["Workspace Baseline", "./.agents/skills/harness/scripts/validate_workspace.sh", ["--quiet"]],
-    ["State Audit", "./.agents/skills/harness/scripts/audit_state_system.sh", ["--quiet"]],
-    ["Freshness Gate", "./.agents/skills/harness/scripts/validate_freshness_gate.sh", []],
+    ["Workspace Baseline", scriptCommand("validate_workspace.sh"), ["--mode", validationMode, "--quiet"]],
+    ["State Audit", scriptCommand("audit_state_system.sh"), ["--mode", validationMode, "--quiet"]],
+    ["Freshness Gate", scriptCommand("validate_freshness_gate.sh"), []],
   ];
 
   return checks.map(([label, command, args]) => {
@@ -262,7 +363,7 @@ function resolveSelection() {
   }
 
   if (workItemId) {
-    const workItemPath = path.join(stateRoot, "items", `${workItemId}.md`);
+    const workItemPath = resolveWorkItemPath(workItemId);
     if (!fs.existsSync(workItemPath)) {
       throw new Error(`missing work item: ${workItemId}`);
     }
@@ -283,7 +384,7 @@ function resolveSelection() {
     openArgs.push(department);
   }
 
-  const result = run("./.agents/skills/harness/scripts/open_current_work_item.sh", openArgs);
+  const result = run(scriptCommand("open_current_work_item.sh"), openArgs);
   if (![0, 2].includes(result.status)) {
     throw new Error(result.stderr || "failed to open current work item");
   }
@@ -663,7 +764,9 @@ ${linkedWorkItemsComment}<html lang="en">
       <section class="panel span-5">
         <h2>State Spine</h2>
         ${renderDefinitionGrid([
-          ["Board route", context.boardPath],
+          ["Task source path", context.taskPath],
+          ["Progress path", context.progressPath],
+          ["Derived board route", context.boardPath],
           ["Selection result", context.selectionResult],
           ["Selection reason", context.selectionReason],
           ["State version", context.stateVersion],
@@ -710,8 +813,8 @@ ${linkedWorkItemsComment}<html lang="en">
         <h2>How To Verify</h2>
         <ul>
           <li>Open this file directly in a browser. No server is required.</li>
-          <li>Run <code>./.agents/skills/harness/scripts/open_current_work_item.sh --json founder</code> to confirm the founder route.</li>
-          <li>Run <code>./.agents/skills/harness/scripts/render_founder_review_page.sh --scope founder</code> to regenerate from live state.</li>
+          <li>Run <code>${escapeHtml(scriptCommand("open_current_work_item.sh"))} --json founder</code> to confirm the founder route.</li>
+          <li>Run <code>${escapeHtml(scriptCommand("render_founder_review_page.sh"))} --scope founder</code> to regenerate from live state.</li>
           <li>Run the checks above to confirm the repo still passes its control gates.</li>
         </ul>
       </section>
@@ -729,7 +832,7 @@ function main() {
   const workItemId = fieldValue(markdown, "ID");
   const workItemAbsPath = selection.workItemPath;
   const linkedArtifacts = parseLinkedArtifacts(fieldValue(markdown, "Linked artifacts"));
-  const progressAbsPath = path.join(stateRoot, "progress", `${workItemId}.md`);
+  const progressAbsPath = resolveProgressPath(workItemId);
   const progressMarkdown = fs.existsSync(progressAbsPath) ? mustReadFile(progressAbsPath) : "";
   const checks = parseChecks();
 
@@ -762,6 +865,8 @@ function main() {
     checks,
     generatedAt: localTimestampValue(),
     linkedWorkItems,
+    taskPath: path.relative(repoRoot, workItemAbsPath),
+    progressPath: fs.existsSync(progressAbsPath) ? path.relative(repoRoot, progressAbsPath) : "none",
     boardPath: selection.boardPath,
     selectionResult: selection.selectionResult,
     selectionReason: selection.selectionReason,

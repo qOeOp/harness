@@ -3,7 +3,7 @@ set -eu
 
 usage() {
   cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/new_role.sh --slug <role-slug> --claude-description <text> --codex-description <text> [options]
+usage: ./scripts/new_role.sh --slug <role-slug> --claude-description <text> --codex-description <text> [options]
 
 required:
   --slug <slug>
@@ -61,11 +61,6 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if [ "$print_template" -eq 1 ]; then
-  cat ".agents/skills/harness/docs/templates/role-design-brief.md"
-  exit 0
-fi
-
 [ -n "$slug" ] || usage
 [ -n "$claude_description" ] || usage
 [ -n "$codex_description" ] || usage
@@ -75,10 +70,25 @@ case "$slug" in
 esac
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../../../.." && pwd)
+repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
 cd "$repo_root"
 
-role_dir=".agents/skills/harness/roles"
+if [ -f "SKILL.md" ] && [ -d "roles" ]; then
+  role_dir="roles"
+  template_path="docs/templates/role-design-brief.md"
+elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
+  role_dir=".agents/skills/harness/roles"
+  template_path=".agents/skills/harness/docs/templates/role-design-brief.md"
+else
+  echo "unable to resolve harness repo layout" >&2
+  exit 1
+fi
+
+if [ "$print_template" -eq 1 ]; then
+  cat "$template_path"
+  exit 0
+fi
+
 role_file="$role_dir/$slug.md"
 
 [ ! -e "$role_file" ] || {

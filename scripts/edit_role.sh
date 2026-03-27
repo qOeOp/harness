@@ -3,7 +3,7 @@ set -eu
 
 usage() {
   cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/edit_role.sh --slug <role-slug> [options]
+usage: ./scripts/edit_role.sh --slug <role-slug> [options]
 
 optional updates:
   --claude-name <name>
@@ -74,10 +74,18 @@ done
 [ -n "$slug" ] || usage
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../../../.." && pwd)
+repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
 cd "$repo_root"
 
-role_file=".agents/skills/harness/roles/$slug.md"
+if [ -f "SKILL.md" ] && [ -d "roles" ]; then
+  role_file="roles/$slug.md"
+elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
+  role_file=".agents/skills/harness/roles/$slug.md"
+else
+  echo "unable to resolve harness repo layout" >&2
+  exit 1
+fi
+
 [ -f "$role_file" ] || {
   echo "missing role: $role_file" >&2
   exit 1

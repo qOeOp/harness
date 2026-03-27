@@ -15,9 +15,9 @@
 
 文件：
 
-- [.harness/entrypoint.md](/Users/vx/WebstormProjects/trading-agent/.harness/entrypoint.md)
-- [CLAUDE.md](/Users/vx/WebstormProjects/trading-agent/CLAUDE.md)
-- [docs/charter/company-charter.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/charter/company-charter.md)
+- `.harness/entrypoint.md`
+- `CLAUDE.md`
+- [docs/charter/company-charter.md](../charter/company-charter.md)
 
 ## Layer 1: Canonical Operating Docs
 
@@ -25,10 +25,10 @@
 
 文件：
 
-- [docs/organization/org-chart.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/org-chart.md)
-- [docs/organization/decision-rights.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/decision-rights.md)
-- [docs/workflows/decision-workflow.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/decision-workflow.md)
-- [docs/workflows/document-routing-and-lifecycle.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/document-routing-and-lifecycle.md)
+- [docs/organization/org-chart.md](../organization/org-chart.md)
+- [docs/organization/decision-rights.md](../organization/decision-rights.md)
+- [docs/workflows/decision-workflow.md](../workflows/decision-workflow.md)
+- [docs/workflows/document-routing-and-lifecycle.md](../workflows/document-routing-and-lifecycle.md)
   - 当前作为 detailed routing / lifecycle workflow source
 
 ## Layer 2: Operational Memory
@@ -37,14 +37,14 @@
 
 文件：
 
-- [.harness/workspace/current](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/current)
-- [.harness/workspace/status/snapshots](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/status/snapshots)
-- [.harness/workspace/status/digests](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/status/digests)
-- [.harness/workspace/status/process-audits](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/status/process-audits)
-- [.harness/workspace/decisions/log](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/decisions/log)
-- [.harness/workspace/research/sources](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/research/sources)
-- [.harness/workspace/intake/inbox](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/intake/inbox)
-- [.harness/workspace/intake/triage](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/intake/triage)
+- `.harness/workspace/current`
+- `.harness/workspace/status/snapshots`
+- `.harness/workspace/status/digests`
+- `.harness/workspace/status/process-audits`
+- `.harness/workspace/decisions/log`
+- `.harness/workspace/research/sources`
+- `.harness/workspace/intake/inbox`
+- `.harness/workspace/intake/triage`
 
 ## Layer 3: Active Working Set
 
@@ -52,8 +52,8 @@
 
 目录：
 
-- [.harness/workspace/briefs](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/briefs)
-- [.harness/workspace/departments](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/departments)
+- `.harness/workspace/briefs`
+- `.harness/workspace/departments`
 
 对于交易产品本身，后续应采用额外的三层记忆：
 
@@ -69,7 +69,7 @@
 
 目录：
 
-- [.harness/workspace/archive](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/archive)
+- `.harness/workspace/archive`
 
 ## Writeback Rules
 
@@ -82,8 +82,8 @@
 
 目录生命周期与 current/archive 路由见：
 
-- [.harness/entrypoint.md](/Users/vx/WebstormProjects/trading-agent/.harness/entrypoint.md)
-- [docs/workflows/document-routing-and-lifecycle.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/document-routing-and-lifecycle.md)
+- `.harness/entrypoint.md`
+- [docs/workflows/document-routing-and-lifecycle.md](../workflows/document-routing-and-lifecycle.md)
 
 ## 禁止事项
 

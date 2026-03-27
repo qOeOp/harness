@@ -5,9 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  cat <<'EOF' >&2
-usage: ./.agents/skills/harness/scripts/select_work_item.sh [--json|--id-only|--path-only] [company|founder|department <slug>]
-EOF
+  printf 'usage: %s [--json|--id-only|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "select_work_item.sh")" >&2
 }
 
 output_mode="summary"
@@ -46,10 +44,18 @@ board_path=""
 
 case "$scope" in
   company)
-    board_path="$state_boards_dir/company.md"
+    if runtime_governance_enabled; then
+      board_path="$state_boards_dir/company.md"
+    else
+      board_path="none"
+    fi
     ;;
   founder)
-    board_path="$state_boards_dir/founder.md"
+    if runtime_governance_enabled; then
+      board_path="$state_boards_dir/founder.md"
+    else
+      board_path="none"
+    fi
     ;;
   department)
     department="${1:-}"
@@ -61,7 +67,11 @@ case "$scope" in
       echo "unknown department: $department" >&2
       exit 1
     fi
-    board_path=".harness/workspace/departments/$department/workspace/board.md"
+    if runtime_governance_enabled; then
+      board_path=".harness/workspace/departments/$department/workspace/board.md"
+    else
+      board_path="none"
+    fi
     ;;
   *)
     usage
@@ -69,21 +79,8 @@ case "$scope" in
     ;;
 esac
 
-ensure_boards_in_sync || {
-  echo "failed to synchronize boards before selection" >&2
-  exit 1
-}
-
-if [ ! -f "$board_path" ]; then
-  echo "missing board: $board_path" >&2
-  exit 1
-fi
-
 is_open_status() {
-  case "$1" in
-    backlog|framing|planning|ready|in-progress|review|paused) return 0 ;;
-    *) return 1 ;;
-  esac
+  is_open_work_item_status "$1"
 }
 
 status_rank() {
@@ -176,10 +173,56 @@ blocked_by_resolved() {
   [ -z "$unresolved_blockers" ]
 }
 
+selection_reason_for_file() {
+  file="$1"
+  reason=""
+  founder_escalation=$(field_value "$file" "Founder escalation")
+  blocked_by=$(field_value "$file" "Blocked by")
+  current_blocker=$(field_value "$file" "Current blocker")
+  interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
+  status=$(field_value "$file" "Status")
+
+  case "$scope" in
+    company)
+      if [ "$founder_escalation" = "pending-founder" ]; then
+        reason=$(append_reason "$reason" "awaiting founder decision")
+      fi
+      ;;
+    founder)
+      :
+      ;;
+    department)
+      participation=$(department_participation "$file" "$department" 2>/dev/null || true)
+      if [ "$participation" = "blocked" ]; then
+        reason=$(append_reason "$reason" "department marked blocked")
+      fi
+      if [ -n "$participation" ] && [ "$founder_escalation" = "pending-founder" ]; then
+        reason=$(append_reason "$reason" "awaiting founder decision")
+      fi
+      ;;
+  esac
+
+  if ! blocked_by_resolved "$blocked_by"; then
+    reason=$(append_reason "$reason" "blocked by $unresolved_blockers")
+  fi
+
+  if ! value_is_missing "$current_blocker"; then
+    reason=$(append_reason "$reason" "$current_blocker")
+  fi
+
+  if [ "$status" = "paused" ] && ! value_is_missing "$interrupt_marker" && [ "$interrupt_marker" != "none" ]; then
+    reason=$(append_reason "$reason" "interrupt marker $interrupt_marker")
+  fi
+
+  printf '%s\n' "$reason"
+}
+
 candidate_tmp=$(mktemp)
 blocked_tmp=$(mktemp)
 trap 'rm -f "$candidate_tmp" "$blocked_tmp"' EXIT HUP INT TERM
 
+ensure_current_task_pointer
+current_task_id=$(read_current_task_id 2>/dev/null || true)
 for file in $(list_work_items); do
   id=$(field_value "$file" "ID")
   title=$(field_value "$file" "Title")
@@ -197,6 +240,7 @@ for file in $(list_work_items); do
   fi
 
   scope_rank="00"
+  focus_rank="10"
   reason=""
   selected=0
 
@@ -233,19 +277,14 @@ for file in $(list_work_items); do
     continue
   fi
 
-  if ! blocked_by_resolved "$blocked_by"; then
-    reason=$(append_reason "$reason" "blocked by $unresolved_blockers")
+  if [ -n "$current_task_id" ] && [ "$id" = "$current_task_id" ]; then
+    focus_rank="00"
   fi
 
-  if ! value_is_missing "$current_blocker"; then
-    reason=$(append_reason "$reason" "$current_blocker")
-  fi
+  reason=$(selection_reason_for_file "$file")
 
-  if [ "$status" = "paused" ] && ! value_is_missing "$interrupt_marker" && [ "$interrupt_marker" != "none" ]; then
-    reason=$(append_reason "$reason" "interrupt marker $interrupt_marker")
-  fi
-
-  line=$(printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  line=$(printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$focus_rank" \
     "$scope_rank" \
     "$(status_rank "$status")" \
     "$(priority_rank "$priority")" \
@@ -270,7 +309,7 @@ pick_top_line() {
   if [ ! -s "$source_file" ]; then
     return 1
   fi
-  sort -t "$(printf '\t')" -k1,1n -k2,2n -k3,3n -k4,4 -k5,5 "$source_file" | head -n 1
+  sort -t "$(printf '\t')" -k1,1n -k2,2n -k3,3n -k4,4n -k5,5 -k6,6 "$source_file" | head -n 1
 }
 
 tab=$(printf '\t')
@@ -371,7 +410,7 @@ EOF
 
 emit_success() {
   line="$1"
-  IFS=$tab read -r scope_key status_key priority_key deadline_sort selected_id selected_path selected_title selected_status selected_priority selected_owner selected_reason <<EOF
+  IFS=$tab read -r focus_key scope_key status_key priority_key deadline_sort selected_id selected_path selected_title selected_status selected_priority selected_owner selected_reason <<EOF
 $line
 EOF
   unset IFS
@@ -409,7 +448,7 @@ EOF
 
 emit_blocked() {
   line="$1"
-  IFS=$tab read -r scope_key status_key priority_key deadline_sort blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason <<EOF
+  IFS=$tab read -r focus_key scope_key status_key priority_key deadline_sort blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason <<EOF
 $line
 EOF
   unset IFS

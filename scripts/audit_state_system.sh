@@ -4,8 +4,53 @@ set -eu
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
-quiet="${1:-}"
+quiet=""
+mode=""
 ok=1
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --quiet)
+      quiet="--quiet"
+      ;;
+    --mode)
+      shift
+      if [ $# -eq 0 ]; then
+        echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+        exit 2
+      fi
+      case "$1" in
+        core|governance)
+          mode="$1"
+          ;;
+        *)
+          echo "invalid mode: $1" >&2
+          exit 2
+          ;;
+      esac
+      ;;
+    *)
+      echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$mode" ]; then
+  runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "")
+  advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "")
+  if [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
+    mode="governance"
+  else
+    mode="core"
+  fi
+fi
+
+if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".agents/skills/harness" ]; then
+  echo "audit_state_system.sh checks a consumer runtime workspace, not the framework source repo." >&2
+  exit 2
+fi
 
 fail() {
   ok=0
@@ -24,86 +69,9 @@ require_file() {
   fi
 }
 
-require_dir "$state_root"
-require_dir "$state_items_dir"
-require_dir "$state_boards_dir"
-require_dir "$state_board_refreshes_dir"
-require_dir "$state_progress_dir"
-require_dir "$state_transitions_dir"
-require_file "$state_boards_dir/company.md"
-require_file "$state_boards_dir/founder.md"
-require_file "$state_board_refreshes_dir/README.md"
-require_file "$state_progress_dir/README.md"
-
-for department in $(list_departments); do
-  require_file ".harness/workspace/departments/$department/workspace/board.md"
-done
-
-for board_refresh_file in $(list_board_refresh_events); do
-  board_refresh_at=$(field_value "$board_refresh_file" "At")
-  board_refresh_actor=$(field_value "$board_refresh_file" "Actor")
-  board_refresh_invoker=$(field_value "$board_refresh_file" "Invoker")
-  board_refresh_targets=$(field_value "$board_refresh_file" "Targets")
-  board_refresh_prev=$(field_value "$board_refresh_file" "Prev event")
-  board_refresh_prev_hash=$(field_value "$board_refresh_file" "Prev event hash")
-  board_refresh_hash=$(field_value "$board_refresh_file" "Event hash")
-
-  for pair in \
-    "At:$board_refresh_at" \
-    "Actor:$board_refresh_actor" \
-    "Invoker:$board_refresh_invoker" \
-    "Targets:$board_refresh_targets" \
-    "Prev event:$board_refresh_prev" \
-    "Prev event hash:$board_refresh_prev_hash" \
-    "Event hash:$board_refresh_hash"
-  do
-    label=${pair%%:*}
-    value=${pair#*:}
-    if [ -z "$value" ]; then
-      fail "missing board refresh field '$label' in $board_refresh_file"
-    fi
-  done
-
-  if value_is_missing "$board_refresh_actor" || [ "$board_refresh_actor" = "system" ]; then
-    fail "invalid board refresh actor '$board_refresh_actor' in $board_refresh_file"
-  fi
-
-  expected_board_refresh_hash=$(board_refresh_event_hash "$board_refresh_file")
-  if [ "$board_refresh_hash" != "$expected_board_refresh_hash" ]; then
-    fail "board refresh event hash mismatch in $board_refresh_file"
-  fi
-
-  old_ifs=${IFS- }
-  IFS=','
-  set -- $board_refresh_targets
-  IFS=$old_ifs
-
-  for raw_target in "$@"; do
-    board_target=$(trim "$raw_target")
-    [ -n "$board_target" ] || continue
-
-    if ! is_valid_board_refresh_target "$board_target"; then
-      fail "invalid board refresh target '$board_target' in $board_refresh_file"
-      continue
-    fi
-
-    if [ ! -f "$board_target" ]; then
-      fail "missing board refresh target '$board_target' in $board_refresh_file"
-    fi
-  done
-
-  if [ "$board_refresh_prev" != "none" ]; then
-    if [ ! -f "$board_refresh_prev" ]; then
-      fail "missing previous board refresh event '$board_refresh_prev' in $board_refresh_file"
-    elif [ "$(field_value "$board_refresh_prev" "Event hash")" != "$board_refresh_prev_hash" ]; then
-      fail "previous board refresh event hash mismatch in $board_refresh_file"
-    fi
-  elif [ "$board_refresh_prev_hash" != "none" ]; then
-    fail "board refresh prev event hash must be none when prev event is none in $board_refresh_file"
-  fi
-done
-
-for progress_file in $(find "$state_progress_dir" -maxdepth 1 -type f -name 'WI-*.md' | sort); do
+audit_progress_file() {
+  progress_file="$1"
+  expected_work_item="$2"
   progress_work_item=$(field_value "$progress_file" "Work Item")
   progress_updated_at=$(field_value "$progress_file" "Updated at")
   progress_status_snapshot=$(field_value "$progress_file" "Status snapshot")
@@ -130,6 +98,10 @@ for progress_file in $(find "$state_progress_dir" -maxdepth 1 -type f -name 'WI-
     fi
   done
 
+  if [ "$progress_work_item" != "$expected_work_item" ]; then
+    fail "progress file points to wrong work item '$progress_work_item' in $progress_file"
+  fi
+
   if [ ! -f "$(work_item_path "$progress_work_item")" ]; then
     fail "progress file points to missing work item '$progress_work_item' in $progress_file"
   fi
@@ -150,9 +122,143 @@ for progress_file in $(find "$state_progress_dir" -maxdepth 1 -type f -name 'WI-
   if is_nonnegative_integer "$current_progress_version" && [ "$progress_state_version_snapshot" -gt "$current_progress_version" ]; then
     fail "progress snapshot version is ahead of work item in $progress_file"
   fi
+}
+
+require_dir "$task_runtime_dir"
+require_file "$runtime_manifest_path"
+
+manifest_schema_version=$(runtime_manifest_value "schema_version" || true)
+manifest_runtime_mode=$(runtime_manifest_value "runtime_mode" || true)
+manifest_governance=$(runtime_manifest_value "advanced_governance_enabled" || true)
+manifest_created_at=$(runtime_manifest_value "created_at" || true)
+manifest_updated_at=$(runtime_manifest_value "updated_at" || true)
+
+for pair in \
+  "schema_version:$manifest_schema_version" \
+  "runtime_mode:$manifest_runtime_mode" \
+  "advanced_governance_enabled:$manifest_governance" \
+  "created_at:$manifest_created_at" \
+  "updated_at:$manifest_updated_at"
+do
+  label=${pair%%:*}
+  value=${pair#*:}
+  if [ -z "$value" ]; then
+    fail "missing manifest field '$label' in $runtime_manifest_path"
+  fi
 done
 
-for event_file in $(find "$state_transitions_dir" -maxdepth 1 -type f -name 'TX-*.md' | sort); do
+if [ "$manifest_schema_version" != "$runtime_manifest_schema_version" ]; then
+  fail "invalid manifest schema version '$manifest_schema_version' in $runtime_manifest_path"
+fi
+
+case "$manifest_runtime_mode" in
+  minimum-core|advanced-governance) ;;
+  *)
+    fail "invalid runtime mode '$manifest_runtime_mode' in $runtime_manifest_path"
+    ;;
+esac
+
+case "$manifest_governance" in
+  true|false) ;;
+  *)
+    fail "invalid advanced_governance_enabled value '$manifest_governance' in $runtime_manifest_path"
+    ;;
+esac
+
+if [ "$mode" = "governance" ]; then
+  require_dir "$state_root"
+  require_dir "$state_boards_dir"
+  require_dir "$state_board_refreshes_dir"
+  require_file "$state_boards_dir/company.md"
+  require_file "$state_boards_dir/founder.md"
+  require_file "$state_board_refreshes_dir/README.md"
+
+  for department in $(list_departments); do
+    require_file ".harness/workspace/departments/$department/workspace/board.md"
+  done
+
+  for board_refresh_file in $(list_board_refresh_events); do
+    board_refresh_at=$(field_value "$board_refresh_file" "At")
+    board_refresh_actor=$(field_value "$board_refresh_file" "Actor")
+    board_refresh_invoker=$(field_value "$board_refresh_file" "Invoker")
+    board_refresh_targets=$(field_value "$board_refresh_file" "Targets")
+    board_refresh_prev=$(field_value "$board_refresh_file" "Prev event")
+    board_refresh_prev_hash=$(field_value "$board_refresh_file" "Prev event hash")
+    board_refresh_hash=$(field_value "$board_refresh_file" "Event hash")
+
+    for pair in \
+      "At:$board_refresh_at" \
+      "Actor:$board_refresh_actor" \
+      "Invoker:$board_refresh_invoker" \
+      "Targets:$board_refresh_targets" \
+      "Prev event:$board_refresh_prev" \
+      "Prev event hash:$board_refresh_prev_hash" \
+      "Event hash:$board_refresh_hash"
+    do
+      label=${pair%%:*}
+      value=${pair#*:}
+      if [ -z "$value" ]; then
+        fail "missing board refresh field '$label' in $board_refresh_file"
+      fi
+    done
+
+    if value_is_missing "$board_refresh_actor" || [ "$board_refresh_actor" = "system" ]; then
+      fail "invalid board refresh actor '$board_refresh_actor' in $board_refresh_file"
+    fi
+
+    expected_board_refresh_hash=$(board_refresh_event_hash "$board_refresh_file")
+    if [ "$board_refresh_hash" != "$expected_board_refresh_hash" ]; then
+      fail "board refresh event hash mismatch in $board_refresh_file"
+    fi
+
+    old_ifs=${IFS- }
+    IFS=','
+    set -- $board_refresh_targets
+    IFS=$old_ifs
+
+    for raw_target in "$@"; do
+      board_target=$(trim "$raw_target")
+      [ -n "$board_target" ] || continue
+
+      if ! is_valid_board_refresh_target "$board_target"; then
+        fail "invalid board refresh target '$board_target' in $board_refresh_file"
+        continue
+      fi
+
+      if [ ! -f "$board_target" ]; then
+        fail "missing board refresh target '$board_target' in $board_refresh_file"
+      fi
+    done
+
+    if [ "$board_refresh_prev" != "none" ]; then
+      if [ ! -f "$board_refresh_prev" ]; then
+        fail "missing previous board refresh event '$board_refresh_prev' in $board_refresh_file"
+      elif [ "$(field_value "$board_refresh_prev" "Event hash")" != "$board_refresh_prev_hash" ]; then
+        fail "previous board refresh event hash mismatch in $board_refresh_file"
+      fi
+    elif [ "$board_refresh_prev_hash" != "none" ]; then
+      fail "board refresh prev event hash must be none when prev event is none in $board_refresh_file"
+    fi
+  done
+fi
+
+if [ -d "$state_items_dir" ] && [ ! -f "$state_items_dir/README.md" ]; then
+  fail "legacy compatibility directory missing README: $state_items_dir"
+fi
+
+if [ -f "$state_items_dir/README.md" ] && ! grep -Fq "Compatibility only: true" "$state_items_dir/README.md"; then
+  fail "legacy compatibility README missing marker in $state_items_dir/README.md"
+fi
+
+if [ -d "$state_progress_dir" ] && [ ! -f "$state_progress_dir/README.md" ]; then
+  fail "legacy compatibility directory missing README: $state_progress_dir"
+fi
+
+if [ -f "$state_progress_dir/README.md" ] && ! grep -Fq "Compatibility only: true" "$state_progress_dir/README.md"; then
+  fail "legacy compatibility README missing marker in $state_progress_dir/README.md"
+fi
+
+for event_file in $(list_transition_events); do
   event_work_item=$(field_value "$event_file" "Work Item")
   event_from=$(field_value "$event_file" "From")
   event_prev=$(field_value "$event_file" "Prev event")
@@ -249,6 +355,7 @@ for event_file in $(find "$state_transitions_dir" -maxdepth 1 -type f -name 'TX-
   fi
 done
 
+open_work_item_count=0
 for file in $(list_work_items); do
   schema_version=$(field_value "$file" "Schema version")
   state_authority=$(field_value "$file" "State authority")
@@ -325,7 +432,12 @@ for file in $(list_work_items); do
   if ! work_item_header_schema_matches "$file"; then
     fail "work item header schema mismatch in $file"
   fi
-  if [ "$(basename "$file" .md)" != "$id" ]; then
+  file_basename=$(basename "$file" .md)
+  if [ "$file_basename" = "task" ]; then
+    if [ "$(basename "$(dirname "$file")")" != "$id" ]; then
+      fail "id does not match canonical task directory in $file"
+    fi
+  elif [ "$file_basename" != "$id" ]; then
     fail "id does not match filename in $file"
   fi
   if [ "$schema_version" != "$work_item_schema_version" ]; then
@@ -343,6 +455,9 @@ for file in $(list_work_items); do
   is_valid_founder_escalation "$founder_escalation" || fail "invalid founder escalation '$founder_escalation' in $file"
   is_valid_interrupt_marker "$interrupt_marker" || fail "invalid interrupt marker '$interrupt_marker' in $file"
   is_valid_resume_target "$resume_target" || fail "invalid resume target '$resume_target' in $file"
+  if is_open_work_item_status "$status"; then
+    open_work_item_count=$((open_work_item_count + 1))
+  fi
 
   if ! work_item_has_transition_events "$id"; then
     fail "missing transition events for $file"
@@ -385,7 +500,7 @@ for file in $(list_work_items); do
     fi
   fi
 
-  if [ "$required_departments" != "none" ]; then
+  if [ "$mode" = "governance" ] && [ "$required_departments" != "none" ]; then
     old_ifs=${IFS- }
     IFS=','
     set -- $required_departments
@@ -399,7 +514,7 @@ for file in $(list_work_items); do
     done
   fi
 
-  if [ "$participation_records" != "none" ]; then
+  if [ "$mode" = "governance" ] && [ "$participation_records" != "none" ]; then
     old_ifs=${IFS- }
     IFS=','
     set -- $participation_records
@@ -456,7 +571,7 @@ for file in $(list_work_items); do
       if value_is_missing "$ready_criteria"; then
         fail "missing Ready criteria for active item $file"
       fi
-      if ! required_departments_satisfied "$file" "ready"; then
+      if [ "$mode" = "governance" ] && ! required_departments_satisfied "$file" "ready"; then
         fail "required departments not assigned for active item $file"
       fi
       ;;
@@ -491,7 +606,7 @@ for file in $(list_work_items); do
     if ! value_is_missing "$required_artifacts" && ! required_artifacts_satisfied "$file"; then
       fail "required artifacts not satisfied for done item $file"
     fi
-    if ! required_departments_satisfied "$file" "done"; then
+    if [ "$mode" = "governance" ] && ! required_departments_satisfied "$file" "done"; then
       fail "required departments not done for done item $file"
     fi
     if ! value_is_missing "$current_blocker"; then
@@ -518,9 +633,43 @@ for file in $(list_work_items); do
       fi
       ;;
   esac
+
+  progress_path=$(work_item_progress_path "$id")
+  if [ -f "$progress_path" ]; then
+    audit_progress_file "$progress_path" "$id"
+
+    progress_sync_state=$(work_item_progress_sync_state "$id")
+    case "$progress_sync_state" in
+      unlinked)
+        fail "progress artifact is not linked in $file"
+        ;;
+      stale)
+        fail "progress artifact is stale for $file"
+        ;;
+    esac
+  fi
 done
 
-for event_file in $(find "$state_transitions_dir" -maxdepth 1 -type f -name 'TX-*.md' | sort); do
+if [ -f "$current_task_pointer_path" ]; then
+  current_task_id=$(read_current_task_id 2>/dev/null || true)
+  if [ -z "$current_task_id" ]; then
+    fail "empty current task pointer in $current_task_pointer_path"
+  else
+    current_task_path=$(work_item_path "$current_task_id")
+    if [ ! -f "$current_task_path" ]; then
+      fail "current task points to missing work item '$current_task_id'"
+    else
+      current_task_status=$(field_value "$current_task_path" "Status")
+      if ! is_open_work_item_status "$current_task_status"; then
+        fail "current task points to non-open work item '$current_task_id'"
+      fi
+    fi
+  fi
+elif [ "$open_work_item_count" -gt 0 ]; then
+  fail "missing current task pointer for open work items"
+fi
+
+for event_file in $(list_transition_events); do
   event_hash=$(field_value "$event_file" "Event hash")
   computed_event_hash=$(transition_event_hash "$event_file")
   prev_event=$(field_value "$event_file" "Prev event")
@@ -539,11 +688,13 @@ for event_file in $(find "$state_transitions_dir" -maxdepth 1 -type f -name 'TX-
   fi
 done
 
-if ! "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
-  if ! STATE_ACTOR="${STATE_ACTOR:-state-audit}" STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}" "$script_dir/refresh_boards.sh" >/dev/null 2>&1; then
-    fail "boards refresh failed"
-  elif ! "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
-    fail "boards out of sync with work items"
+if [ "$mode" = "governance" ]; then
+  if ! "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
+    if ! STATE_ACTOR="${STATE_ACTOR:-state-audit}" STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}" "$script_dir/refresh_boards.sh" >/dev/null 2>&1; then
+      fail "boards refresh failed"
+    elif ! "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
+      fail "boards out of sync with work items"
+    fi
   fi
 fi
 

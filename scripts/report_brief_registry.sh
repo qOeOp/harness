@@ -69,7 +69,7 @@ for brief_file in $(find "$briefs_dir" -maxdepth 1 -type f -name '*.md' ! -name 
   nonterminal_item_refs="none"
   terminal_item_refs="none"
 
-  route_refs=$(rg -l -F "$brief_rel" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" 2>/dev/null || true)
+  route_refs=$(rg -l -F "$brief_rel" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" "$task_runtime_dir" 2>/dev/null || true)
   if [ -n "$route_refs" ]; then
     for ref_file in $route_refs; do
       current_route_refs=$(append_csv "$current_route_refs" "$ref_file")

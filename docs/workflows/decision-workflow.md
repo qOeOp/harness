@@ -48,7 +48,7 @@ Owner:
 
 模板：
 
-- [docs/templates/founder-brief.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/founder-brief.md)
+- [docs/templates/founder-brief.md](../templates/founder-brief.md)
 
 ## Gate 0.5: Volatile Detection & Research Dispatch
 
@@ -73,8 +73,8 @@ Owner:
 
 1. 没完成 `research dispatch` 的 volatile 议题，不能直接进入正式 decision pack
 2. 只能作为 exploratory notes 存在
-3. 若需要外部最新事实，必须遵守 [docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
-4. research dispatch 细节见 [docs/workflows/internal-research-routing.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/internal-research-routing.md)
+3. 若需要外部最新事实，必须遵守 [docs/workflows/volatile-research-default.md](./volatile-research-default.md)
+4. research dispatch 细节见 [docs/workflows/internal-research-routing.md](./internal-research-routing.md)
 
 ## Gate 1: Problem Framing
 
@@ -106,7 +106,7 @@ Owners:
 
 模板：
 
-- [docs/templates/research-memo.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/research-memo.md)
+- [docs/templates/research-memo.md](../templates/research-memo.md)
 
 ## Gate 3: Cross Review
 
@@ -135,7 +135,7 @@ Owner: `Chief of Staff`
 
 模板：
 
-- [docs/templates/decision-pack.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/decision-pack.md)
+- [docs/templates/decision-pack.md](../templates/decision-pack.md)
 
 ## Gate 5A: Internal Approval
 
@@ -182,8 +182,8 @@ Owner: `Knowledge & Memory Lead`
 
 必须回写到：
 
-- [.harness/workspace/decisions/log](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/decisions/log)
-- [.harness/workspace/status/snapshots](/Users/vx/WebstormProjects/trading-agent/.harness/workspace/status/snapshots)
+- `.harness/workspace/decisions/log`
+- `.harness/workspace/status/snapshots`
 
 没有完成 writeback，本轮工作视为未闭环。
 
@@ -211,10 +211,10 @@ Owner: `Knowledge & Memory Lead`
 
 详细见：
 
-- [docs/workflows/founder-intake-evolution-loop.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-intake-evolution-loop.md)
-- [docs/workflows/worktree-parallelism.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/worktree-parallelism.md)
-- [docs/workflows/agile-runnable-demo-policy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/agile-runnable-demo-policy.md)
-- [docs/workflows/volatile-research-default.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/volatile-research-default.md)
+- [docs/workflows/founder-intake-evolution-loop.md](./founder-intake-evolution-loop.md)
+- [docs/workflows/worktree-parallelism.md](./worktree-parallelism.md)
+- [docs/workflows/agile-runnable-demo-policy.md](./agile-runnable-demo-policy.md)
+- [docs/workflows/volatile-research-default.md](./volatile-research-default.md)
 
 ## Stop-The-Line Conditions
 

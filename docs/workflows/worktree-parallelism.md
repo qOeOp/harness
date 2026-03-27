@@ -36,7 +36,7 @@
 
 推荐放在仓库外层：
 
-`../trading-agent-worktrees/<department>-<task>`
+`../harness-worktrees/<department>-<task>`
 
 原因：
 

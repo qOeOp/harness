@@ -2,7 +2,7 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../../../.." && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 
 keep_tmp=0
 
@@ -11,40 +11,19 @@ usage() {
   exit 1
 }
 
-copy_repo() {
-  source_dir="$1"
-  target_dir="$2"
-
-  if command -v rsync >/dev/null 2>&1; then
-    rsync -a \
-      --exclude '.git/' \
-      --exclude '.idea/' \
-      --exclude 'node_modules/' \
-      --exclude '.DS_Store' \
-      "$source_dir/" "$target_dir/"
-    return 0
-  fi
-
-  (
-    cd "$source_dir"
-    tar \
-      --exclude '.git' \
-      --exclude '.idea' \
-      --exclude 'node_modules' \
-      --exclude '.DS_Store' \
-      -cf - .
-  ) | (
-    cd "$target_dir"
-    tar -xf -
-  )
-}
-
 find_transition_event_by_operation_id() {
   sandbox_root="$1"
   work_item_id="$2"
   operation_id="$3"
 
-  for event_file in $(find "$sandbox_root/.harness/workspace/state/transitions" -maxdepth 1 -type f -name "TX-*-$work_item_id-*.md" | sort); do
+  canonical_transition_dir="$sandbox_root/.harness/tasks/$work_item_id/history/transitions"
+  if [ -d "$canonical_transition_dir" ]; then
+    event_candidates=$(find "$canonical_transition_dir" -maxdepth 1 -type f -name 'TX-*.md' | sort)
+  else
+    event_candidates=$(find "$sandbox_root/.harness/workspace/state/transitions" -maxdepth 1 -type f -name "TX-*-$work_item_id-*.md" | sort)
+  fi
+
+  for event_file in $event_candidates; do
     if [ "$(awk -v label="Operation ID" 'index($0, "- " label ": ") == 1 { print substr($0, length("- " label ": ") + 1); exit }' "$event_file")" = "$operation_id" ]; then
       printf '%s\n' "$event_file"
       return 0
@@ -86,7 +65,6 @@ done
 
 tmp_root=$(mktemp -d "${TMPDIR:-/tmp}/state-validation.XXXXXX")
 sandbox="$tmp_root/repo"
-mkdir -p "$sandbox"
 
 cleanup() {
   if [ "$keep_tmp" -ne 1 ]; then
@@ -94,99 +72,326 @@ cleanup() {
   fi
 }
 
+run_current_task_pointer_regression() {
+  pointer_sandbox="$tmp_root/current-task-pointer"
+
+  "$script_dir/materialize_runtime_fixture.sh" \
+    --target "$pointer_sandbox" \
+    --source-repo "$repo_root" >/dev/null
+
+  (
+    cd "$pointer_sandbox"
+    if [ -d "$PWD/.agents/skills/harness" ]; then
+      HARNESS_ROOT_OVERRIDE="$PWD/.agents/skills/harness"
+    fi
+    . "$script_dir/lib_state.sh"
+    export STATE_ACTOR="validation-slice"
+    export STATE_INVOKER="${STATE_INVOKER:-$(default_harness_command "run_state_validation_slice.sh")}"
+    start_command=$(default_harness_command "start_work_item.sh")
+
+    task_version() {
+      task_id="$1"
+      field_value "$(canonical_work_item_path "$task_id")" "State version"
+    }
+
+    seed_ready_item() {
+      seed_title="$1"
+      seed_item=$("$script_dir/new_work_item.sh" governance "$seed_title")
+      seed_id=$(field_value "$seed_item" "ID")
+
+      "$script_dir/update_work_item_fields.sh" \
+        --expected-version "$(task_version "$seed_id")" \
+        --operation-id "${seed_id}-seed-fields" \
+        "$seed_id" \
+        "Objective" "Verify current-task focus integrity during intake, progress writeback, and resume flows." \
+        "Ready criteria" "The task may enter ready for routing checks." \
+        "Done criteria" "The task may be resumed without stealing focus unexpectedly." >/dev/null
+
+      "$script_dir/transition_work_item.sh" \
+        --expected-from-status backlog \
+        --expected-version "$(task_version "$seed_id")" \
+        --operation-id "${seed_id}-to-framing" \
+        "$seed_id" \
+        framing \
+        none \
+        none \
+        "pointer regression framing" >/dev/null
+
+      "$script_dir/transition_work_item.sh" \
+        --expected-from-status framing \
+        --expected-version "$(task_version "$seed_id")" \
+        --operation-id "${seed_id}-to-planning" \
+        "$seed_id" \
+        planning \
+        none \
+        none \
+        "pointer regression planning" >/dev/null
+
+      "$script_dir/transition_work_item.sh" \
+        --expected-from-status planning \
+        --expected-version "$(task_version "$seed_id")" \
+        --operation-id "${seed_id}-to-ready" \
+        "$seed_id" \
+        ready \
+        none \
+        none \
+        "pointer regression ready" >/dev/null
+
+      printf '%s\n' "$seed_id"
+    }
+
+    primary_id=$(seed_ready_item "Current Task Pointer Primary")
+
+    "$script_dir/start_work_item.sh" \
+      --reason "pointer regression primary start" \
+      --operation-id "${primary_id}-start" \
+      company >/dev/null
+
+    if [ "$(read_current_task_id)" != "$primary_id" ]; then
+      echo "validation slice failed: primary started task did not become current-task" >&2
+      exit 1
+    fi
+
+    secondary_item=$("$script_dir/new_work_item.sh" governance "Current Task Pointer Secondary")
+    secondary_id=$(field_value "$secondary_item" "ID")
+
+    if [ "$(read_current_task_id)" != "$primary_id" ]; then
+      echo "validation slice failed: backlog intake stole current-task focus from the active task" >&2
+      exit 1
+    fi
+
+    if [ "$("$script_dir/select_work_item.sh" --id-only company)" != "$primary_id" ]; then
+      echo "validation slice failed: selector stopped preferring the active current task after intake" >&2
+      exit 1
+    fi
+
+    "$script_dir/update_work_item_fields.sh" \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-seed-fields" \
+      "$secondary_id" \
+      "Objective" "Secondary task used to verify current-task focus does not drift." \
+      "Ready criteria" "Secondary task may enter ready for progress writeback checks." \
+      "Done criteria" "Secondary task may be paused and resumed without breaking routing." >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status backlog \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-to-framing" \
+      "$secondary_id" \
+      framing \
+      none \
+      none \
+      "secondary framing" >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status framing \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-to-planning" \
+      "$secondary_id" \
+      planning \
+      none \
+      none \
+      "secondary planning" >/dev/null
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status planning \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-to-ready" \
+      "$secondary_id" \
+      ready \
+      none \
+      none \
+      "secondary ready" >/dev/null
+
+    "$script_dir/upsert_work_item_progress.sh" \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-progress-ready" \
+      "$secondary_id" \
+      "Secondary task is staged for a future handoff." \
+      "$start_command company" >/dev/null
+
+    if [ "$(read_current_task_id)" != "$primary_id" ]; then
+      echo "validation slice failed: ready-task progress writeback stole current-task focus" >&2
+      exit 1
+    fi
+
+    "$script_dir/transition_work_item.sh" \
+      --expected-from-status ready \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-to-in-progress" \
+      "$secondary_id" \
+      in-progress \
+      none \
+      none \
+      "secondary execution start" >/dev/null
+
+    "$script_dir/pause_work_item.sh" \
+      --expected-from-status in-progress \
+      --expected-version "$(task_version "$secondary_id")" \
+      --interrupt-marker risk-review-required \
+      --operation-id "${secondary_id}-pause" \
+      "$secondary_id" \
+      "waiting for regression risk review" \
+      "pointer-regression -> secondary" \
+      "secondary pause" >/dev/null
+
+    set_current_task_id "$primary_id"
+
+    "$script_dir/resume_work_item.sh" \
+      --expected-version "$(task_version "$secondary_id")" \
+      --operation-id "${secondary_id}-resume" \
+      "$secondary_id" \
+      "secondary -> pointer-regression" \
+      "secondary resume" >/dev/null
+
+    if [ "$(read_current_task_id)" != "$secondary_id" ]; then
+      echo "validation slice failed: explicit resume did not reclaim current-task focus" >&2
+      exit 1
+    fi
+
+    if [ "$("$script_dir/select_work_item.sh" --id-only company)" != "$secondary_id" ]; then
+      echo "validation slice failed: selector did not follow the resumed current task" >&2
+      exit 1
+    fi
+  )
+}
+
 trap cleanup EXIT HUP INT TERM
 
-copy_repo "$repo_root" "$sandbox"
+[ -f "$repo_root/SKILL.md" ] || {
+  echo "validation slice failed: repo root is not the harness source repo ($repo_root)" >&2
+  exit 1
+}
+
+[ -d "$repo_root/scripts" ] || {
+  echo "validation slice failed: repo root is missing scripts/ ($repo_root)" >&2
+  exit 1
+}
+
+"$script_dir/materialize_runtime_fixture.sh" \
+  --target "$sandbox" \
+  --source-repo "$repo_root" >/dev/null
 
 (
   cd "$sandbox"
+  if [ -d "$PWD/.agents/skills/harness" ]; then
+    HARNESS_ROOT_OVERRIDE="$PWD/.agents/skills/harness"
+  fi
   . "$script_dir/lib_state.sh"
   export STATE_ACTOR="validation-slice"
-  export STATE_INVOKER="./.agents/skills/harness/scripts/run_state_validation_slice.sh"
+  export STATE_INVOKER="${STATE_INVOKER:-$(default_harness_command "run_state_validation_slice.sh")}"
+  transition_command=$(default_harness_command "transition_work_item.sh")
+  new_decision_command=$(default_harness_command "new_decision.sh")
+  finalize_command=$(default_harness_command "finalize_work_item.sh")
 
-  validation_item=$("$script_dir/new_work_item.sh" governance "Harness V2 Validation Slice" "Workflow & Automation Lead" high chief-of-staff)
-  validation_id=$(basename "$validation_item" .md)
+  task_version() {
+    task_id="$1"
+    field_value "$(canonical_work_item_path "$task_id")" "State version"
+  }
 
-  replace_field "$validation_item" "Objective" "Prove the local state harness can create, recover, transition, link evidence, and audit inside an isolated sandbox."
-  replace_field "$validation_item" "Ready criteria" "Progress artifact exists, required department participation is declared, and the item reaches ready without manual board edits."
-  replace_field "$validation_item" "Done criteria" "Decision artifact is linked, required department is marked done, finalization succeeds, and state audit passes."
-  replace_field "$validation_item" "Required artifacts" "decision-pack"
-  replace_field "$validation_item" "Why it matters" "A harness should validate one minimal control loop before claiming reliability."
-  replace_field "$validation_item" "Required departments" "risk-office"
-  replace_field "$validation_item" "Participation records" "risk-office=required"
-  replace_field "$validation_item" "Due review at" "$(date +%F)"
+  "$script_dir/validate_workspace.sh" --mode core >/dev/null
+
+  validation_item=$("$script_dir/new_work_item.sh" governance "Harness Runtime Smoke Chain" "Workflow & Automation Lead" high chief-of-staff)
+  validation_id=$(field_value "$validation_item" "ID")
+
+  if [ "$validation_item" != "$(canonical_work_item_path "$validation_id")" ]; then
+    echo "validation slice failed: new work item did not resolve to canonical task path" >&2
+    exit 1
+  fi
+
+  if [ ! -f "$runtime_manifest_path" ]; then
+    echo "validation slice failed: runtime manifest was not created" >&2
+    exit 1
+  fi
+
+  if [ "$(read_current_task_id)" != "$validation_id" ]; then
+    echo "validation slice failed: current-task pointer mismatch after work item creation" >&2
+    exit 1
+  fi
+
+  if [ -d "$state_items_dir" ] || [ -d "$state_progress_dir" ]; then
+    echo "validation slice failed: legacy runtime paths should not be auto-created" >&2
+    exit 1
+  fi
+
+  "$script_dir/update_work_item_fields.sh" \
+    --expected-version "$(task_version "$validation_id")" \
+    --operation-id "${validation_id}-seed-fields" \
+    "$validation_id" \
+    "Objective" "Prove the generated minimum-core runtime can create a task, recover progress, generate task-local artifacts, and finalize cleanly inside a consumer sandbox." \
+    "Ready criteria" "Progress artifact exists and the work item reaches ready without creating legacy workspace state." \
+    "Done criteria" "Research dispatch, source note, research memo, and decision pack are all linked as approved and the item finalizes without audit drift." \
+    "Required artifacts" "research-dispatch,source-note,research-memo,decision-pack" \
+    "Why it matters" "A pure source repo should prove runtime generation and one end-to-end control loop without keeping live runtime state at the root." \
+    "Due review at" "$(date +%F)" >/dev/null
 
   "$script_dir/upsert_work_item_progress.sh" \
-    --expected-version 1 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-progress-init" \
     "$validation_id" \
-    "Frame the validation slice and create the recovery artifact." \
-    "./.agents/skills/harness/scripts/transition_work_item.sh --expected-from-status backlog --expected-version 2 $validation_id framing" \
-    "Validation item exists only in the sandbox." >/dev/null
+    "Frame the smoke chain and create the recovery artifact inside the generated consumer sandbox." \
+    "$transition_command --expected-from-status backlog --expected-version $(task_version "$validation_id") $validation_id framing" \
+    "This task exists only in the generated consumer fixture." >/dev/null
 
   "$script_dir/transition_work_item.sh" \
     --expected-from-status backlog \
-    --expected-version 2 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-to-framing" \
     "$validation_id" \
     framing \
     none \
-    "workflow-automation -> risk-office" \
-    "validation slice framing" >/dev/null
+    "workflow-automation -> runtime-smoke" \
+    "runtime smoke framing" >/dev/null
 
   "$script_dir/transition_work_item.sh" \
     --expected-from-status framing \
-    --expected-version 3 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-to-planning" \
     "$validation_id" \
     planning \
     none \
-    "workflow-automation -> risk-office" \
-    "validation slice planning" >/dev/null
+    "workflow-automation -> runtime-smoke" \
+    "runtime smoke planning" >/dev/null
 
   "$script_dir/transition_work_item.sh" \
     --expected-from-status planning \
-    --expected-version 4 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-to-ready" \
     "$validation_id" \
     ready \
     none \
-    "workflow-automation -> risk-office" \
-    "validation slice ready" >/dev/null
+    "workflow-automation -> runtime-smoke" \
+    "runtime smoke ready" >/dev/null
 
-  "$script_dir/upsert_work_item_progress.sh" \
-    "$validation_id" \
-    "Ready gate passed; enter execution and prepare evidence artifact." \
-    "./.agents/skills/harness/scripts/transition_work_item.sh --expected-from-status ready --expected-version 5 $validation_id in-progress" >/dev/null
+  "$script_dir/start_work_item.sh" \
+    --path-only \
+    --reason "runtime smoke execution" \
+    --operation-id "${validation_id}-start" \
+    company >/dev/null
 
-  "$script_dir/transition_work_item.sh" \
-    --expected-from-status ready \
-    --expected-version 5 \
-    --operation-id "${validation_id}-to-in-progress" \
-    "$validation_id" \
-    in-progress \
-    none \
-    "workflow-automation -> risk-office" \
-    "validation slice execution" >/dev/null
+  if [ "$(field_value "$validation_item" "Status")" != "in-progress" ]; then
+    echo "validation slice failed: start_work_item did not move item to in-progress" >&2
+    exit 1
+  fi
 
   "$script_dir/pause_work_item.sh" \
     --expected-from-status in-progress \
-    --expected-version 6 \
+    --expected-version "$(task_version "$validation_id")" \
     --interrupt-marker risk-review-required \
     --operation-id "${validation_id}-pause-risk" \
     "$validation_id" \
     "waiting for risk review" \
-    "workflow-automation -> risk-office" \
-    "validation slice pause for risk review" >/dev/null
+    "workflow-automation -> runtime-smoke" \
+    "runtime smoke pause for risk review" >/dev/null
 
   if "$script_dir/transition_work_item.sh" \
     --expected-from-status paused \
-    --expected-version 7 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-illegal-review" \
     "$validation_id" \
     review \
     none \
-    "risk-office -> workflow-automation" \
+    "runtime-smoke -> workflow-automation" \
     "illegal direct review from paused" >/dev/null 2>&1
   then
     echo "validation slice failed: paused item transitioned without resume protocol" >&2
@@ -194,78 +399,71 @@ copy_repo "$repo_root" "$sandbox"
   fi
 
   "$script_dir/resume_work_item.sh" \
-    --expected-version 7 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-resume-risk" \
     "$validation_id" \
-    "risk-office -> workflow-automation" \
-    "validation slice resume after risk review" >/dev/null
+    "runtime-smoke -> workflow-automation" \
+    "runtime smoke resume after risk review" >/dev/null
 
-  validation_decision=".harness/workspace/decisions/log/$(date +%F)-${validation_id}-validation-slice.md"
-  cat >"$validation_decision" <<EOF
-# Decision Pack
+  "$script_dir/upsert_work_item_progress.sh" \
+    "$validation_id" \
+    "Generate task-local artifacts with the canonical creation scripts." \
+    "$new_decision_command --work-item $validation_id \"Runtime Smoke Decision\"" >/dev/null
 
-- Linked work items: $validation_id
-
-- Date: $(date +%F)
-- Owner: Workflow & Automation Lead
-- Decision: Validation slice completed in sandbox without mutating the live repository.
-- Why now:
-  1. Harness v2 needs one runnable loop before wider rollout.
-- Research dispatch: n/a
-- Verification date: $(date +%F)
-- Verification mode: internal-only
-- Sources reviewed:
-  1. scripts/new_work_item.sh
-  2. scripts/transition_work_item.sh
-  3. scripts/pause_work_item.sh
-  4. scripts/resume_work_item.sh
-  5. scripts/finalize_work_item.sh
-  6. scripts/upsert_work_item_progress.sh
-  7. scripts/audit_state_system.sh
-- Evidence:
-  1. The sandbox task was created, paused by an interrupt marker, blocked from illegal advancement, resumed, linked, finalized, and audited.
-- Dissent:
-  1. This validates state control, not product runtime behavior.
-- Risks:
-  1. Free-text task fields still rely on disciplined editing.
-- Freshness caveats:
-  1. Internal-only validation.
-- Tradeoffs:
-  1. Sandbox execution protects the live repo but does not cover real product runtime.
-- Ask from Founder:
-  1. none
-- Next 7 days:
-  1. Extend the same validation style to a real runnable slice.
-EOF
-
+  validation_dispatch=$("$script_dir/new_research_dispatch.sh" --work-item "$validation_id" "Runtime Smoke Dispatch")
   "$script_dir/link_work_item_artifact.sh" \
-    --expected-version 8 \
+    --expected-version "$(task_version "$validation_id")" \
+    --operation-id "${validation_id}-approve-dispatch" \
+    "$validation_id" \
+    "$validation_dispatch" \
+    "research-dispatch" \
+    "approved" >/dev/null
+
+  validation_source=$("$script_dir/new_source_note.sh" --work-item "$validation_id" "Runtime Smoke Source")
+  "$script_dir/link_work_item_artifact.sh" \
+    --expected-version "$(task_version "$validation_id")" \
+    --operation-id "${validation_id}-approve-source" \
+    "$validation_id" \
+    "$validation_source" \
+    "source-note" \
+    "approved" >/dev/null
+
+  validation_research=$("$script_dir/new_research.sh" --work-item "$validation_id" company "Runtime Smoke Research Memo")
+  "$script_dir/link_work_item_artifact.sh" \
+    --expected-version "$(task_version "$validation_id")" \
+    --operation-id "${validation_id}-approve-research" \
+    "$validation_id" \
+    "$validation_research" \
+    "research-memo" \
+    "approved" >/dev/null
+
+  validation_decision=$("$script_dir/new_decision.sh" --work-item "$validation_id" company "Runtime Smoke Decision")
+  "$script_dir/link_work_item_artifact.sh" \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-link-decision" \
     "$validation_id" \
     "$validation_decision" \
     "decision-pack" \
     "approved" >/dev/null
 
-  replace_field "$validation_item" "Participation records" "risk-office=done"
-
   "$script_dir/transition_work_item.sh" \
     --expected-from-status in-progress \
-    --expected-version 9 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-to-review" \
     "$validation_id" \
     review \
     none \
-    "risk-office -> workflow-automation" \
-    "validation slice review" >/dev/null
+    "runtime-smoke -> workflow-automation" \
+    "runtime smoke review" >/dev/null
 
   "$script_dir/upsert_work_item_progress.sh" \
     "$validation_id" \
     "Review passed; finalize the work item and verify the audit." \
-    "./.agents/skills/harness/scripts/finalize_work_item.sh --expected-from-status review --expected-version 10 $validation_id done" >/dev/null
+    "$finalize_command --expected-from-status review --expected-version $(task_version "$validation_id") $validation_id done" >/dev/null
 
   "$script_dir/finalize_work_item.sh" \
     --expected-from-status review \
-    --expected-version 10 \
+    --expected-version "$(task_version "$validation_id")" \
     --operation-id "${validation_id}-finalize" \
     "$validation_id" \
     done \
@@ -278,32 +476,36 @@ EOF
   assert_transition_event_type "$PWD" "$validation_id" "${validation_id}-resume-risk" "resume"
   assert_transition_event_type "$PWD" "$validation_id" "${validation_id}-link-decision" "artifact-link"
 
-  latest_board_refresh=$(latest_board_refresh_event_path)
-  if [ -z "$latest_board_refresh" ] || [ ! -f "$latest_board_refresh" ]; then
-    echo "validation slice failed: missing board refresh ledger event" >&2
+  (
+    . "$script_dir/lib_state.sh"
+    acquire_named_lock "validation-lock-release-check"
+  )
+
+  if [ -d "$state_locks_dir/validation-lock-release-check.lock" ]; then
+    echo "validation slice failed: state lock was left behind after subshell exit" >&2
     exit 1
   fi
 
-  if [ "$(field_value "$latest_board_refresh" "Actor")" != "validation-slice" ]; then
-    echo "validation slice failed: board refresh actor mismatch" >&2
-    exit 1
-  fi
-
-  board_refresh_targets=$(field_value "$latest_board_refresh" "Targets")
-  if value_is_missing "$board_refresh_targets" || ! csv_contains_value "$board_refresh_targets" ".harness/workspace/state/boards/company.md"; then
-    echo "validation slice failed: board refresh targets missing company board" >&2
-    exit 1
-  fi
-
-  "$script_dir/audit_state_system.sh" >/dev/null
+  "$script_dir/audit_state_system.sh" --mode core >/dev/null
+  "$script_dir/validate_workspace.sh" --mode core >/dev/null
 
   progress_path=$(work_item_progress_path "$validation_id")
+
+  if [ "$progress_path" != "$(canonical_work_item_progress_path "$validation_id")" ]; then
+    echo "validation slice failed: progress path did not resolve to canonical task path" >&2
+    exit 1
+  fi
 
   printf 'validation slice: ok\n'
   printf 'work item: %s\n' "$validation_id"
   printf 'progress: %s\n' "$progress_path"
+  printf 'dispatch: %s\n' "$validation_dispatch"
+  printf 'source: %s\n' "$validation_source"
+  printf 'research: %s\n' "$validation_research"
   printf 'decision: %s\n' "$validation_decision"
 )
+
+run_current_task_pointer_regression
 
 if [ "$keep_tmp" -eq 1 ]; then
   printf 'kept sandbox at %s\n' "$sandbox"

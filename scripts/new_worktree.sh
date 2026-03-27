@@ -16,7 +16,7 @@ fi
 
 slug=$(printf '%s' "$task" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 branch="codex/${department}-${slug}"
-base_dir="../trading-agent-worktrees"
+base_dir="../harness-worktrees"
 target="${base_dir}/${department}-${slug}"
 
 mkdir -p "$base_dir"

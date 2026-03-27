@@ -15,7 +15,7 @@ interrupt_marker=""
 resume_target=""
 
 usage() {
-  echo "usage: $0 --expected-from-status <status> --expected-version <version> [--operation-id <id>] [--interrupt-marker <marker>] [--resume-target <status>] <work-item-id> <next-status> [current-blocker] [next-handoff] [reason]" >&2
+  printf 'usage: %s --expected-from-status <status> --expected-version <version> [--operation-id <id>] [--interrupt-marker <marker>] [--resume-target <status>] <work-item-id> <next-status> [current-blocker] [next-handoff] [reason]\n' "$(default_harness_command "transition_work_item.sh")" >&2
   exit 1
 }
 
@@ -91,13 +91,14 @@ fi
 case "$next_status" in
   done|killed)
     if [ "$allow_terminal_transition" != "1" ]; then
-      echo "terminal transitions require ./.agents/skills/harness/scripts/finalize_work_item.sh --expected-from-status $expected_from_status --expected-version $expected_version $id $next_status [current-blocker] [next-handoff] [reason]" >&2
+      echo "terminal transitions require $(default_harness_command "finalize_work_item.sh") --expected-from-status $expected_from_status --expected-version $expected_version $id $next_status [current-blocker] [next-handoff] [reason]" >&2
       exit 1
     fi
     ;;
 esac
 
-file=$(require_work_item "$id")
+acquire_work_item_lock "$id"
+file=$(require_work_item_for_write "$id")
 current_status=$(field_value "$file" "Status")
 current_version=$(field_value "$file" "State version")
 last_operation_id=$(field_value "$file" "Last operation ID")
@@ -290,24 +291,26 @@ case "$next_status" in
 esac
 
 next_version=$((current_version + 1))
-replace_field "$file" "Status" "$next_status"
-replace_field "$file" "Updated at" "$(date +%F)"
-replace_field "$file" "State version" "$next_version"
-replace_field "$file" "Last operation ID" "$operation_id"
-replace_field "$file" "Interrupt marker" "$next_interrupt_marker"
-replace_field "$file" "Resume target" "$next_resume_target"
+event_path=$(write_transition_event "$id" "$current_status" "$next_status" "$actor" "$reason" "${current_blocker:-$existing_blocker}" "${next_handoff:-none}" "$operation_id" "$expected_from_status" "$expected_version" "$current_version" "$next_version" "$next_interrupt_marker" "$next_resume_target" "$event_type")
+set -- "$file" \
+  "Status" "$next_status" \
+  "Updated at" "$(date +%F)" \
+  "State version" "$next_version" \
+  "Last operation ID" "$operation_id" \
+  "Interrupt marker" "$next_interrupt_marker" \
+  "Resume target" "$next_resume_target" \
+  "Last transition event" "$event_path"
 
 if [ -n "$current_blocker" ]; then
-  replace_field "$file" "Current blocker" "$current_blocker"
+  set -- "$@" "Current blocker" "$current_blocker"
 fi
 
 if [ -n "$next_handoff" ]; then
-  replace_field "$file" "Next handoff" "$next_handoff"
+  set -- "$@" "Next handoff" "$next_handoff"
 fi
 
-event_path=$(write_transition_event "$id" "$current_status" "$next_status" "$actor" "$reason" "${current_blocker:-$existing_blocker}" "${next_handoff:-none}" "$operation_id" "$expected_from_status" "$expected_version" "$current_version" "$next_version" "$next_interrupt_marker" "$next_resume_target" "$event_type")
-replace_field "$file" "Last transition event" "$event_path"
+rewrite_work_item_header_snapshot "$@"
 sync_progress_snapshot_if_present "$file"
-"$script_dir/refresh_boards.sh" >/dev/null
+refresh_boards_if_enabled
 
 echo "$file"

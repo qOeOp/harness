@@ -32,7 +32,7 @@
 
 模板：
 
-- [docs/templates/daily-department-report.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/daily-department-report.md)
+- [docs/templates/daily-department-report.md](../templates/daily-department-report.md)
 
 标准落盘位置：
 
@@ -50,7 +50,7 @@ company digest 至少覆盖：
 
 模板：
 
-- [docs/templates/company-daily-digest.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/company-daily-digest.md)
+- [docs/templates/company-daily-digest.md](../templates/company-daily-digest.md)
 
 标准落盘位置：
 
@@ -87,7 +87,7 @@ company digest 至少覆盖：
 
 模板：
 
-- [docs/templates/process-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/process-audit.md)
+- [docs/templates/process-audit.md](../templates/process-audit.md)
 
 标准落盘位置：
 
@@ -103,8 +103,8 @@ company digest 至少覆盖：
 
 详细见：
 
-- [docs/workflows/retrospective-compaction-and-trap-check.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/retrospective-compaction-and-trap-check.md)
-- [docs/templates/trap-card.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/trap-card.md)
+- [docs/workflows/retrospective-compaction-and-trap-check.md](./retrospective-compaction-and-trap-check.md)
+- [docs/templates/trap-card.md](../templates/trap-card.md)
 
 ### Governance Surface Audit
 
@@ -112,12 +112,15 @@ company digest 至少覆盖：
 
 默认先运行：
 
-- `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh`
+- source repo:
+  - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+- consumer / dogfood repo:
+  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 详细规则见：
 
-- [docs/workflows/governance-surface-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/governance-surface-audit.md)
-- [docs/templates/governance-surface-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/governance-surface-audit.md)
+- [docs/workflows/governance-surface-audit.md](./governance-surface-audit.md)
+- [docs/templates/governance-surface-audit.md](../templates/governance-surface-audit.md)
 
 ### Founder Governance Meeting
 
@@ -133,8 +136,8 @@ Founder 治理会议由以下节奏产物触发，而不是单独维护一套平
 
 详细流程与会议路由见：
 
-- [docs/workflows/founder-governance-meeting-loop.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-governance-meeting-loop.md)
-- [docs/workflows/founder-meeting-taxonomy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-meeting-taxonomy.md)
+- [docs/workflows/founder-governance-meeting-loop.md](./founder-governance-meeting-loop.md)
+- [docs/workflows/founder-meeting-taxonomy.md](./founder-meeting-taxonomy.md)
 
 ## Monthly and Periodic Rituals
 
@@ -154,7 +157,7 @@ Founder 治理会议由以下节奏产物触发，而不是单独维护一套平
 
 模板：
 
-- [docs/templates/frontier-scan.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/frontier-scan.md)
+- [docs/templates/frontier-scan.md](../templates/frontier-scan.md)
 
 ### Audit-the-Auditors
 
@@ -169,11 +172,15 @@ Founder 治理会议由以下节奏产物触发，而不是单独维护一套平
 
 最少检查对象：
 
-1. `.agents/skills/harness/scripts/audit_document_system.sh`
-2. `.agents/skills/harness/scripts/audit_tool_parity.sh`
-3. `.agents/skills/harness/scripts/audit_doc_style.sh`
-4. `.agents/skills/harness/scripts/validate_workspace.sh`
-5. `.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh`
+1. source repo:
+   - `./scripts/validate_source_repo.sh`
+   - `./scripts/audit_role_schema.sh`
+   - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+2. consumer / dogfood repo:
+   - `./.agents/skills/harness/scripts/audit_document_system.sh`
+   - `./.agents/skills/harness/scripts/audit_doc_style.sh`
+   - `./.agents/skills/harness/scripts/validate_workspace.sh`
+   - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 输出：
 

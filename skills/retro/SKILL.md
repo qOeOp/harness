@@ -10,5 +10,5 @@ Create a company process audit from:
 - checkpoints
 - postmortems
 
-Use [../../docs/templates/process-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/process-audit.md).
+Use [../../docs/templates/process-audit.md](../../docs/templates/process-audit.md).
 Write the result into `.harness/workspace/status/process-audits/`.

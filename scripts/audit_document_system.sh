@@ -4,6 +4,11 @@ set -eu
 quiet="${1:-}"
 ok=1
 
+if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".agents/skills/harness" ]; then
+  echo "audit_document_system.sh checks an installed consumer repo layout, not the framework source repo. Run ./scripts/validate_source_repo.sh in the framework source repo." >&2
+  exit 2
+fi
+
 say() {
   [ "$quiet" = "--quiet" ] || echo "$1"
 }

@@ -14,7 +14,7 @@ require_explicit_state_actor "$actor" "$0"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 if [ -z "$type" ] || [ -z "$title" ]; then
-  echo "usage: $0 <type> <title> [owner] [priority] [sponsor]" >&2
+  printf 'usage: %s <type> <title> [owner] [priority] [sponsor]\n' "$(default_harness_command "new_work_item.sh")" >&2
   exit 1
 fi
 
@@ -29,9 +29,12 @@ if ! is_valid_priority "$priority"; then
 fi
 
 ensure_state_dirs
+acquire_runtime_lock
 id=$(next_work_item_id)
 date=$(date +%F)
-target=$(work_item_path "$id")
+seed_command=$(default_harness_command "new_work_item.sh")
+ensure_task_directory_skeleton "$id"
+target=$(canonical_work_item_path "$id")
 operation_id=$(default_operation_id "$id" "create")
 
 cat >"$target" <<EOF
@@ -76,11 +79,12 @@ cat >"$target" <<EOF
 
 ## Notes
 
-- Seeded by ./.agents/skills/harness/scripts/new_work_item.sh on $date.
+- Seeded by $seed_command on $date.
 EOF
 
 event_path=$(write_transition_event "$id" "none" "backlog" "$actor" "work item created" "none" "none" "$operation_id" "none" "0" "0" "1" "none" "none" "state-transition")
-replace_field "$target" "Last transition event" "$event_path"
-"$script_dir/refresh_boards.sh" >/dev/null
+rewrite_work_item_header_snapshot "$target" "Last transition event" "$event_path"
+claim_current_task_id_if_missing "$id"
+refresh_boards_if_enabled
 
 echo "$target"

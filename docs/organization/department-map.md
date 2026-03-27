@@ -30,7 +30,7 @@ Founder 输入先进入：
 
 详细流程见：
 
-- [docs/workflows/founder-intake-evolution-loop.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-intake-evolution-loop.md)
+- [docs/workflows/founder-intake-evolution-loop.md](../workflows/founder-intake-evolution-loop.md)
 
 ## 与产品 runtime 的边界
 
@@ -38,4 +38,4 @@ Founder 输入先进入：
 
 详细映射见：
 
-- [docs/organization/company-os-runtime-data-map.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/company-os-runtime-data-map.md)
+- [docs/organization/company-os-runtime-data-map.md](./company-os-runtime-data-map.md)

@@ -3,7 +3,7 @@ name: meeting-router
 description: Use when a founder-facing meeting needs to be routed to the correct canonical meeting skill.
 ---
 
-Read [../../docs/workflows/founder-meeting-taxonomy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-meeting-taxonomy.md).
+Read [../../docs/workflows/founder-meeting-taxonomy.md](../../docs/workflows/founder-meeting-taxonomy.md).
 
 Route the current request to exactly one of:
 

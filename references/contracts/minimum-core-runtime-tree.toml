@@ -1,0 +1,38 @@
+schema_version = 1
+runtime_mode = "minimum-core"
+source_repo_pure = true
+
+required_directories = [
+  ".agents/skills",
+  ".harness",
+  ".harness/tasks",
+  ".harness/archive",
+  ".harness/archive/tasks",
+  ".harness/locks",
+]
+
+generated_files = [
+  "README.md",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+  ".harness/entrypoint.md",
+  ".harness/README.md",
+  ".harness/manifest.toml",
+]
+
+lazily_created_files = [
+  ".harness/current-task",
+  ".harness/tasks/<task-id>/task.md",
+  ".harness/tasks/<task-id>/progress.md",
+  ".harness/tasks/<task-id>/refs/index.toml",
+  ".harness/tasks/<task-id>/history/transitions/TX-*.md",
+]
+
+linked_skill_root = ".agents/skills/harness"
+
+[notes]
+root_entry = "consumer root files are routing-only shims"
+task_truth = "task directory is the only runtime source of truth"
+global_workspace = "advanced governance surfaces are not part of the minimum scaffold"
+validation = "materialize with scripts/materialize_runtime_fixture.sh and verify with scripts/run_state_validation_slice.sh"

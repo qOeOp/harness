@@ -24,11 +24,11 @@
 
 会议类型路由见：
 
-- [docs/workflows/founder-meeting-taxonomy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-meeting-taxonomy.md)
+- [docs/workflows/founder-meeting-taxonomy.md](./founder-meeting-taxonomy.md)
 
 节奏来源见：
 
-- [docs/workflows/process-compounding-cadence.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/process-compounding-cadence.md)
+- [docs/workflows/process-compounding-cadence.md](./process-compounding-cadence.md)
 
 ## 角色分工
 
@@ -90,7 +90,7 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 
 模板：
 
-- [docs/templates/improvement-plan.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/improvement-plan.md)
+- [docs/templates/improvement-plan.md](../templates/improvement-plan.md)
 
 ### Step 7: Review and Rollout
 
@@ -133,7 +133,7 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 
 模板：
 
-- [docs/templates/governance-meeting-brief.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/governance-meeting-brief.md)
+- [docs/templates/governance-meeting-brief.md](../templates/governance-meeting-brief.md)
 
 ## 升级条件
 
@@ -147,6 +147,6 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 
 ## 相关文档
 
-- [docs/workflows/founder-meeting-taxonomy.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/founder-meeting-taxonomy.md)
-- [docs/workflows/process-compounding-cadence.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/process-compounding-cadence.md)
-- [docs/workflows/governance-surface-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/workflows/governance-surface-audit.md)
+- [docs/workflows/founder-meeting-taxonomy.md](./founder-meeting-taxonomy.md)
+- [docs/workflows/process-compounding-cadence.md](./process-compounding-cadence.md)
+- [docs/workflows/governance-surface-audit.md](./governance-surface-audit.md)

@@ -77,7 +77,7 @@ Founder / Principal
 
 详细职责见：
 
-- [docs/organization/department-map.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/department-map.md)
+- [docs/organization/department-map.md](./department-map.md)
 
 ## 组织规则
 
@@ -89,4 +89,4 @@ Founder / Principal
 
 详细映射见：
 
-- [docs/organization/company-os-runtime-data-map.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/organization/company-os-runtime-data-map.md)
+- [docs/organization/company-os-runtime-data-map.md](./company-os-runtime-data-map.md)

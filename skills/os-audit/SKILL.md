@@ -14,4 +14,4 @@ Audit:
 - rules
 - scripts
 
-Use [../../docs/templates/governance-surface-audit.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/governance-surface-audit.md).
+Use [../../docs/templates/governance-surface-audit.md](../../docs/templates/governance-surface-audit.md).

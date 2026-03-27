@@ -37,7 +37,7 @@ Founder 输入进入：
 
 模板：
 
-- [docs/templates/material-intake.md](/Users/vx/WebstormProjects/trading-agent/.agents/skills/harness/docs/templates/material-intake.md)
+- [docs/templates/material-intake.md](../templates/material-intake.md)
 
 ### Step 2: Triage
 
