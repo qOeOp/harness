@@ -52,6 +52,12 @@ require_file "references/top-level-surface.md"
 require_file "references/specs/README.md"
 require_file "roles/README.md"
 require_file "roles/runtime-role-manager.md"
+require_dir "skills/research"
+require_file "skills/research/SKILL.md"
+require_file "skills/research/manifest.toml"
+require_file "skills/research/refs/README.md"
+require_file "skills/research/templates/research-dispatch.md"
+require_file "skills/research/templates/research-memo.md"
 require_file "docs/workflows/agent-operator-contract.md"
 require_file "docs/workflows/consumer-runtime-routing.md"
 require_file "docs/workflows/task-artifact-routing.md"
@@ -70,6 +76,8 @@ require_exec "scripts/enforce_role_policy.sh"
 require_exec "scripts/resolve_consumer_runtime_root.sh"
 require_exec "scripts/new_role_change_proposal.sh"
 require_exec "scripts/runtime_role_manager.sh"
+require_exec "skills/research/scripts/new_dispatch.sh"
+require_exec "skills/research/scripts/new_memo.sh"
 
 forbidden_path ".harness"
 forbidden_path ".agents/skills/harness"
@@ -97,6 +105,9 @@ require_contains "docs/workflows/agent-operator-contract.md" '在 framework sour
 require_contains "docs/workflows/agent-operator-contract.md" '在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`'
 require_contains "docs/workflows/task-artifact-routing.md" '`task-local first, governance by explicit promotion`'
 require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md'
+require_contains "skills/research/SKILL.md" 'This bundle owns the `research` capability as one bounded entity.'
+require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
+require_contains "skills/research/manifest.toml" 'operation_modes = ['
 require_contains "skills/research-dispatch/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "skills/research-memo/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'

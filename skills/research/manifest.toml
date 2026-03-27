@@ -1,0 +1,58 @@
+schema_version = 1
+bundle_slug = "research"
+bundle_version = 1
+bundle_kind = "task-skill"
+summary = "Route volatile research work into dispatch and memo outputs with task-local-first writeback."
+
+owner_role = "knowledge-memory-lead"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "work-item", "review", "script"]
+activation_modes = ["explicit", "router", "state-gate"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "shell", "web"]
+read_roots = [
+  "skills/research/",
+  "docs/workflows/",
+  "docs/templates/",
+  "references/",
+]
+write_roots = [
+  ".harness/tasks/<task-id>/attachments/",
+  ".harness/workspace/research/dispatches/",
+  ".harness/workspace/briefs/",
+  ".harness/workspace/departments/<department>/workspace/memos/",
+]
+forbidden_roots = [
+  "roles/",
+  ".harness/workspace/roles/",
+]
+
+default_artifact_type = "research-dispatch"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+
+supported_artifact_types = [
+  "research-dispatch",
+  "research-memo",
+  "source-note",
+]
+
+operation_modes = [
+  "dispatch",
+  "memo",
+]
+
+governance_promotion_required = true
+preferred_scripts = [
+  "skills/research/scripts/new_dispatch.sh",
+  "skills/research/scripts/new_memo.sh",
+]
+backing_global_scripts = [
+  "scripts/new_research_dispatch.sh",
+  "scripts/new_research.sh",
+]
