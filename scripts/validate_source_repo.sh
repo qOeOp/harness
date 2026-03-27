@@ -92,6 +92,8 @@ forbidden_path "roles/market-intelligence-lead.md"
 forbidden_path "roles/position-operations-lead.md"
 forbidden_path "roles/risk-office-lead.md"
 forbidden_path "roles/strategy-research-lead.md"
+forbidden_path "skills/research-memo"
+forbidden_path "skills/research-dispatch"
 forbidden_path "references/specs/2026-03-25-harness-invoke-first-vnext-spec-v1.md"
 forbidden_path "references/specs/2026-03-25-harness-vnext-round1-reduction-inventory-v1.toml"
 forbidden_path "references/specs/2026-03-26-harness-surface-buckets-v1.md"
@@ -110,8 +112,8 @@ require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
 require_contains "skills/research/manifest.toml" 'operation_modes = ['
 require_contains "scripts/new_research.sh" 'skills/research/templates/research-memo.md'
 require_contains "scripts/new_research_dispatch.sh" 'skills/research/templates/research-dispatch.md'
-require_contains "skills/research-dispatch/SKILL.md" '.harness/tasks/<task-id>/attachments/'
-require_contains "skills/research-memo/SKILL.md" '.harness/tasks/<task-id>/attachments/'
+require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mode'
+require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'

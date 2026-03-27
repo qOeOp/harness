@@ -151,6 +151,8 @@ worker_payload_should_include = [
 bundle_must_not_store_runtime_truth = true
 bundle_must_not_define_provider_specific_subagent_surface_as_canonical = true
 bundle_outputs_should_prefer_external_artifacts_over_large_chat_payloads = true
+canonical_top_level_skill_should_be_single_bundle_entry = true
+operation_mode_alias_shims_are_temporary_only = true
 
 [notes]
 design_center = "capability bundle as entity, agent instance as runtime, task record as external truth"

@@ -271,10 +271,10 @@ bundle 只能声明默认写入根，不能私自扩张 write roots。
 
 ```toml
 schema_version = 1
-bundle_slug = "research-memo"
+bundle_slug = "research"
 bundle_version = 1
 bundle_kind = "task-skill"
-summary = "Turn an ambiguous problem into a structured research memo."
+summary = "Route volatile research work into dispatch and memo outputs."
 owner_role = "knowledge-memory-lead"
 scope = "source-baseline"
 maturity = "stable"
@@ -284,13 +284,14 @@ delegation_mode = "manager-optional"
 entrypoints = ["chat", "work-item"]
 activation_modes = ["explicit", "router"]
 allowed_tools = ["read", "write", "shell", "web"]
-read_roots = ["docs/", "references/", "skills/research-memo/"]
+read_roots = ["skills/research/", "references/"]
 write_roots = [".harness/tasks/<task-id>/attachments/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 output_modes = ["artifact-path", "summary"]
-default_artifact_type = "research-memo"
+default_artifact_type = "research-dispatch"
 default_artifact_path = ".harness/tasks/<task-id>/attachments/"
-lazy_load_paths = ["refs/", "templates/", "evals/"]
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+operation_modes = ["dispatch", "memo"]
 ```
 
 ## Migration Guidance
@@ -304,6 +305,17 @@ lazy_load_paths = ["refs/", "templates/", "evals/"]
 3. 把强耦合模板迁到 bundle-local `templates/`
 4. 把强耦合补充文档迁到 bundle-local `refs/`
 5. 保留通用模板和共享 shell lib 在全局层
+
+## Compatibility Shim Rule
+
+兼容 shim 只允许作为迁移期的短暂过渡层。
+
+规则：
+
+1. canonical 顶层 skill 只能有一个 bundle 入口
+2. `dispatch`、`memo`、`review` 这类 operation mode 不应长期占据独立顶层 skill 名称
+3. 一旦活跃文档、脚本、校验已改到 canonical bundle 语义，旧 shim 必须删除
+4. 不允许把迁移期 shim 长期包装成与 canonical bundle 并列的一等 skill
 
 ## What Should Stay Global
 

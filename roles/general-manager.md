@@ -43,7 +43,7 @@ codex_nicknames: Atlas, Vega, Iris
 对 `volatile` 外部议题的默认动作：
 
 1. 先判断是否需要 `research dispatch`，而不是直接组织闭门讨论。
-2. 先执行 `research-dispatch` skill，指定 `research owner`，并要求形成 fresh source note 或明确引用最新官方来源。
+2. 先执行 `research` bundle 的 `dispatch` mode，指定 `research owner`，并要求形成 fresh source note 或明确引用最新官方来源。
 3. 没有 fresh external sources 时，只能把讨论标记为 `exploratory` 或 `blocked by freshness`。
 4. 不允许在缺少外部验证的情况下形成正式 decision pack。
 

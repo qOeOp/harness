@@ -14,4 +14,4 @@ Route the current request to exactly one of:
 - `brainstorming-session`
 
 Do not mix multiple meeting types into one output.
-If the topic touches volatile external facts, follow the freshness and research-dispatch requirements in the selected downstream skill.
+If the topic touches volatile external facts, follow the freshness and `research` bundle `dispatch` requirements in the selected downstream skill.
