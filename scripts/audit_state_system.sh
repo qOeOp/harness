@@ -47,7 +47,7 @@ if [ -z "$mode" ]; then
   fi
 fi
 
-if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".agents/skills/harness" ]; then
+if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".harness" ]; then
   echo "audit_state_system.sh checks a consumer runtime workspace, not the framework source repo." >&2
   exit 2
 fi
@@ -66,61 +66,6 @@ require_dir() {
 require_file() {
   if [ ! -f "$1" ]; then
     fail "missing file: $1"
-  fi
-}
-
-audit_progress_file() {
-  progress_file="$1"
-  expected_work_item="$2"
-  progress_work_item=$(field_value "$progress_file" "Work Item")
-  progress_updated_at=$(field_value "$progress_file" "Updated at")
-  progress_status_snapshot=$(field_value "$progress_file" "Status snapshot")
-  progress_state_version_snapshot=$(field_value "$progress_file" "State version snapshot")
-  progress_operation_snapshot=$(field_value "$progress_file" "Last operation ID snapshot")
-  progress_current_focus=$(field_value "$progress_file" "Current focus")
-  progress_next_command=$(field_value "$progress_file" "Next command")
-  progress_recovery_notes=$(field_value "$progress_file" "Recovery notes")
-
-  for pair in \
-    "Work Item:$progress_work_item" \
-    "Updated at:$progress_updated_at" \
-    "Status snapshot:$progress_status_snapshot" \
-    "State version snapshot:$progress_state_version_snapshot" \
-    "Last operation ID snapshot:$progress_operation_snapshot" \
-    "Current focus:$progress_current_focus" \
-    "Next command:$progress_next_command" \
-    "Recovery notes:$progress_recovery_notes"
-  do
-    label=${pair%%:*}
-    value=${pair#*:}
-    if [ -z "$value" ]; then
-      fail "missing progress field '$label' in $progress_file"
-    fi
-  done
-
-  if [ "$progress_work_item" != "$expected_work_item" ]; then
-    fail "progress file points to wrong work item '$progress_work_item' in $progress_file"
-  fi
-
-  if [ ! -f "$(work_item_path "$progress_work_item")" ]; then
-    fail "progress file points to missing work item '$progress_work_item' in $progress_file"
-  fi
-
-  if ! artifact_has_work_item_link "$progress_file" "$progress_work_item"; then
-    fail "progress file '$progress_file' does not link back to $progress_work_item"
-  fi
-
-  if ! is_valid_work_item_status "$progress_status_snapshot"; then
-    fail "invalid progress status snapshot '$progress_status_snapshot' in $progress_file"
-  fi
-
-  if ! is_nonnegative_integer "$progress_state_version_snapshot"; then
-    fail "invalid progress state version snapshot '$progress_state_version_snapshot' in $progress_file"
-  fi
-
-  current_progress_version=$(field_value "$(work_item_path "$progress_work_item")" "State version")
-  if is_nonnegative_integer "$current_progress_version" && [ "$progress_state_version_snapshot" -gt "$current_progress_version" ]; then
-    fail "progress snapshot version is ahead of work item in $progress_file"
   fi
 }
 
@@ -242,22 +187,6 @@ if [ "$mode" = "governance" ]; then
   done
 fi
 
-if [ -d "$state_items_dir" ] && [ ! -f "$state_items_dir/README.md" ]; then
-  fail "legacy compatibility directory missing README: $state_items_dir"
-fi
-
-if [ -f "$state_items_dir/README.md" ] && ! grep -Fq "Compatibility only: true" "$state_items_dir/README.md"; then
-  fail "legacy compatibility README missing marker in $state_items_dir/README.md"
-fi
-
-if [ -d "$state_progress_dir" ] && [ ! -f "$state_progress_dir/README.md" ]; then
-  fail "legacy compatibility directory missing README: $state_progress_dir"
-fi
-
-if [ -f "$state_progress_dir/README.md" ] && ! grep -Fq "Compatibility only: true" "$state_progress_dir/README.md"; then
-  fail "legacy compatibility README missing marker in $state_progress_dir/README.md"
-fi
-
 for event_file in $(list_transition_events); do
   event_work_item=$(field_value "$event_file" "Work Item")
   event_from=$(field_value "$event_file" "From")
@@ -368,10 +297,23 @@ for file in $(list_work_items); do
   priority=$(field_value "$file" "Priority")
   owner=$(field_value "$file" "Owner")
   sponsor=$(field_value "$file" "Sponsor")
+  assignee=$(field_value_or_none "$file" "Assignee")
+  worktree=$(field_value_or_none "$file" "Worktree")
+  claimed_at=$(field_value_or_none "$file" "Claimed at")
+  claim_expires_at=$(field_value_or_none "$file" "Claim expires at")
+  lease_version=$(field_value_or_none "$file" "Lease version")
   objective=$(field_value "$file" "Objective")
   ready_criteria=$(field_value "$file" "Ready criteria")
   done_criteria=$(field_value "$file" "Done criteria")
   required_artifacts=$(field_value "$file" "Required artifacts")
+  current_stage_owner=$(field_value_or_none "$file" "Current stage owner")
+  current_stage_role=$(field_value_or_none "$file" "Current stage role")
+  next_gate=$(field_value_or_none "$file" "Next gate")
+  decision_status=$(field_value_or_none "$file" "Decision status")
+  review_status=$(field_value_or_none "$file" "Review status")
+  qa_status=$(field_value_or_none "$file" "QA status")
+  uat_status=$(field_value_or_none "$file" "UAT status")
+  acceptance_status=$(field_value_or_none "$file" "Acceptance status")
   why_it_matters=$(field_value "$file" "Why it matters")
   decision_needed=$(field_value "$file" "Decision needed")
   deadline=$(field_value "$file" "Deadline")
@@ -380,7 +322,7 @@ for file in $(list_work_items); do
   founder_escalation=$(field_value "$file" "Founder escalation")
   required_departments=$(field_value "$file" "Required departments")
   participation_records=$(field_value "$file" "Participation records")
-  linked_artifacts=$(field_value "$file" "Linked artifacts")
+  linked_artifacts=$(field_value "$file" "Linked attachments")
   last_transition_event=$(field_value "$file" "Last transition event")
   interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
   resume_target=$(field_value_or_none "$file" "Resume target")
@@ -388,6 +330,10 @@ for file in $(list_work_items); do
   blocks=$(field_value "$file" "Blocks")
   current_blocker=$(field_value "$file" "Current blocker")
   next_handoff=$(field_value "$file" "Next handoff")
+  archived_at=$(field_value_or_none "$file" "Archived at")
+  recovery_current_focus=$(recovery_field_value_or_none "$file" "Current focus")
+  recovery_next_command=$(recovery_field_value_or_none "$file" "Next command")
+  recovery_notes=$(recovery_field_value_or_none "$file" "Recovery notes")
 
   for pair in \
     "Schema version:$schema_version" \
@@ -401,10 +347,23 @@ for file in $(list_work_items); do
     "Priority:$priority" \
     "Owner:$owner" \
     "Sponsor:$sponsor" \
+    "Assignee:$assignee" \
+    "Worktree:$worktree" \
+    "Claimed at:$claimed_at" \
+    "Claim expires at:$claim_expires_at" \
+    "Lease version:$lease_version" \
     "Objective:$objective" \
     "Ready criteria:$ready_criteria" \
     "Done criteria:$done_criteria" \
     "Required artifacts:$required_artifacts" \
+    "Current stage owner:$current_stage_owner" \
+    "Current stage role:$current_stage_role" \
+    "Next gate:$next_gate" \
+    "Decision status:$decision_status" \
+    "Review status:$review_status" \
+    "QA status:$qa_status" \
+    "UAT status:$uat_status" \
+    "Acceptance status:$acceptance_status" \
     "Why it matters:$why_it_matters" \
     "Decision needed:$decision_needed" \
     "Deadline:$deadline" \
@@ -413,14 +372,15 @@ for file in $(list_work_items); do
     "Founder escalation:$founder_escalation" \
     "Required departments:$required_departments" \
     "Participation records:$participation_records" \
-    "Linked artifacts:$linked_artifacts" \
+    "Linked attachments:$linked_artifacts" \
     "Last transition event:$last_transition_event" \
     "Interrupt marker:$interrupt_marker" \
     "Resume target:$resume_target" \
     "Blocked by:$blocked_by" \
     "Blocks:$blocks" \
     "Current blocker:$current_blocker" \
-    "Next handoff:$next_handoff"
+    "Next handoff:$next_handoff" \
+    "Archived at:$archived_at"
   do
     label=${pair%%:*}
     value=${pair#*:}
@@ -453,8 +413,25 @@ for file in $(list_work_items); do
   is_valid_work_item_status "$status" || fail "invalid status '$status' in $file"
   is_valid_priority "$priority" || fail "invalid priority '$priority' in $file"
   is_valid_founder_escalation "$founder_escalation" || fail "invalid founder escalation '$founder_escalation' in $file"
+  is_valid_gate_status "$decision_status" || fail "invalid decision status '$decision_status' in $file"
+  is_valid_gate_status "$review_status" || fail "invalid review status '$review_status' in $file"
+  is_valid_gate_status "$qa_status" || fail "invalid QA status '$qa_status' in $file"
+  is_valid_gate_status "$uat_status" || fail "invalid UAT status '$uat_status' in $file"
+  is_valid_gate_status "$acceptance_status" || fail "invalid acceptance status '$acceptance_status' in $file"
   is_valid_interrupt_marker "$interrupt_marker" || fail "invalid interrupt marker '$interrupt_marker' in $file"
   is_valid_resume_target "$resume_target" || fail "invalid resume target '$resume_target' in $file"
+  if ! is_nonnegative_integer "$lease_version"; then
+    fail "invalid lease version '$lease_version' in $file"
+  fi
+  if ! is_iso_timestamp_or_none "$claimed_at"; then
+    fail "invalid claimed-at timestamp '$claimed_at' in $file"
+  fi
+  if ! is_iso_timestamp_or_none "$claim_expires_at"; then
+    fail "invalid claim-expiration timestamp '$claim_expires_at' in $file"
+  fi
+  if ! is_iso_timestamp_or_none "$archived_at"; then
+    fail "invalid archived-at timestamp '$archived_at' in $file"
+  fi
   if is_open_work_item_status "$status"; then
     open_work_item_count=$((open_work_item_count + 1))
   fi
@@ -596,6 +573,17 @@ for file in $(list_work_items); do
       ;;
   esac
 
+  case "$status" in
+    in-progress|paused)
+      if value_is_missing "$recovery_current_focus"; then
+        fail "active item missing Recovery current focus in $file"
+      fi
+      if value_is_missing "$recovery_next_command"; then
+        fail "active item missing Recovery next command in $file"
+      fi
+      ;;
+  esac
+
   if [ "$status" = "done" ]; then
     if value_is_missing "$done_criteria"; then
       fail "missing Done criteria for done item $file"
@@ -632,41 +620,16 @@ for file in $(list_work_items); do
         fail "terminal item still has resume target in $file"
       fi
       ;;
+    archived)
+      if value_is_missing "$archived_at"; then
+        fail "archived item missing Archived at timestamp in $file"
+      fi
+      ;;
   esac
-
-  progress_path=$(work_item_progress_path "$id")
-  if [ -f "$progress_path" ]; then
-    audit_progress_file "$progress_path" "$id"
-
-    progress_sync_state=$(work_item_progress_sync_state "$id")
-    case "$progress_sync_state" in
-      unlinked)
-        fail "progress artifact is not linked in $file"
-        ;;
-      stale)
-        fail "progress artifact is stale for $file"
-        ;;
-    esac
-  fi
 done
 
-if [ -f "$current_task_pointer_path" ]; then
-  current_task_id=$(read_current_task_id 2>/dev/null || true)
-  if [ -z "$current_task_id" ]; then
-    fail "empty current task pointer in $current_task_pointer_path"
-  else
-    current_task_path=$(work_item_path "$current_task_id")
-    if [ ! -f "$current_task_path" ]; then
-      fail "current task points to missing work item '$current_task_id'"
-    else
-      current_task_status=$(field_value "$current_task_path" "Status")
-      if ! is_open_work_item_status "$current_task_status"; then
-        fail "current task points to non-open work item '$current_task_id'"
-      fi
-    fi
-  fi
-elif [ "$open_work_item_count" -gt 0 ]; then
-  fail "missing current task pointer for open work items"
+if [ -f ".harness/current-task" ]; then
+  fail "forbidden runtime surface still exists at .harness/current-task"
 fi
 
 for event_file in $(list_transition_events); do

@@ -1,20 +1,18 @@
 # Top-Level Surface
 
 For the framework source repo, the top level is already the canonical source surface.
-For a consumer repo, only three allowed dispositions exist for functional top-level surfaces:
+For a consumer repo, only two allowed dispositions exist for harness-owned functional top-level surfaces:
 
-1. `move-to-skill-source`
-2. `move-to-runtime`
-3. `delete`
+1. `move-to-runtime`
+2. `delete`
 
 Never use:
 
 1. `legacy`
 2. `archive`
-3. `compat`
-4. `temporary canonical`
+3. `temporary canonical`
 
-Provider adapters remain an explicit exception in consumer repos. They may remain top-level as thin, tool-specific shims:
+Provider adapters remain an explicit user-owned exception in consumer repos. They may exist as thin, tool-specific shims, but harness does not generate, mutate, or validate them:
 
 1. `.claude/`
 2. `.codex/`
@@ -32,11 +30,7 @@ Framework source repo shape:
 
 Consumer repo intended destinations:
 
-## Move to skill source
-
-Install or project the framework source into `.agents/skills/harness/`.
-
-## Keep as top-level provider adapters
+## User-owned optional provider adapters
 
 1. `.claude/`
 2. `.codex/`
@@ -48,4 +42,4 @@ Runtime belongs under `.harness/`.
 
 ## Delete
 
-Any functional surface in a consumer repo that belongs to neither installed skill source nor runtime.
+Any functional surface in a consumer repo that belongs to neither harness-owned runtime nor user-owned provider adapters.

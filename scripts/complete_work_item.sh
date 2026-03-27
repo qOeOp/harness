@@ -31,13 +31,6 @@ resolve_board_path() {
   esac
 }
 
-require_command() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    echo "missing required command: $1" >&2
-    exit 1
-  fi
-}
-
 json_escape() {
   value="${1:-}"
   escaped=$(printf '%s' "$value" | awk '
@@ -108,13 +101,13 @@ closer_recommendation() {
         review:ready)
           printf '%s\n' "start_work_item_before_review"
           ;;
-        review:planning|review:framing|review:backlog)
+        review:planning|review:backlog)
           printf '%s\n' "advance_item_to_ready_then_start_before_review"
           ;;
         done:in-progress)
           printf '%s\n' "move_item_to_review_before_done"
           ;;
-        done:ready|done:planning|done:framing|done:backlog)
+        done:ready|done:planning|done:backlog)
           printf '%s\n' "advance_item_before_done"
           ;;
         killed:done)
@@ -132,7 +125,7 @@ closer_recommendation() {
               printf '%s\n' "collect_founder_decision_before_completion"
               ;;
             *)
-              printf '%s\n' "inspect_open_current_work_item_output"
+              printf '%s\n' "inspect_open_work_item_output"
               ;;
           esac
           ;;
@@ -142,7 +135,7 @@ closer_recommendation() {
       printf '%s\n' "no_open_work_item_for_scope"
       ;;
     *)
-      printf '%s\n' "inspect_open_current_work_item_output"
+      printf '%s\n' "inspect_open_work_item_output"
       ;;
   esac
 }
@@ -162,7 +155,7 @@ emit_json() {
   "founder_escalation": $(json_escape "$selected_founder_escalation"),
   "current_blocker": $(json_escape "$selected_current_blocker"),
   "next_handoff": $(json_escape "$selected_next_handoff"),
-  "linked_artifacts": $(json_escape "$selected_linked_artifacts"),
+  "linked_attachments": $(json_escape "$selected_linked_attachments"),
   "state_version": $(json_escape "$selected_state_version"),
   "last_operation_id": $(json_escape "$selected_last_operation_id"),
   "last_transition_event": $(json_escape "$selected_last_transition_event"),
@@ -310,8 +303,6 @@ if [ -z "$complete_reason" ]; then
   esac
 fi
 
-require_command node
-
 if [ -n "$explicit_work_item_id" ]; then
   board_path=$(resolve_board_path "$scope" "$department")
   selected_scope="$scope"
@@ -330,7 +321,7 @@ if [ -n "$explicit_work_item_id" ]; then
   selected_founder_escalation=$(field_value "$selected_path" "Founder escalation")
   selected_current_blocker=$(field_value "$selected_path" "Current blocker")
   selected_next_handoff=$(field_value "$selected_path" "Next handoff")
-  selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
+  selected_linked_attachments=$(field_value "$selected_path" "Linked attachments")
   selected_interrupt_marker=$(field_value_or_none "$selected_path" "Interrupt marker")
   selected_resume_target=$(field_value_or_none "$selected_path" "Resume target")
   resume_command=""
@@ -342,7 +333,7 @@ if [ -n "$explicit_work_item_id" ]; then
   blocked_owner=""
   blocked_reason=""
 else
-  if opener_output=$("$script_dir/open_current_work_item.sh" --json "$scope" ${department:+"$department"} 2>/dev/null); then
+  if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" ${department:+"$department"} 2>/dev/null); then
     opener_status=0
   else
     opener_status=$?
@@ -351,55 +342,9 @@ else
     fi
   fi
 
-  opener_line=$(printf '%s' "$opener_output" | node -e '
-const fs = require("fs");
-const data = JSON.parse(fs.readFileSync(0, "utf8"));
-const selected = data.selected_work_item || {};
-const blocked = data.next_blocked_candidate || {};
-const values = [
-  data.scope || "",
-  data.department || "",
-  data.board || "",
-  data.result || "",
-  data.recommended_action || "",
-  data.selector_reason || "",
-  selected.id || "",
-  selected.path || "",
-  selected.title || "",
-  selected.status || "",
-  selected.priority || "",
-  selected.owner || "",
-  selected.objective || "",
-  selected.deadline || "",
-  selected.founder_escalation || "",
-  selected.current_blocker || "",
-  selected.next_handoff || "",
-  selected.linked_artifacts || "",
-  selected.interrupt_marker || "",
-  selected.resume_target || "",
-  selected.resume_command || "",
-  blocked.id || "",
-  blocked.path || "",
-  blocked.title || "",
-  blocked.status || "",
-  blocked.priority || "",
-  blocked.owner || "",
-  blocked.blocked_because || "",
-  blocked.state_version || "",
-  blocked.interrupt_marker || "",
-  blocked.resume_target || "",
-  blocked.resume_command || ""
-];
-const sanitize = (value) => String(value)
-  .replace(/\u001f/g, " ")
-  .replace(/\t/g, " ")
-  .replace(/\r?\n/g, " ");
-process.stdout.write(values.map(sanitize).join("\u001f"));
-')
-
   sep=$(printf '\037')
-  IFS=$sep read -r selected_scope selected_department board_path opener_result opener_action selector_reason selected_id selected_path selected_title selected_status selected_priority selected_owner selected_objective selected_deadline selected_founder_escalation selected_current_blocker selected_next_handoff selected_linked_artifacts selected_interrupt_marker selected_resume_target resume_command blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason blocked_state_version blocked_interrupt_marker blocked_resume_target blocked_resume_command <<EOF
-$opener_line
+  IFS=$sep read -r selected_scope selected_department board_path opener_result opener_action selector_reason selected_id selected_path selected_title selected_status selected_priority selected_owner selected_objective selected_deadline selected_founder_escalation selected_current_blocker selected_next_handoff selected_linked_attachments selected_interrupt_marker selected_resume_target resume_command blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason blocked_state_version blocked_interrupt_marker blocked_resume_target blocked_resume_command <<EOF
+$opener_output
 EOF
   unset IFS
 fi
@@ -492,7 +437,7 @@ case "$target_status:$selected_status" in
     selected_founder_escalation=$(field_value "$selected_path" "Founder escalation")
     selected_current_blocker=$(field_value "$selected_path" "Current blocker")
     selected_next_handoff=$(field_value "$selected_path" "Next handoff")
-    selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
+    selected_linked_attachments=$(field_value "$selected_path" "Linked attachments")
     selected_interrupt_marker=$(field_value_or_none "$selected_path" "Interrupt marker")
     selected_resume_target=$(field_value_or_none "$selected_path" "Resume target")
     resume_command=""
@@ -532,7 +477,7 @@ case "$target_status:$selected_status" in
     selected_founder_escalation=$(field_value "$selected_path" "Founder escalation")
     selected_current_blocker=$(field_value "$selected_path" "Current blocker")
     selected_next_handoff=$(field_value "$selected_path" "Next handoff")
-    selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
+    selected_linked_attachments=$(field_value "$selected_path" "Linked attachments")
     selected_interrupt_marker=$(field_value_or_none "$selected_path" "Interrupt marker")
     selected_resume_target=$(field_value_or_none "$selected_path" "Resume target")
     resume_command=""
@@ -541,7 +486,7 @@ case "$target_status:$selected_status" in
     closer_reason="$complete_reason"
     result="completed"
     ;;
-  killed:backlog|killed:framing|killed:planning|killed:ready|killed:in-progress|killed:review|killed:paused)
+  killed:backlog|killed:planning|killed:ready|killed:in-progress|killed:review|killed:paused)
     if [ -z "$operation_id" ]; then
       operation_id=$(default_operation_id "$selected_id" "to-killed")
     fi
@@ -564,7 +509,7 @@ case "$target_status:$selected_status" in
     selected_founder_escalation=$(field_value "$selected_path" "Founder escalation")
     selected_current_blocker=$(field_value "$selected_path" "Current blocker")
     selected_next_handoff=$(field_value "$selected_path" "Next handoff")
-    selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
+    selected_linked_attachments=$(field_value "$selected_path" "Linked attachments")
     selected_interrupt_marker=$(field_value_or_none "$selected_path" "Interrupt marker")
     selected_resume_target=$(field_value_or_none "$selected_path" "Resume target")
     resume_command=""
@@ -597,7 +542,7 @@ case "$target_status:$selected_status" in
     result="blocked"
     closer_reason="selected work item is paused with interrupt marker $selected_interrupt_marker"
     ;;
-  review:planning|review:framing|review:backlog)
+  review:planning|review:backlog)
     result="blocked"
     closer_reason="selected work item is not in progress yet"
     ;;
@@ -605,7 +550,7 @@ case "$target_status:$selected_status" in
     result="blocked"
     closer_reason="selected work item must move to review before done"
     ;;
-  done:ready|done:planning|done:framing|done:backlog)
+  done:ready|done:planning|done:backlog)
     result="blocked"
     closer_reason="selected work item is not ready for done"
     ;;
@@ -661,7 +606,7 @@ case "$result" in
     printf 'Founder escalation: %s\n' "$selected_founder_escalation"
     printf 'Current blocker: %s\n' "$selected_current_blocker"
     printf 'Next handoff: %s\n' "$selected_next_handoff"
-    printf 'Linked artifacts: %s\n' "$selected_linked_artifacts"
+    printf 'Linked attachments: %s\n' "$selected_linked_attachments"
     printf 'State version: %s\n' "$selected_state_version"
     printf 'Last operation ID: %s\n' "$selected_last_operation_id"
     printf 'Last transition event: %s\n' "$selected_last_transition_event"

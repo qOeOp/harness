@@ -1,6 +1,6 @@
 # Work Item Interrupt Protocol
 
-更新日期：`2026-03-23`
+更新日期：`2026-03-27`
 
 ## 目的
 
@@ -26,7 +26,7 @@ work item 头部新增两个协议字段：
    - `risk-review-required`
 2. `Resume target`
    - `none`
-   - `backlog|framing|planning|ready|in-progress|review`
+   - `backlog|planning|ready|in-progress|review`
 
 新协议 transition event 也必须带同名字段，表示该次迁移后的 interrupt snapshot。
 
@@ -34,30 +34,30 @@ work item 头部新增两个协议字段：
 
 1. 任务需要明确等待人工 review，但还不应进入 `review` / `done`。
 2. 任务需要等待 Founder 批示，但不应只靠 `pending-founder` 和自由文本 blocker 表达。
-3. 任务需要等待 Risk Office 审查，且恢复后仍要回到原 execution stage。
+3. 任务需要等待 `Risk & Quality Lead` 或指定 risk reviewer 审查，且恢复后仍要回到原 execution stage。
 
 ## 推荐命令
 
 暂停一个 work item：
 
 ```bash
-./.agents/skills/harness/scripts/pause_work_item.sh \
+./scripts/pause_work_item.sh \
   --expected-from-status in-progress \
   --expected-version <state-version> \
   --interrupt-marker risk-review-required \
   WI-xxxx \
   "waiting for risk review" \
-  "workflow-automation -> risk-office" \
+  "workflow-automation -> risk-quality" \
   "pause for risk review"
 ```
 
 恢复一个 paused work item：
 
 ```bash
-./.agents/skills/harness/scripts/resume_work_item.sh \
+./scripts/resume_work_item.sh \
   --expected-version <state-version> \
   WI-xxxx \
-  "risk-office -> workflow-automation" \
+  "risk-quality -> workflow-automation" \
   "resume after risk review"
 ```
 
@@ -67,8 +67,8 @@ work item 头部新增两个协议字段：
 2. 非 `paused` item 必须把 `Interrupt marker` 和 `Resume target` 都清回 `none`。
 3. 不允许从 `paused` 直接推进到任意别的 open 状态；只能通过 resume 回到 `Resume target`，或被正式 kill。
 4. 若 transition event 是 `To: paused`，event 上也必须带非 `none` 的 interrupt fields。
-5. `./.agents/skills/harness/scripts/open_current_work_item.sh`、`./.agents/skills/harness/scripts/start_work_item.sh`、`./.agents/skills/harness/scripts/sweep_state_drift.sh`、`./.agents/skills/harness/scripts/audit_state_system.sh` 都必须理解这套协议。
-6. 即使 selector 返回的是 blocked candidate，只要该项处于 `paused`，`open_current_work_item.sh` 也必须展开 `Interrupt marker`、`Resume target` 和 `resume_command`。
+5. `./scripts/open_work_item.sh`、`./scripts/start_work_item.sh`、`./scripts/sweep_state_drift.sh`、`./scripts/audit_state_system.sh` 都必须理解这套协议。
+6. 即使 selector 返回的是 blocked candidate，只要该项处于 `paused`，`open_work_item.sh` 也必须展开 `Interrupt marker`、`Resume target` 和 `resume_command`。
 
 ## 与 Founder Escalation 的边界
 

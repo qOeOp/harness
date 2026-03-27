@@ -111,6 +111,17 @@ existing_blocker=$(field_value "$file" "Current blocker")
 founder_escalation=$(field_value "$file" "Founder escalation")
 existing_interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
 existing_resume_target=$(field_value_or_none "$file" "Resume target")
+owner=$(field_value_or_none "$file" "Owner")
+current_assignee=$(field_value_or_none "$file" "Assignee")
+current_worktree=$(field_value_or_none "$file" "Worktree")
+current_claimed_at=$(field_value_or_none "$file" "Claimed at")
+current_claim_expires_at=$(field_value_or_none "$file" "Claim expires at")
+current_archived_at=$(field_value_or_none "$file" "Archived at")
+current_lease_version=$(field_value_or_none "$file" "Lease version")
+
+if ! is_nonnegative_integer "$current_lease_version"; then
+  current_lease_version="0"
+fi
 
 if [ -n "$interrupt_marker" ] && ! is_valid_interrupt_marker "$interrupt_marker"; then
   echo "invalid interrupt marker: $interrupt_marker" >&2
@@ -291,12 +302,75 @@ case "$next_status" in
 esac
 
 next_version=$((current_version + 1))
+next_assignee="$current_assignee"
+next_worktree="$current_worktree"
+next_claimed_at="$current_claimed_at"
+next_claim_expires_at="$current_claim_expires_at"
+next_lease_version="$current_lease_version"
+
+case "$next_status" in
+  in-progress)
+    next_assignee="$actor"
+    next_worktree=$(pwd -P)
+    next_claimed_at=$(now_iso_timestamp)
+    next_claim_expires_at="none"
+    next_lease_version=$((current_lease_version + 1))
+    ;;
+  paused)
+    :
+    ;;
+  *)
+    if ! value_is_missing "$current_assignee" || ! value_is_missing "$current_worktree" || ! value_is_missing "$current_claimed_at"; then
+      next_assignee="none"
+      next_worktree="none"
+      next_claimed_at="none"
+      next_claim_expires_at="none"
+      next_lease_version=$((current_lease_version + 1))
+    fi
+    ;;
+esac
+
+case "$next_status" in
+  in-progress|paused)
+    if ! value_is_missing "$next_assignee"; then
+      next_stage_owner="$next_assignee"
+    else
+      next_stage_owner="$owner"
+    fi
+    ;;
+  *)
+    next_stage_owner=$(default_stage_owner_for_status "$file" "$next_status" "$actor")
+    ;;
+esac
+
+next_stage_role=$(default_stage_role_for_status "$next_status")
+next_gate=$(default_next_gate_for_status "$next_status")
+next_archived_at="$current_archived_at"
+
+case "$next_status" in
+  archived)
+    next_archived_at=$(now_iso_timestamp)
+    ;;
+  *)
+    next_archived_at="none"
+    ;;
+esac
+
 event_path=$(write_transition_event "$id" "$current_status" "$next_status" "$actor" "$reason" "${current_blocker:-$existing_blocker}" "${next_handoff:-none}" "$operation_id" "$expected_from_status" "$expected_version" "$current_version" "$next_version" "$next_interrupt_marker" "$next_resume_target" "$event_type")
 set -- "$file" \
   "Status" "$next_status" \
   "Updated at" "$(date +%F)" \
   "State version" "$next_version" \
   "Last operation ID" "$operation_id" \
+  "Assignee" "$next_assignee" \
+  "Worktree" "$next_worktree" \
+  "Claimed at" "$next_claimed_at" \
+  "Claim expires at" "$next_claim_expires_at" \
+  "Lease version" "$next_lease_version" \
+  "Current stage owner" "$next_stage_owner" \
+  "Current stage role" "$next_stage_role" \
+  "Next gate" "$next_gate" \
+  "Archived at" "$next_archived_at" \
   "Interrupt marker" "$next_interrupt_marker" \
   "Resume target" "$next_resume_target" \
   "Last transition event" "$event_path"
@@ -310,7 +384,7 @@ if [ -n "$next_handoff" ]; then
 fi
 
 rewrite_work_item_header_snapshot "$@"
-sync_progress_snapshot_if_present "$file"
+sync_recovery_snapshot_if_present "$file"
 refresh_boards_if_enabled
 
 echo "$file"

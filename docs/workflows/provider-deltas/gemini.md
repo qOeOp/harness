@@ -24,23 +24,23 @@ Gemini 通过 `GEMINI.md` 层级上下文提供 repo 指令，并允许在 `sett
 
 当前仓库选择：
 
-1. 根 `GEMINI.md` 只保留 redirect stub
-2. `.gemini/settings.json` 只负责把 Gemini 路由到 `GEMINI.md`
-3. canonical root first hop 已切到 `.harness/entrypoint.md`
-4. 详细 workflow source 当前仍是 [document-routing-and-lifecycle.md](../document-routing-and-lifecycle.md)
+1. consumer repo 的 `GEMINI.md` 与 `.gemini/settings.json` 属于 user-owned/provider-owned surface
+2. harness 不生成、不修改这些文件
+3. consumer runtime 的 first hop 仍只收敛到 `.harness/entrypoint.md`
+4. framework source repo 仍以 `SKILL.md` 与 canonical references 为入口，不假装常驻 `.harness/`
+5. 详细 workflow source 当前仍是 [document-routing-and-lifecycle.md](../document-routing-and-lifecycle.md)
 
 不要把 `GEMINI.md` 再长回第二套宪法。
 
-### 2. Skills Can Consume The Canonical Alias Directly
+### 2. Skill Discovery Remains Provider-Owned
 
 Gemini 官方 workspace skill 发现支持：
 
 1. `.gemini/skills/`
-2. `.agents/skills/` alias
+2. provider 自己支持的 skill discovery alias
 
-而且 `.agents/skills/` 在同层里优先级更高。
-
-因此当前仓库不为 Gemini 再造 `.gemini/skills/` projection，直接消费 canonical `.agents/skills/`。
+这些都属于 provider 自己的发现机制，不属于 harness runtime contract。
+因此当前仓库不生成、也不要求任何 Gemini skill mirror。
 
 ### 3. Custom Subagents Are Experimental
 
@@ -56,32 +56,21 @@ Gemini 官方 workspace skill 发现支持：
 
 当前仓库没有这样做，原因不是“不会做”，而是：
 
-1. repo 虽然已有 `.agents/skills/harness/roles/` canonical role source，但 Gemini 还不是当前真实执行主面
+1. repo 虽然已有 `roles/` canonical role source，但 Gemini 还不是当前真实执行主面
 2. Gemini custom subagents 仍是 experimental
-3. 为了表面对称而复制 11 个 agent projection，会重新引入 drift surface
+3. 为了表面对称而复制 11 个 provider mirror，只会重新引入 drift surface
 
-### 4. Agent Parity Must Stay Semantic, Not File-Symmetric
+### 4. Agent Semantics Stay In `roles/`
 
-当前 agent 层的对齐方式是：
-
-1. Claude:
-   - `.claude/agents/*.md`
-2. Codex:
-   - `.codex/agents/*.toml`
-3. Gemini:
-   - 当前不默认投影 custom agents
-
-也就是说，Gemini 侧当前只有：
+Gemini 侧当前只有：
 
 1. routing parity
 2. skills parity
 3. agent role semantic parity
 
-但没有 file-level agent projection parity。
+这些语义都落在 `roles/` 和 canonical docs，不落在 Gemini-specific repo mirrors。
 
-这不是缺陷，而是当前阶段的诚实边界。
-
-### 5. Missing Gemini Agent Projection Should Produce Honest Output
+### 5. Missing Gemini Agent Adapter Should Produce Honest Output
 
 如果某个建议需要 Gemini custom subagents 才成立，正确做法是：
 

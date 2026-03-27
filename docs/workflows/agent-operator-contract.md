@@ -18,7 +18,8 @@
 ## 与其他文件的边界
 
 1. 仓库级 first hop、routing 与 active truth
-   - 先看 `.harness/entrypoint.md`
+   - 在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`
+   - 在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`
    - 详细 workflow source 再看 [document-routing-and-lifecycle.md](./document-routing-and-lifecycle.md)
 2. 跨 agent 的 review contract
    - 见 [code_review.md](./code_review.md)
@@ -30,14 +31,14 @@
    - 见 [internal-research-routing.md](./internal-research-routing.md)
 6. worktree 并行规则
    - 见 [worktree-parallelism.md](./worktree-parallelism.md)
-7. state / progress / interrupt 协议
+7. state / recovery / interrupt 协议
    - 先看 [document-routing-and-lifecycle.md](./document-routing-and-lifecycle.md)
-   - 见 [work-item-progress-protocol.md](./work-item-progress-protocol.md)
+   - 见 [work-item-recovery-protocol.md](./work-item-recovery-protocol.md)
    - 见 [work-item-interrupt-protocol.md](./work-item-interrupt-protocol.md)
 
 本文件定义共性 operator rules，不定义 provider-specific command、hook、subagent syntax、MCP 安装方式或 config 格式。
 
-这些差异应下沉到 `docs/workflows/provider-deltas/`。
+这些差异应下沉到 `docs/workflows/provider-deltas/`，并只作为次级参考。
 
 当前至少包括：
 
@@ -145,7 +146,7 @@
 1. Codex / Claude / Gemini / MCP / hooks / skills / workflow 的最新能力
 2. 社区 best practice
 3. 开源仓库近期动态
-4. 市场、新闻、监管、实时价格
+4. 新闻、监管、服务状态、定价或其他时间敏感外部事实
 
 对这些主题：
 
@@ -194,18 +195,22 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 
 1. `canonical docs`
    - 允许修改，但应谨慎，避免把 adapter 规则写成公司 OS 真相
-2. `state items / transitions / progress`
+2. `state items / transitions / recovery`
    - 必须优先走正式脚本与协议，不手工伪造状态
 3. `append-only memory`
    - 允许新增 artifact，但不应偷偷重写历史
 4. `reviewable artifact`
    - 当风险较高或判断未封板时，优先产出 memo、dispatch、decision pack、inbox item，而不是直接改 canonical truth
+5. `runtime role mutation`
+   - 必须先有 `Role Change Proposal`
+   - 再通过 `scripts/runtime_role_manager.sh` 写 `.harness/workspace/roles/`
+   - wrapper 必须消费 role frontmatter 里的 `policy_*` 字段做机械检查
 
 对 state mutation，优先使用：
 
 1. [work_item_ctl.sh](../../scripts/work_item_ctl.sh)
 2. `start / pause / resume / complete` 相关脚本
-3. `upsert_work_item_progress.sh`
+3. `upsert_work_item_recovery.sh`
 4. `update_work_item_fields.sh`
 
 不要：
@@ -257,6 +262,7 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 4. requirements meeting brief
 5. inbox item
 6. review comment / review summary
+7. role change proposal
 
 ## Stop-The-Line Conditions
 

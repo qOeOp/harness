@@ -1,93 +1,130 @@
 # Memory Architecture
 
-更新日期：`2026-03-23`
+更新日期：`2026-03-27`
 
-## 设计原则
+## 目的
 
-- 长期规范不应和短期任务状态混放。
-- 运行中的结论必须能追溯到来源。
-- 临时上下文可以丢，决策依据不能丢。
-- 当前生效 truth 与历史快照必须分离。
+定义 `harness` 在 v2 task-record runtime 下的记忆分层，避免把 task truth、恢复协议、治理投影和 source repo 文档混成一套叙事。
 
-## Layer 0: Constitution
+## 核心原则
 
-作用：最稳定的组织规则与工具边界。
+1. source repo 与 consumer runtime 是两个不同的家。
+2. 默认 runtime memory 是 `task-scoped`，不是 `workspace-scoped`。
+3. `task.md` 既负责任务真相，也负责恢复协议。
+4. task-local evidence 默认进入 `attachments/`，不是先落 governance workspace。
+5. `archived` 是状态语义，不是默认物理目录。
+
+## Layer 0: Source Repo Constitution
+
+作用：定义 framework source 的长期边界与生成契约。
+
+文件：
+
+- [SKILL.md](/Users/vx/WebstormProjects/harness/SKILL.md)
+- [docs/project-structure.md](/Users/vx/WebstormProjects/harness/docs/project-structure.md)
+- [references/layering.md](/Users/vx/WebstormProjects/harness/references/layering.md)
+- [references/runtime-workspace.md](/Users/vx/WebstormProjects/harness/references/runtime-workspace.md)
+- [references/top-level-surface.md](/Users/vx/WebstormProjects/harness/references/top-level-surface.md)
+
+说明：
+
+1. 这一层属于 source repo，不属于 consumer runtime 的 live state。
+2. `.harness/entrypoint.md` 只在 consumer runtime 被 materialize 后出现。
+
+## Layer 1: Runtime Envelope
+
+作用：给 materialized consumer runtime 提供最小、稳定、可审计的运行外壳。
 
 文件：
 
 - `.harness/entrypoint.md`
-- `CLAUDE.md`
-- [docs/charter/company-charter.md](../charter/company-charter.md)
+- `.harness/manifest.toml`
+- `.harness/README.md`
+- `.harness/tasks/<task-id>/task.md`
 
-## Layer 1: Canonical Operating Docs
+说明：
 
-作用：组织结构、工作流、模板、目录规则。
+1. runtime envelope 只承载最小 task-record 外壳。
+2. task routing 与恢复协议都从 `task.md` 派生。
 
-文件：
+## Layer 2: Task Record Truth
 
-- [docs/organization/org-chart.md](../organization/org-chart.md)
-- [docs/organization/decision-rights.md](../organization/decision-rights.md)
-- [docs/workflows/decision-workflow.md](../workflows/decision-workflow.md)
-- [docs/workflows/document-routing-and-lifecycle.md](../workflows/document-routing-and-lifecycle.md)
-  - 当前作为 detailed routing / lifecycle workflow source
+作用：让单个 `task.md` 成为任务的唯一重实体真相。
 
-## Layer 2: Operational Memory
+字段分组：
 
-作用：当前项目真实状态与可追溯记录。
+1. 身份与主状态
+2. assignee / worktree / claim
+3. stage owner / stage role / next gate
+4. decision / review / QA / UAT / acceptance gate
+5. blockers / handoff / linked attachments
 
-文件：
+说明：
 
-- `.harness/workspace/current`
-- `.harness/workspace/status/snapshots`
-- `.harness/workspace/status/digests`
-- `.harness/workspace/status/process-audits`
-- `.harness/workspace/decisions/log`
-- `.harness/workspace/research/sources`
-- `.harness/workspace/intake/inbox`
-- `.harness/workspace/intake/triage`
+1. `task.md` 是唯一任务 source of truth。
+2. query、selector、audit、validation 都应从这里派生。
+3. 不再靠目录位置表达任务状态。
 
-## Layer 3: Active Working Set
+## Layer 3: Recovery Memory
 
-作用：本周或本轮运行中的 brief、research memo、decision pack。
+作用：把跨回合恢复信息从聊天上下文里剥离出来，但不再拆成第二个文件。
 
-目录：
+位置：
 
-- `.harness/workspace/briefs`
-- `.harness/workspace/departments`
+- `.harness/tasks/<task-id>/task.md`
+  - `## Recovery`
+  - `Current focus`
+  - `Next command`
+  - `Recovery notes`
 
-对于交易产品本身，后续应采用额外的三层记忆：
+说明：
 
-1. raw trade retros
-2. pattern compactions
-3. active trap library
+1. `./scripts/upsert_work_item_recovery.sh` 写的是 `task.md` 的 `## Recovery`。
+2. Recovery 只负责恢复协议，不承载决策正文或第二套状态。
 
-它们的作用不同，不能混成一份巨型上下文直接喂给决策 agent。
+## Layer 4: Task-Scoped Evidence And Trace
 
-## Layer 4: Archive
-
-作用：过期但仍需可追溯的历史文件。
+作用：沉淀与某个 task 直接绑定的证据、产出和审计流水。
 
 目录：
 
-- `.harness/workspace/archive`
+- `.harness/tasks/<task-id>/attachments/`
+- `.harness/tasks/<task-id>/attachments/sources/`
+- `.harness/tasks/<task-id>/closure/`
+- `.harness/tasks/<task-id>/history/transitions/`
+
+说明：
+
+1. decision / research / source / checkpoint 默认进入 `attachments/`。
+2. transition ledger 是 append-only trace，不应用 narrative 文本替代。
+3. accepted task 的 `Role Change Proposal` 默认属于 `closure/`。
+
+## Layer 5: Optional Governance Projection
+
+作用：只在显式升级到 `advanced governance mode` 后承载跨任务、跨部门、跨节奏的治理材料。
+
+目录示例：
+
+- `.harness/workspace/decisions/log/`
+- `.harness/workspace/research/`
+- `.harness/workspace/status/`
+- `.harness/workspace/departments/`
+
+说明：
+
+1. 这一层是 projection，不是默认 truth。
+2. 只有显式 `--promote-governance` 时，才值得把 task-local 材料升级到这里。
 
 ## Writeback Rules
 
-1. 新结论先进入 memo / decision pack。
-2. Founder 拍板后，新增一条 decision log entry，而不是改总表。
-3. 阶段状态新增一条 snapshot，而不是并行改一个 current-state 文件。
-4. 公司日报新增一条 digest，retro 新增一条 process audit。
-5. 来源新增或评级变化时，新增或更新单独 source note。
-6. 过期 artifact 不删除，移动到 archive。
-
-目录生命周期与 current/archive 路由见：
-
-- `.harness/entrypoint.md`
-- [docs/workflows/document-routing-and-lifecycle.md](../workflows/document-routing-and-lifecycle.md)
+1. 默认先写回 task 目录，再考虑是否 promote 到治理层。
+2. task 状态变更必须通过正式脚本和 transition event，不手工 patch `task.md` 伪造状态。
+3. Recovery 更新只写 `## Recovery`。
+4. 需要跨任务治理时，再写治理层 projection。
+5. 退出 active surface 时用 `Status: archived` 加 `Archived at` 表达。
 
 ## 禁止事项
 
-1. 不要把所有长期知识塞进 `CLAUDE.md`。
-2. 不要把临时 brainstorming 当成 canonical truth。
-3. 不要出现多个 source of truth。
-4. 不要让多个线程同时编辑公司级共享总表文件。
+1. 不要把 `.harness/workspace/*` 当成默认任务真相。
+2. 不要把 query 结果或 board projection 当成 canonical ledger。
+3. 不要把聊天上下文当成长期恢复机制。

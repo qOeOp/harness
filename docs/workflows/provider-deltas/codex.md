@@ -15,9 +15,12 @@
 1. `AGENTS.md`
 2. `.codex/config.toml`
 3. `.codex/agents/`
-4. [`.agents/skills/harness/roles/`](../../../roles)
+4. [`roles/`](../../../roles)
 
-当前 `.codex/agents/` 应视为 generated projection，而不是手工正文。
+其中：
+
+1. consumer repo 里的 `AGENTS.md`、`.codex/config.toml` 与 `.codex/agents/` 都属于 user-owned/provider-owned surface，harness 不负责生成或修改
+2. 本仓库 `roles/` 仍是 canonical role source
 
 ## Codex-Specific Operating Notes
 
@@ -63,7 +66,7 @@ Codex 的只读 sidecar exploration 不需要默认升级成独立 worktree。
 Codex 在本仓库里修改运行态时，应优先走正式脚本，而不是直接 patch state files：
 
 1. [`work_item_ctl.sh`](../../../scripts/work_item_ctl.sh)
-2. [`upsert_work_item_progress.sh`](../../../scripts/upsert_work_item_progress.sh)
+2. [`upsert_work_item_recovery.sh`](../../../scripts/upsert_work_item_recovery.sh)
 3. [`update_work_item_fields.sh`](../../../scripts/update_work_item_fields.sh)
 
 ### 5. Missing Adapter Capability Should Produce Honest Output

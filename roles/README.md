@@ -1,26 +1,34 @@
 # Canonical Roles
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-27`
 
 ## 目的
 
-本目录是 `harness` framework source repo 的 canonical agent / role source。
+本目录只保存 `harness` 自身的默认项目管理 / 治理团队基线。
 
-这里定义：
+当前内置角色：
 
-1. 角色 slug
-2. Claude projection metadata
-3. Codex projection metadata
-4. 角色的 canonical instructions
+1. `general-manager`
+2. `product-thesis-lead`
+3. `knowledge-memory-lead`
+4. `workflow-automation-lead`
+5. `risk-quality-lead`
+6. `compounding-engineering-lead`
+7. `runtime-role-manager`
 
-provider-specific files 只是投影，不再手工双写正文。
+任何用户域、行业域、项目域的专属角色都不应写入这个 source repo。
+如果某个 consumer repo 在复利 review 后证明需要新增角色，应把它创建到：
+
+`/.harness/workspace/roles/`
+
+而不是回写到本仓库。
 
 ## 文件格式
 
 每个 role 文件使用统一 `frontmatter v1`：
 
 1. YAML frontmatter metadata
-2. `## Canonical Instructions` 正文
+2. `## Canonical Instructions` 或 `## Runtime Instructions` 正文
 
 固定 metadata keys：
 
@@ -41,38 +49,67 @@ provider-specific files 只是投影，不再手工双写正文。
 
 其中：
 
-1. `slug` 是 canonical role identity
-2. `claude_*` 和 `codex_*` 只承载最小 projection metadata
-3. role 语义、边界、must-read 和 volatile 默认动作都应写在 `## Canonical Instructions`
+1. `slug` 是 role identity
+2. `claude_*` 和 `codex_*` 当前仅作为兼容期 metadata 保留
+3. source repo 内置角色正文使用 `## Canonical Instructions`
+4. consumer runtime 新建角色沿用同一 schema，但正文标题使用 `## Runtime Instructions`
 
-## Projection Rules
+可选 policy 扩展 keys：
 
-1. Claude projection 默认输出到 `.claude/agents/*.md`
-2. Codex projection 默认输出到 `.codex/agents/*.toml`
-3. Gemini 当前不默认投影 agent files
-4. 任何 provider projection 都必须由脚本生成，不手工维护
+- `policy_allowed_entrypoints`
+- `policy_allowed_actions`
+- `policy_mutation_actions`
+- `policy_write_roots`
+- `policy_forbidden_roots`
+- `policy_required_artifact_type`
+- `policy_required_stage`
 
-同步命令：
+说明：
 
-```bash
-./scripts/sync_agent_projections.sh
-```
+1. 默认角色可以不声明 policy 扩展
+2. 一旦声明任一 `policy_*` key，就必须把整组 policy keys 写全
+3. 高信任执行角色应把这些字段视为可机读的 canonical enforcement truth
 
-专门审计命令：
+## Current Rule
+
+1. `roles/` 只保存 `harness` 默认 PM / governance baseline
+2. 本仓库不再维护 provider-owned generated role mirrors
+3. consumer repo 的领域角色属于 runtime-local surface，路径是 `.harness/workspace/roles/`
+4. role 变更后只跑 schema audit，不再同步任何 provider mirror
+5. runtime role mutation 的 canonical 执行入口是 `scripts/runtime_role_manager.sh`
+
+审计命令：
 
 ```bash
 ./scripts/audit_role_schema.sh
 ```
 
-初始化新 role：
+打印 role 设计模板：
 
 ```bash
 ./scripts/new_role.sh --print-template
+```
 
+初始化 source repo 内置 role：
+
+```bash
 ./scripts/new_role.sh \
   --slug example-lead \
   --claude-description "Claude-facing description" \
   --codex-description "Codex-facing description"
+```
+
+初始化 consumer runtime role：
+
+```bash
+./scripts/runtime_role_manager.sh \
+  --consumer-runtime dogfood \
+  --stage post-acceptance-compounding \
+  --proposal .harness/tasks/WI-0001/closure/...-role-change-proposal.md \
+  create \
+  --slug research-dispatch-lead \
+  --claude-description "Consumer-local runtime role" \
+  --codex-description "Consumer-local runtime role"
 ```
 
 推荐先用这份模板准备参数：
@@ -81,43 +118,52 @@ provider-specific files 只是投影，不再手工双写正文。
 cat docs/templates/role-design-brief.md
 ```
 
-或直接：
-
-```bash
-./scripts/new_role.sh --print-template
-```
-
-然后再初始化 canonical role：
-
-```bash
-./scripts/new_role.sh \
-  --slug example-lead \
-  --claude-description "Claude-facing description" \
-  --codex-description "Codex-facing description"
-```
-
 推荐工作流：
 
 1. 先由 LLM 或人工填写 `Role Design Brief`
-2. 再用 `new_role.sh` 初始化 canonical role
-3. 如有需要，补全 `## Canonical Instructions`
-4. 脚本默认会自动同步 projections 并跑 `audit_role_schema.sh`
+2. 先判断它是 source baseline role，还是 consumer runtime role
+3. source baseline role 才能写入 `roles/`
+4. consumer runtime role 必须写入 `.harness/workspace/roles/`
+5. 脚本默认自动跑 `audit_role_schema.sh`
 
-编辑已有 role：
+编辑 source role：
 
 ```bash
 ./scripts/edit_role.sh --slug workflow-automation-lead --print-current
+```
 
+```bash
 ./scripts/edit_role.sh \
   --slug workflow-automation-lead \
   --claude-description "Updated Claude-facing description" \
   --codex-description "Updated Codex-facing description"
 ```
 
-`edit_role.sh` 只改 canonical role，并默认自动同步 projections 与 role audit。
+编辑 consumer runtime role：
+
+```bash
+./scripts/runtime_role_manager.sh \
+  --consumer-runtime dogfood \
+  --stage post-acceptance-compounding \
+  --proposal .harness/tasks/WI-0001/closure/...-role-change-proposal.md \
+  edit \
+  --slug research-dispatch-lead \
+  --claude-description "Updated runtime role description"
+```
+
+审计 consumer runtime role：
+
+```bash
+./scripts/runtime_role_manager.sh \
+  --consumer-runtime dogfood \
+  audit --quiet
+```
 
 ## 边界
 
-1. canonical role source 定义角色语义与 projection metadata
-2. provider-specific delta 继续放在 `docs/workflows/provider-deltas/`
-3. 若未来建立 Gemini agent projection，先更新 canonical role source 和同步脚本，再启用 `.gemini/agents/`
+1. source repo 的 canonical role source 只定义 `harness` 默认 PM / governance 团队
+2. consumer runtime role 解决的是某个 repo 的局部运行需要，而不是 framework baseline
+3. provider-specific delta 继续放在 `docs/workflows/provider-deltas/`
+4. 若未来想把某个 runtime role 升级为 source baseline，必须先证明它是跨项目、跨用户域、跨多轮复利都稳定成立的通用角色
+5. `runtime-role-manager` 是 source baseline role，但它只负责执行 `.harness/workspace/roles/` 的 canonical role mutation，不负责决定是否长出新 role
+6. 当高信任角色声明 `policy_*` frontmatter 时，wrapper 必须按这些字段执行机械检查，不能只靠说明文字

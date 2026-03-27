@@ -115,8 +115,6 @@ for candidate_value in "$blocked_by" "$blocks" "$current_blocker" "$next_handoff
 done
 
 if [ "$root_cleanup_needed" -ne 1 ]; then
-  clear_current_task_id_if_matches "$work_item_id"
-  ensure_current_task_pointer
   refresh_boards_if_enabled
   echo "$work_item_file"
   exit 0
@@ -150,9 +148,7 @@ rewrite_work_item_header_snapshot "$work_item_file" \
   "State version" "$next_version" \
   "Last operation ID" "$operation_id" \
   "Last transition event" "$event_path"
-sync_progress_snapshot_if_present "$work_item_file"
-clear_current_task_id_if_matches "$work_item_id"
-ensure_current_task_pointer
+sync_recovery_snapshot_if_present "$work_item_file"
 refresh_boards_if_enabled
 
 echo "$work_item_file"

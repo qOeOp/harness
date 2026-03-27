@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--id-only|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "select_work_item.sh")" >&2
+  printf 'usage: %s [--json|--record|--id-only|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "select_work_item.sh")" >&2
 }
 
 output_mode="summary"
@@ -14,6 +14,10 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --json)
       output_mode="json"
+      shift
+      ;;
+    --record)
+      output_mode="record"
       shift
       ;;
     --id-only)
@@ -90,7 +94,6 @@ status_rank() {
     in-progress) printf '20\n' ;;
     ready) printf '30\n' ;;
     planning) printf '40\n' ;;
-    framing) printf '50\n' ;;
     backlog) printf '60\n' ;;
     *) printf '99\n' ;;
   esac
@@ -221,8 +224,6 @@ candidate_tmp=$(mktemp)
 blocked_tmp=$(mktemp)
 trap 'rm -f "$candidate_tmp" "$blocked_tmp"' EXIT HUP INT TERM
 
-ensure_current_task_pointer
-current_task_id=$(read_current_task_id 2>/dev/null || true)
 for file in $(list_work_items); do
   id=$(field_value "$file" "ID")
   title=$(field_value "$file" "Title")
@@ -240,7 +241,6 @@ for file in $(list_work_items); do
   fi
 
   scope_rank="00"
-  focus_rank="10"
   reason=""
   selected=0
 
@@ -277,14 +277,10 @@ for file in $(list_work_items); do
     continue
   fi
 
-  if [ -n "$current_task_id" ] && [ "$id" = "$current_task_id" ]; then
-    focus_rank="00"
-  fi
-
   reason=$(selection_reason_for_file "$file")
 
   line=$(printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$focus_rank" \
+    "10" \
     "$scope_rank" \
     "$(status_rank "$status")" \
     "$(priority_rank "$priority")" \
@@ -343,6 +339,43 @@ json_string_or_null() {
   else
     printf 'null'
   fi
+}
+
+record_sanitize() {
+  value="${1:-}"
+  printf '%s' "$value" | awk '
+    BEGIN {
+      ORS = ""
+      first = 1
+    }
+    {
+      if (!first) {
+        printf " "
+      }
+      first = 0
+      gsub(/\037/, " ")
+      gsub(/\t/, " ")
+      gsub(/\r/, " ")
+      printf "%s", $0
+    }
+  '
+}
+
+emit_record() {
+  sep=$(printf '\037')
+  first=1
+
+  for value in "$@"; do
+    sanitized=$(record_sanitize "$value")
+    if [ "$first" -eq 1 ]; then
+      printf '%s' "$sanitized"
+      first=0
+    else
+      printf '%s%s' "$sep" "$sanitized"
+    fi
+  done
+
+  printf '\n'
 }
 
 emit_json_result() {
@@ -432,6 +465,27 @@ EOF
         "$selected_owner" \
         "actionable"
       ;;
+    record)
+      emit_record \
+        "$scope" \
+        "$department" \
+        "$board_path" \
+        "actionable" \
+        "actionable" \
+        "$selected_id" \
+        "$selected_path" \
+        "$selected_title" \
+        "$selected_status" \
+        "$selected_priority" \
+        "$selected_owner" \
+        "" \
+        "" \
+        "" \
+        "" \
+        "" \
+        "" \
+        ""
+      ;;
     summary)
       printf 'Scope: %s\n' "$scope"
       printf 'Board: %s\n' "$board_path"
@@ -463,6 +517,27 @@ EOF
         "" \
         "" \
         "no actionable work item" \
+        "$blocked_id" \
+        "$blocked_path" \
+        "$blocked_title" \
+        "$blocked_status" \
+        "$blocked_priority" \
+        "$blocked_owner" \
+        "$blocked_reason"
+      ;;
+    record)
+      emit_record \
+        "$scope" \
+        "$department" \
+        "$board_path" \
+        "blocked" \
+        "no actionable work item" \
+        "" \
+        "" \
+        "" \
+        "" \
+        "" \
+        "" \
         "$blocked_id" \
         "$blocked_path" \
         "$blocked_title" \
@@ -510,6 +585,28 @@ if [ "$output_mode" = "json" ]; then
     "" \
     "" \
     "no open work item matches this scope"
+fi
+
+if [ "$output_mode" = "record" ]; then
+  emit_record \
+    "$scope" \
+    "$department" \
+    "$board_path" \
+    "empty" \
+    "no open work item matches this scope" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    "" \
+    ""
 fi
 
 exit 2

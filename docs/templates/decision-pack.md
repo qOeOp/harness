@@ -4,7 +4,7 @@
 - Owner:
 - Decision:
 - Why now:
-- Research dispatch: .harness/tasks/<task-id>/working/...-research-dispatch.md / promoted governance dispatch / n/a
+- Research dispatch: .harness/tasks/<task-id>/attachments/...-research-dispatch.md / promoted governance dispatch / n/a
 - Verification date:
 - Verification mode: internal-only / web-verified / mixed
 - Sources reviewed:

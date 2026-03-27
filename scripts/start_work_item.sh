@@ -9,13 +9,6 @@ usage() {
   printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]\n' "$(default_harness_command "start_work_item.sh")" >&2
 }
 
-require_command() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    echo "missing required command: $1" >&2
-    exit 1
-  fi
-}
-
 json_escape() {
   value="${1:-}"
   escaped=$(printf '%s' "$value" | awk '
@@ -73,7 +66,7 @@ starter_recommendation() {
         review)
           printf '%s\n' "finish_review_before_starting_new_work_item"
           ;;
-        planning|framing|backlog)
+        planning|backlog)
           printf '%s\n' "advance_item_to_ready_before_start"
           ;;
         *)
@@ -85,7 +78,7 @@ starter_recommendation() {
               printf '%s\n' "collect_founder_decision_before_start"
               ;;
             *)
-              printf '%s\n' "inspect_open_current_work_item_output"
+              printf '%s\n' "inspect_open_work_item_output"
               ;;
           esac
           ;;
@@ -95,24 +88,24 @@ starter_recommendation() {
       printf '%s\n' "no_open_work_item_for_scope"
       ;;
     *)
-      printf '%s\n' "inspect_open_current_work_item_output"
+      printf '%s\n' "inspect_open_work_item_output"
       ;;
   esac
 }
 
-progress_recommended_action() {
+recovery_recommended_action() {
   status="$1"
-  progress_sync_state="$2"
+  recovery_sync_state="$2"
 
-  case "$status:$progress_sync_state" in
+  case "$status:$recovery_sync_state" in
     in-progress:missing)
-      printf '%s\n' "create_progress_artifact_before_continuing"
+      printf '%s\n' "create_recovery_snapshot_before_continuing"
       ;;
     in-progress:unlinked|in-progress:stale)
-      printf '%s\n' "refresh_progress_artifact_before_continuing"
+      printf '%s\n' "refresh_recovery_snapshot_before_continuing"
       ;;
     in-progress:current)
-      printf '%s\n' "continue_work_item_with_progress_artifact"
+      printf '%s\n' "continue_work_item_with_recovery_snapshot"
       ;;
     *)
       printf '%s\n' ""
@@ -135,21 +128,21 @@ emit_json() {
   "founder_escalation": $(json_escape "$selected_founder_escalation"),
   "current_blocker": $(json_escape "$selected_current_blocker"),
   "next_handoff": $(json_escape "$selected_next_handoff"),
-  "linked_artifacts": $(json_escape "$selected_linked_artifacts"),
+  "linked_attachments": $(json_escape "$selected_linked_attachments"),
   "state_version": $(json_escape "$selected_state_version"),
   "last_operation_id": $(json_escape "$selected_last_operation_id"),
   "last_transition_event": $(json_escape "$selected_last_transition_event"),
   "interrupt_marker": $(json_escape "$selected_interrupt_marker"),
   "resume_target": $(json_escape "$selected_resume_target"),
   "resume_command": $(json_escape "$resume_command"),
-  "progress_path": $(json_escape "$progress_path"),
-  "progress_exists": $progress_exists,
-  "progress_sync_state": $(json_escape "$progress_sync_state"),
-  "progress_updated_at": $(json_escape "$progress_updated_at"),
-  "progress_current_focus": $(json_escape "$progress_current_focus"),
-  "progress_next_command": $(json_escape "$progress_next_command"),
-  "progress_recovery_notes": $(json_escape "$progress_recovery_notes"),
-  "progress_command": $(json_escape "$progress_command")
+  "recovery_path": $(json_escape "$recovery_path"),
+  "recovery_exists": $recovery_exists,
+  "recovery_sync_state": $(json_escape "$recovery_sync_state"),
+  "recovery_updated_at": $(json_escape "$recovery_updated_at"),
+  "recovery_current_focus": $(json_escape "$recovery_current_focus"),
+  "recovery_next_command": $(json_escape "$recovery_next_command"),
+  "recovery_notes": $(json_escape "$recovery_notes"),
+  "recovery_command": $(json_escape "$recovery_command")
 }
 EOF
 )
@@ -255,10 +248,9 @@ if [ -z "$start_reason" ]; then
   start_reason="execution started via $(default_harness_command "start_work_item.sh")"
 fi
 
-require_command node
-progress_command_template=$(default_harness_command "upsert_work_item_progress.sh")
+recovery_command_template=$(default_harness_command "upsert_work_item_recovery.sh")
 
-if opener_output=$("$script_dir/open_current_work_item.sh" --json "$scope" ${department:+"$department"} 2>/dev/null); then
+if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" ${department:+"$department"} 2>/dev/null); then
   opener_status=0
 else
   opener_status=$?
@@ -267,55 +259,9 @@ else
   fi
 fi
 
-opener_line=$(printf '%s' "$opener_output" | node -e '
-const fs = require("fs");
-const data = JSON.parse(fs.readFileSync(0, "utf8"));
-const selected = data.selected_work_item || {};
-const blocked = data.next_blocked_candidate || {};
-const values = [
-  data.scope || "",
-  data.department || "",
-  data.board || "",
-  data.result || "",
-  data.recommended_action || "",
-  data.selector_reason || "",
-  selected.id || "",
-  selected.path || "",
-  selected.title || "",
-  selected.status || "",
-  selected.priority || "",
-  selected.owner || "",
-  selected.objective || "",
-  selected.deadline || "",
-  selected.founder_escalation || "",
-  selected.current_blocker || "",
-  selected.next_handoff || "",
-  selected.linked_artifacts || "",
-  selected.interrupt_marker || "",
-  selected.resume_target || "",
-  selected.resume_command || "",
-  blocked.id || "",
-  blocked.path || "",
-  blocked.title || "",
-  blocked.status || "",
-  blocked.priority || "",
-  blocked.owner || "",
-  blocked.blocked_because || "",
-  blocked.state_version || "",
-  blocked.interrupt_marker || "",
-  blocked.resume_target || "",
-  blocked.resume_command || ""
-];
-const sanitize = (value) => String(value)
-  .replace(/\u001f/g, " ")
-  .replace(/\t/g, " ")
-  .replace(/\r?\n/g, " ");
-process.stdout.write(values.map(sanitize).join("\u001f"));
-')
-
 sep=$(printf '\037')
-IFS=$sep read -r selected_scope selected_department board_path opener_result opener_action selector_reason selected_id selected_path selected_title selected_status selected_priority selected_owner selected_objective selected_deadline selected_founder_escalation selected_current_blocker selected_next_handoff selected_linked_artifacts selected_interrupt_marker selected_resume_target resume_command blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason blocked_state_version blocked_interrupt_marker blocked_resume_target blocked_resume_command <<EOF
-$opener_line
+IFS=$sep read -r selected_scope selected_department board_path opener_result opener_action selector_reason selected_id selected_path selected_title selected_status selected_priority selected_owner selected_objective selected_deadline selected_founder_escalation selected_current_blocker selected_next_handoff selected_linked_attachments selected_interrupt_marker selected_resume_target resume_command blocked_id blocked_path blocked_title blocked_status blocked_priority blocked_owner blocked_reason blocked_state_version blocked_interrupt_marker blocked_resume_target blocked_resume_command <<EOF
+$opener_output
 EOF
 unset IFS
 
@@ -328,14 +274,14 @@ blocked_state_version="${blocked_state_version:-}"
 blocked_interrupt_marker="${blocked_interrupt_marker:-none}"
 blocked_resume_target="${blocked_resume_target:-none}"
 blocked_resume_command="${blocked_resume_command:-}"
-progress_path=""
-progress_exists=false
-progress_sync_state="none"
-progress_updated_at="none"
-progress_current_focus="none"
-progress_next_command="none"
-progress_recovery_notes="none"
-progress_command=""
+recovery_path=""
+recovery_exists=false
+recovery_sync_state="none"
+recovery_updated_at="none"
+recovery_current_focus="none"
+recovery_next_command="none"
+recovery_notes="none"
+recovery_command=""
 transition_event=""
 transition_performed=false
 starter_reason=""
@@ -384,31 +330,31 @@ if [ ! -f "$selected_path" ]; then
   exit 1
 fi
 
-refresh_progress_context() {
-  progress_path=$(work_item_progress_path "$selected_id")
-  progress_exists=false
-  progress_sync_state="none"
-  progress_updated_at="none"
-  progress_current_focus="none"
-  progress_next_command="none"
-  progress_recovery_notes="none"
-  progress_command=""
+refresh_recovery_context() {
+  recovery_path=$(work_item_recovery_path "$selected_id")
+  recovery_exists=false
+  recovery_sync_state="none"
+  recovery_updated_at="none"
+  recovery_current_focus="none"
+  recovery_next_command="none"
+  recovery_notes="none"
+  recovery_command=""
 
-  progress_sync_state=$(work_item_progress_sync_state "$selected_id")
-  if [ -f "$progress_path" ]; then
-    progress_exists=true
-    progress_updated_at=$(progress_field_value_or_none "$progress_path" "Updated at")
-    progress_current_focus=$(progress_field_value_or_none "$progress_path" "Current focus")
-    progress_next_command=$(progress_field_value_or_none "$progress_path" "Next command")
-    progress_recovery_notes=$(progress_field_value_or_none "$progress_path" "Recovery notes")
+  recovery_sync_state=$(work_item_recovery_sync_state "$selected_id")
+  if [ -f "$recovery_path" ]; then
+    recovery_exists=true
+    recovery_updated_at=$(field_value_or_none "$recovery_path" "Updated at")
+    recovery_current_focus=$(recovery_field_value_or_none "$recovery_path" "Current focus")
+    recovery_next_command=$(recovery_field_value_or_none "$recovery_path" "Next command")
+    recovery_notes=$(recovery_field_value_or_none "$recovery_path" "Recovery notes")
   fi
 
-  case "$progress_sync_state" in
+  case "$recovery_sync_state" in
     missing|unlinked)
-      progress_command="$progress_command_template --expected-version $selected_state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      recovery_command="$recovery_command_template --expected-version $selected_state_version \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
     stale|current)
-      progress_command="$progress_command_template \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
+      recovery_command="$recovery_command_template \"$selected_id\" \"<current-focus>\" \"<next-command>\" \"[recovery-notes]\""
       ;;
   esac
 }
@@ -442,17 +388,15 @@ case "$selected_status" in
     selected_founder_escalation=$(field_value "$selected_path" "Founder escalation")
     selected_current_blocker=$(field_value "$selected_path" "Current blocker")
     selected_next_handoff=$(field_value "$selected_path" "Next handoff")
-    selected_linked_artifacts=$(field_value "$selected_path" "Linked artifacts")
-    refresh_progress_context
-    set_current_task_id "$selected_id"
+    selected_linked_attachments=$(field_value "$selected_path" "Linked attachments")
+    refresh_recovery_context
     transition_event="$selected_last_transition_event"
     transition_performed=true
     starter_reason="$start_reason"
     result="started"
     ;;
   in-progress)
-    refresh_progress_context
-    set_current_task_id "$selected_id"
+    refresh_recovery_context
     transition_event="$selected_last_transition_event"
     starter_reason="selected work item is already in-progress"
     result="active"
@@ -461,7 +405,7 @@ case "$selected_status" in
     fi
     ;;
   paused)
-    refresh_progress_context
+    refresh_recovery_context
     transition_event="$selected_last_transition_event"
     starter_reason="selected work item is paused with interrupt marker $selected_interrupt_marker"
     result="blocked"
@@ -475,7 +419,7 @@ case "$selected_status" in
     starter_reason="selected work item is already in review"
     recommended_action=$(starter_recommendation "$result" "$selected_status" "$starter_reason" "$selected_interrupt_marker")
     ;;
-  planning|framing|backlog)
+  planning|backlog)
     result="blocked"
     starter_reason="selected work item is not ready to start from status $selected_status"
     recommended_action=$(starter_recommendation "$result" "$selected_status" "$starter_reason" "$selected_interrupt_marker")
@@ -491,10 +435,10 @@ if [ -z "${recommended_action:-}" ]; then
   recommended_action=$(starter_recommendation "$result" "$selected_status" "$starter_reason" "$selected_interrupt_marker")
 fi
 
-progress_action=$(progress_recommended_action "$selected_status" "$progress_sync_state")
+recovery_action=$(recovery_recommended_action "$selected_status" "$recovery_sync_state")
 if [ "$result" = "started" ] || [ "$result" = "active" ]; then
-  if [ -n "$progress_action" ]; then
-    recommended_action="$progress_action"
+  if [ -n "$recovery_action" ]; then
+    recommended_action="$recovery_action"
   fi
 fi
 
@@ -537,22 +481,22 @@ case "$result" in
     printf 'Founder escalation: %s\n' "$selected_founder_escalation"
     printf 'Current blocker: %s\n' "$selected_current_blocker"
     printf 'Next handoff: %s\n' "$selected_next_handoff"
-    printf 'Linked artifacts: %s\n' "$selected_linked_artifacts"
+    printf 'Linked attachments: %s\n' "$selected_linked_attachments"
     printf 'State version: %s\n' "$selected_state_version"
     printf 'Last operation ID: %s\n' "$selected_last_operation_id"
     printf 'Last transition event: %s\n' "$selected_last_transition_event"
     printf 'Interrupt marker: %s\n' "$selected_interrupt_marker"
     printf 'Resume target: %s\n' "$selected_resume_target"
-    printf 'Progress path: %s\n' "$progress_path"
-    printf 'Progress sync state: %s\n' "$progress_sync_state"
-    printf 'Progress updated at: %s\n' "$progress_updated_at"
-    printf 'Progress current focus: %s\n' "$progress_current_focus"
-    printf 'Progress next command: %s\n' "$progress_next_command"
+    printf 'Recovery source: %s\n' "$recovery_path"
+    printf 'Recovery sync state: %s\n' "$recovery_sync_state"
+    printf 'Recovery updated at: %s\n' "$recovery_updated_at"
+    printf 'Recovery current focus: %s\n' "$recovery_current_focus"
+    printf 'Recovery next command: %s\n' "$recovery_next_command"
     if [ -n "$resume_command" ]; then
       printf 'Resume command: %s\n' "$resume_command"
     fi
-    if [ -n "$progress_command" ]; then
-      printf 'Progress command: %s\n' "$progress_command"
+    if [ -n "$recovery_command" ]; then
+      printf 'Recovery command: %s\n' "$recovery_command"
     fi
     printf 'Transition performed: %s\n' "$transition_performed"
     exit 0

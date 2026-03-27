@@ -19,9 +19,10 @@
 
 补充约束：
 
-1. 根 `AGENTS.md / CLAUDE.md / GEMINI.md` 只负责 routing，不属于 capability layer
+1. consumer repo 的 `AGENTS.md / CLAUDE.md / GEMINI.md` 与 `.claude/ / .codex/ / .gemini/` 属于 user-owned/provider-owned surface，harness 不生成、不修改、不校验
 2. 真正硬约束下沉到 `scripts/`、audit、CI、tool permissions 与 canonical docs
 3. 任何关键能力都不能只活在某个 provider 的 `command` 或 `hook` 里
+4. consumer runtime 的名字路由 / 地址簿同样属于 user-owned integration，不属于 runtime contract
 
 ## Adapter-Only Surface
 
@@ -36,7 +37,7 @@
 3. provider config
    - 例如 `.claude/settings.json`、`.codex/config.toml`、`.gemini/settings.json`
 
-## Projection Rules
+## Adapter Rules
 
 新能力默认按以下顺序设计：
 
@@ -46,13 +47,13 @@
 4. 若确实需要事件驱动自动拦截或自动注入，再加 `hook`
 5. 若没有 deterministic script / audit backing，不允许只靠 hook 实现关键控制
 
-## Provider Projection Matrix
+## Provider Boundary Matrix
 
 | Surface | Canonical meaning | Claude | Codex | Gemini | 当前仓库策略 |
 | --- | --- | --- | --- | --- | --- |
-| Root entry | routing only | consumer repo `CLAUDE.md` redirect | consumer repo `AGENTS.md` redirect | consumer repo `GEMINI.md` redirect | source repo 不直接承载 |
-| Skills | reusable capability packages | `.claude/skills/` generated projection | 直接消费安装后的 `.agents/skills/harness/skills/` | 直接消费安装后的 `.agents/skills/harness/skills/` alias | `skills/` 为 canonical source；Claude projection 由 `./scripts/sync_claude_skill_projections.sh` 生成；安装后再落 consumer carrier |
-| Agents | role / execution units | `.claude/agents/*.md` generated projection | `.codex/agents/*.toml` generated projection | `.gemini/agents/*.md`（experimental） | `roles/` 为 canonical source；Claude/Codex 由 `./scripts/sync_agent_projections.sh` 生成；Gemini 暂不投影 |
+| Root entry | user/provider-owned routing memory | optional | optional | optional | harness 不接管 |
+| Skills | reusable capability packages | provider may discover user-installed skill | provider may discover user-installed skill | provider may discover user-installed skill | `skills/` 为 canonical source；安装位置不属于 runtime contract |
+| Agents | role / execution units | provider-owned | provider-owned | provider-owned | `roles/` 为 canonical source；不维护 repo-local provider mirrors |
 | Commands | UX alias only | 可选 | 可选 | 可选 | 不再视为一等层 |
 | Hooks | event automation only | 可选，能力最强 | 当前公开面未见同级 project-local hooks | 可选 | 不再视为一等层 |
 | Scripts / audits | deterministic enforcement | 通用 | 通用 | 通用 | 公司 OS 真正硬控制面 |
@@ -63,9 +64,9 @@
 
 1. `skills/` 是 canonical skill layer
 2. `roles/` 是 canonical agent / role layer
-3. `.claude/skills/`、`.claude/agents/`、`.codex/agents/` 若存在，都应视为 generated projections，而不是手工正文
-4. consumer repo 安装后再生成或同步 `.agents/skills/harness/`、`.claude/`、`.codex/`、`.gemini/`
-5. Gemini custom subagents 仍是 experimental，因此不作为默认 projection 面
+3. consumer runtime 只拥有 `.harness/`
+4. skill 如何安装、provider 如何发现，是 user-owned integration 问题，不属于 runtime contract
+5. Gemini custom subagents 仍是 experimental，因此更不应写成默认投影面
 
 因此本轮设计不是追求“文件数量对称”，而是追求：
 
@@ -74,14 +75,11 @@
 ## Migration Rules
 
 1. 新增能力时，先落 `skills/`，不要先写 provider-specific command
-2. 新增 agent role 时，先落 `roles/`，不要先写 provider-specific agent file
-3. Claude/Codex agent projection 通过脚本同步，不再手工双写 agent 正文
-4. Claude skill projection 通过脚本同步，不再手工双写 skill 正文
-5. Gemini 默认不新增 `.gemini/skills/` projection；只有在未来确实需要 provider-specific metadata，或官方 alias 行为变化时，才单独补 adapter
-6. Gemini 默认也不新增 `.gemini/agents/` projection；只有当 Gemini 成为真实执行面且值得启用 experimental subagents 时，才补这层 adapter
-7. 现有 `commands` 若只是调用 skill，应在后续迁移中优先删除
-8. 现有 `hooks` 若只是注入提醒，应优先迁移到 canonical docs、skills、scripts 或 audit
-9. 只有在 provider-specific hook 明显带来事件级确定性收益时，才继续保留
+2. 新增 source baseline role 时，先落 `roles/`；新增 consumer runtime role 时，写到 `.harness/workspace/roles/`，都不要先写 provider-specific agent file
+3. consumer repo 的 provider 文件一律视为 user-owned；harness 不得写入
+4. 现有 `commands` 若只是调用 skill，应在后续迁移中优先删除
+5. 现有 `hooks` 若只是注入提醒，应优先迁移到 canonical docs、skills、scripts 或 audit
+6. 只有在 provider-specific hook 明显带来事件级确定性收益时，才继续保留
 
 ## 禁止事项
 

@@ -10,7 +10,7 @@
 
 以下主题默认视为 `volatile-by-default`：
 
-1. 市场、行情、宏观、新闻、监管变化
+1. 新闻、政策、监管、价格、发行版、事故、服务状态等快速变化事实
 2. Claude Code / Codex / MCP / hooks / skills / rules / plugins 的最新能力
 3. 社区 best practice、开源仓库、博客、近期方法论
 4. 任何带有“最近、最新、今天、现在、前沿、best practice、流行”的话题
@@ -32,26 +32,13 @@
 
 但只要结论触碰外部事实，就应升级为 `mixed` 或 `web-verified`。
 
-## 工具层落点
-
 ## 适用范围
 
-`UserPromptSubmit` 只覆盖 Founder 或人类直接发起的入口。
-
-但公司更常见的运行场景是：
-
-1. 部门内部自己讨论
-2. agent 之间互相 review
-3. Chief of Staff 主持内部 requirements / decision loop
-4. Compounding / Workflow / Learning 围绕外部工具链和社区实践自治优化
-
-因此：
-
-`volatile research default` 必须同时作用于：
+`volatile research default` 同时作用于：
 
 1. Founder -> company 的入口
 2. agent -> agent 的自治讨论
-3. department -> department 的 handoff
+3. role -> role 的 handoff
 4. decision pack / research memo / meeting brief 这类正式 artifact
 
 ## Internal Route
@@ -79,31 +66,28 @@
 1. 只能输出 `exploratory`
 2. 或明确标记 `blocked by freshness`
 3. 不能包装成正式结论
-4. 不能直接升级成流程变更、策略变更或 Founder-facing 决策包
+4. 不能直接升级成流程变更或 Founder-facing 决策包
 
 ## Topic Owner Mapping
 
 不同类型的 `volatile` 议题，默认由不同 owner 先接网：
 
-1. 市场、价格、新闻、宏观、监管
-   - 默认 owner：`Market Intelligence Department`
-2. BTC thesis、setup、多时间框架判断需要的最新市场证据
-   - 默认 owner：`Strategy Research Department`
-   - 但应优先复用 `Market Intelligence` 的 source notes
-3. Claude Code / Codex / MCP / hooks / skills / rules / workflow 的最新能力
+1. 工具链能力、adapter、automation、provider 行为
    - 默认 owner：`Workflow & Automation Lead`
-4. 社区 best practice、vibe coding、compound engineering、多 agent 治理
+2. 社区 best practice、治理方法、compound engineering、多 agent 协作实践
    - 默认 owner：`Compounding Engineering Lead`
-5. Founder 输入的文章、视频、交易思路、外部策略物料
-   - 默认 owner：`Learning & Evolution Department`
+3. 产品范围、用户问题、外部业务事实、竞品或项目依赖事实
+   - 默认 owner：由 `General Manager / Chief of Staff` 指派
+   - 若重复出现，才考虑创建 runtime-local research role
+4. Founder 提供的外部材料、链接、案例或观点
+   - 默认 owner：`General Manager / Chief of Staff`
+   - 交由 `Product Thesis Lead` 与 `Knowledge & Memory Lead` 协同 triage
 
 ## Freshness Windows
 
-不是所有外部来源都要求同样的时间敏感度。
-
 默认窗口：
 
-1. 实时市场、价格、新闻、监管
+1. 实时或高频变化事实
    - 需要同日或当轮访问记录
 2. 工具能力、社区 best practice、开源仓库动态
    - 默认 14 天内重新核查
@@ -115,37 +99,13 @@
 1. 必须在 artifact 里明确写出旧来源为何仍可用
 2. 或补一次新的 external verification
 
-### Claude Code
-
-Claude 具备 `UserPromptSubmit`、`SubagentStart` 这类 hooks 能力。
-
-但当前仓库不再把提醒型 hooks 作为 canonical 依赖，而是主要依赖：
-
-1. canonical docs
-2. `skills`
-3. artifact freshness gate
-4. research dispatch / source-note discipline
-
-如果未来重新启用提醒型 hooks，它们也只应被视为 optional adapter，而不是唯一控制面。
-
-### Codex
-
-当前没有和 Claude `UserPromptSubmit` 完全等价的 repo-local prompt hook。
-
-因此 Codex 侧继续依赖：
-
-1. 根级操作规约
-2. skills / workflows
-3. artifact freshness gate
-4. custom agents 自带的 `research-first` 指令
-
 ## Artifact Rule
 
 凡是声称使用外部来源的 artifact，必须：
 
 1. 写 `Verification mode`
 2. 写 `Sources reviewed`
-3. 至少引用一个 URL、`.harness/tasks/<task-id>/refs/sources/` 下的 source note，或显式 promote 后的 `.harness/workspace/research/sources/` source note
+3. 至少引用一个 URL、`.harness/tasks/<task-id>/attachments/sources/` 下的 source note，或显式 promote 后的 `.harness/workspace/research/sources/` source note
 
 Source note 必须包含：
 

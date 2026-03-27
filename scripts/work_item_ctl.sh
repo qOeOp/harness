@@ -9,31 +9,36 @@ export STATE_INVOKER="${STATE_INVOKER:-$(harness_command_path "work_item_ctl.sh"
 usage() {
   ctl_command=$(harness_command_path "work_item_ctl.sh")
   select_command=$(harness_command_path "select_work_item.sh")
-  open_command=$(harness_command_path "open_current_work_item.sh")
+  open_command=$(harness_command_path "open_work_item.sh")
   start_command=$(harness_command_path "start_work_item.sh")
   pause_command=$(harness_command_path "pause_work_item.sh")
   resume_command=$(harness_command_path "resume_work_item.sh")
   complete_command=$(harness_command_path "complete_work_item.sh")
+  query_command=$(harness_command_path "query_work_items.sh")
 
   cat <<'EOF' >&2
-usage: <harness-work-item-ctl> <select|open|start|pause|resume|complete|help> [args...]
+usage: <harness-work-item-ctl> <select|open|status|start|pause|resume|complete|close|query|list|help> [args...]
 
 subcommands:
   select     forward to <harness-select-work-item>
   open       forward to <harness-open-current-work-item>
+  status     alias for query; preferred high-level task status surface
   start      forward to <harness-start-work-item>
   pause      forward to <harness-pause-work-item>
   resume     forward to <harness-resume-work-item>
   complete   forward to <harness-complete-work-item>
+  close      alias for complete; preferred high-level close surface
+  query      forward to <harness-query-work-items>
+  list       alias for query
   help       show this message
 
 examples:
   <harness-work-item-ctl> select --json company
-  <harness-work-item-ctl> open company
+  <harness-work-item-ctl> status --json --all
   <harness-work-item-ctl> start --json company
   <harness-work-item-ctl> pause --expected-from-status in-progress --expected-version 3 --interrupt-marker risk-review-required WI-0001
   <harness-work-item-ctl> resume --expected-version 4 WI-0001
-  <harness-work-item-ctl> complete --json --target-status review company
+  <harness-work-item-ctl> close --json --target-status review company
   STATE_ACTOR=codex <harness-work-item-ctl> complete --json --target-status killed --work-item WI-0006 company
 EOF
 
@@ -45,6 +50,7 @@ EOF
   printf '  pause: %s\n' "$pause_command" >&2
   printf '  resume: %s\n' "$resume_command" >&2
   printf '  complete: %s\n' "$complete_command" >&2
+  printf '  query: %s\n' "$query_command" >&2
 }
 
 resolve_target() {
@@ -53,7 +59,10 @@ resolve_target() {
       printf '%s\n' "$script_dir/select_work_item.sh"
       ;;
     open)
-      printf '%s\n' "$script_dir/open_current_work_item.sh"
+      printf '%s\n' "$script_dir/open_work_item.sh"
+      ;;
+    status)
+      printf '%s\n' "$script_dir/query_work_items.sh"
       ;;
     start)
       printf '%s\n' "$script_dir/start_work_item.sh"
@@ -64,8 +73,11 @@ resolve_target() {
     resume)
       printf '%s\n' "$script_dir/resume_work_item.sh"
       ;;
-    complete)
+    complete|close)
       printf '%s\n' "$script_dir/complete_work_item.sh"
+      ;;
+    query|list)
+      printf '%s\n' "$script_dir/query_work_items.sh"
       ;;
     help|--help|-h)
       usage

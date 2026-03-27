@@ -13,7 +13,7 @@
 1. 建立默认可用的 `core task runtime`。
 2. 把 `/harness` 收敛为零安装仪式的主入口。
 3. 建立跨会话恢复、任务追踪与 artifact writeback 的最小闭环。
-4. 把组织治理、provider packaging 与 source-maintainer plumbing 移出默认叙事。
+4. 把组织治理与 source-maintainer plumbing 移出默认叙事。
 5. 只在需要时再升级到 `advanced governance mode`。
 
 ## 当前产品方向
@@ -23,7 +23,7 @@
 1. 第一阶段产品定义为 `invoke-first harness`
 2. 第一阶段核心价值不是功能堆叠，而是：
    - `/harness` 立刻可用
-   - 任务级别的 framing、tracking、resume 与 closure
+   - 任务级别的 problem definition、tracking、resume 与 closure
    - 只有在任务值得持久化时才自动 materialize `.harness/`
    - 低侵入、可删除、可归档的 repo-local truth
    - 把复杂治理能力保留为升级层，而不是默认前置条件
@@ -47,12 +47,12 @@ Founder 当前不参与：
 
 ## 当前阶段非目标
 
-1. 不承诺交易胜率。
-2. 不直接实现交易策略引擎。
-3. 不把组织治理层默认压到每个 `/harness` 任务上。
-4. 不搭全自动高权限 agent orchestra。
-5. 不在没有清晰 artifact 规范前引入复杂 CI 自动化。
-6. 不把 provider overlay、projection、install ritual 当成产品入口。
+1. 不把用户域、行业域的专属角色内置进 framework source repo。
+2. 不把组织治理层默认压到每个 `/harness` 任务上。
+3. 不搭全自动高权限 agent orchestra。
+4. 不在没有清晰 artifact 规范前引入复杂 CI 自动化。
+5. 不把 provider-owned surface 或分发细节当成产品入口。
+6. 不在没有复利证据时预置重型 runtime 组织结构。
 
 ## 工作守则
 
@@ -68,7 +68,7 @@ Founder 当前不参与：
 1. 任何 stage 没做到极致，不进入下一 stage。
 2. AI 的文档和代码产出速度极快，因此速度不是进度指标，稳定度才是。
 3. 默认先把 task protocol 做锋利，再谈 company OS 扩展。
-4. 执行本身通常只占很小一部分时间；前置 framing、state hygiene 与 writeback 如果草率，后面只会把错误更快放大。
+4. 执行本身通常只占很小一部分时间；前置问题定义、state hygiene 与 writeback 如果草率，后面只会把错误更快放大。
 5. 任何“先让 repo 接入，再证明使用价值”的提议，默认视为高风险提议。
 6. 如果发现当前层基础不稳，必须 `stop-the-line`，回到当前层补强，而不是继续叠下一层。
 
