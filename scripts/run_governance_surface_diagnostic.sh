@@ -27,8 +27,10 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
-repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd -L)
+. "$script_dir/lib_harness_paths.sh"
+init_harness_paths "$script_dir"
+repo_root="$HARNESS_REPO_ROOT"
 cd "$repo_root"
 
 tmpdir=$(mktemp -d)
@@ -42,10 +44,8 @@ run_check() {
   label="$1"
   shift
 
-  output="$("$@" 2>&1 || true)"
   status="fail"
-
-  if "$@" >/dev/null 2>&1; then
+  if output=$("$@" 2>&1); then
     status="pass"
   fi
 
@@ -61,12 +61,12 @@ detect_mode() {
     return 0
   fi
 
-  if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".agents/skills/harness" ]; then
+  if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".harness" ]; then
     printf '%s\n' "source"
     return 0
   fi
 
-  if [ -d ".agents/skills/harness" ] || [ -d ".harness" ]; then
+  if [ -d ".harness" ]; then
     printf '%s\n' "consumer"
     return 0
   fi
@@ -114,7 +114,7 @@ $(cat "$check_file")
 
 ## Usage Notes
 
-1. source 模式只评估 framework source repo，不读取 consumer runtime 或 installed carrier。
+1. source 模式只评估 framework source repo，不读取 consumer runtime 或用户自管的安装副本。
 2. 若要诊断真实安装态，请在 dogfood / consumer repo 运行同一脚本的 consumer 模式。
 3. 若 OS 结构发生变化，应先更新本脚本，再更新 cadence 或 audit 模板。
 EOF
@@ -126,30 +126,40 @@ else
   run_check "audit_state_system" "$script_dir/audit_state_system.sh"
   run_check "validate_freshness_gate" "$script_dir/validate_freshness_gate.sh"
 
-  brief_report=$("$script_dir/report_brief_registry.sh")
-  printf '%s\n' "$brief_report" | awk '
-    /^- Date:/ {capture=1}
-    /^## Recommended Reading Order$/ {capture=0}
-    capture {print}
-  ' >"$brief_file"
+  if [ -d ".harness/workspace/briefs" ] || [ -d ".harness/workspace/current" ] || [ -d ".harness/workspace/archive/briefs" ]; then
+    if brief_report=$("$script_dir/report_brief_registry.sh" 2>/dev/null); then
+      printf '%s\n' "$brief_report" | awk '
+        /^- Date:/ {capture=1}
+        /^## Recommended Reading Order$/ {capture=0}
+        capture {print}
+      ' >"$brief_file"
+    else
+      cat >"$brief_file" <<'EOF'
+- Brief registry snapshot unavailable
+- Reason: brief workspace exists but the registry report failed; inspect the harness `scripts/report_brief_registry.sh`
+EOF
+    fi
+  else
+    cat >"$brief_file" <<'EOF'
+- Brief registry status: not materialized
+- Reason: minimum-core runtime does not include the advanced governance brief workspace by default
+EOF
+  fi
 
-  canonical_skills=$(find .agents/skills/harness/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-  canonical_roles=$(find .agents/skills/harness/roles -maxdepth 1 -type f -name '*.md' ! -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')
-  claude_skills=$(find .claude/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-  claude_agents=$(find .claude/agents -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
-  codex_agents=$(find .codex/agents -maxdepth 1 -type f -name '*.toml' 2>/dev/null | wc -l | tr -d ' ')
-  claude_commands=$(find .claude/commands -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
-  claude_hooks=$(find .claude/hooks -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
-  gemini_files=$(find .gemini -maxdepth 2 -type f 2>/dev/null | wc -l | tr -d ' ')
-  gemini_agents=$(find .gemini/agents -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  all_tasks=$("$script_dir/query_work_items.sh" --all --record 2>/dev/null | awk 'END { print NR + 0 }')
+  active_tasks=$("$script_dir/query_work_items.sh" --record 2>/dev/null | awk 'END { print NR + 0 }')
+  archived_tasks=$(awk "BEGIN { print $all_tasks - $active_tasks }")
+  recovery_backed_tasks=$(find .harness/tasks -mindepth 2 -maxdepth 2 -type f -name 'task.md' -exec grep -l '^## Recovery$' {} \; 2>/dev/null | wc -l | tr -d ' ')
+  transition_events=$(find .harness/tasks -path '*/history/transitions/TX-*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
+  governance_dirs=$(find .harness/workspace -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
 
   cat >"$report_file" <<EOF
 # Governance Surface Diagnostic
 
 - Date: $(date +%F)
 - Mode: consumer
-- Scope: routing docs, workspace baseline, state system, brief layer, adapter surface
-- Canonical capability surface: \`agents + skills\`
+- Scope: harness-owned runtime docs, workspace baseline, state system, brief layer
+- Canonical capability surface: \`.harness/\`
 
 ## Baseline Checks
 
@@ -157,16 +167,11 @@ $(cat "$check_file")
 
 ## Capability Inventory
 
-- Canonical skills: $canonical_skills
-- Canonical roles: $canonical_roles
-- Claude skills: $claude_skills
-- Claude agents: $claude_agents
-- Codex agents: $codex_agents
-- Claude commands: $claude_commands
-- Claude hooks: $claude_hooks
-- Gemini adapter files: $gemini_files
-- Gemini skill mode: direct \`.agents/skills/harness/skills\` alias
-- Gemini agent mode: experimental \`.gemini/agents\` path, currently projected: $gemini_agents
+- Active tasks: $active_tasks
+- Archived-status tasks: $archived_tasks
+- Task records with Recovery: $recovery_backed_tasks
+- Transition events: $transition_events
+- Governance workspace directories: $governance_dirs
 
 ## Brief Layer Snapshot
 
@@ -174,9 +179,9 @@ $(cat "$brief_file")
 
 ## Usage Notes
 
-1. consumer 模式评估 installed skill carrier、runtime workspace 与 provider adapters。
+1. consumer 模式只评估 harness-owned runtime surface，不评估 provider adapters 或 skill install location。
 2. 若要把结果沉淀成周期性治理产物，可运行：
-   \`./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer --write .harness/workspace/status/process-audits/\$(date +%F)-governance-surface-diagnostic.md\`
+   \`./scripts/run_governance_surface_diagnostic.sh --mode consumer --write .harness/workspace/status/process-audits/\$(date +%F)-governance-surface-diagnostic.md\`
 3. 若要审计 framework source repo，请在 source repo 运行：
    \`./scripts/run_governance_surface_diagnostic.sh --mode source\`
 EOF

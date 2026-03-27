@@ -1,0 +1,158 @@
+schema_version = 1
+contract_kind = "capability-bundle-manifest"
+source_repo_pure = true
+
+required_bundle_files = [
+  "SKILL.md",
+  "manifest.toml",
+]
+
+optional_bundle_directories = [
+  "refs",
+  "templates",
+  "scripts",
+  "evals",
+]
+
+global_surfaces_that_remain_outside_bundles = [
+  "roles/",
+  "references/contracts/",
+  "scripts/lib_*.sh",
+  "scripts/work_item_ctl.sh",
+  "docs/workflows/provider-deltas/",
+]
+
+[identity]
+required = [
+  "schema_version",
+  "bundle_slug",
+  "bundle_version",
+  "bundle_kind",
+  "summary",
+]
+
+allowed_bundle_kinds = [
+  "task-skill",
+  "review-skill",
+  "governance-skill",
+  "runtime-skill",
+  "adapter-skill",
+]
+
+[ownership]
+required = [
+  "owner_role",
+  "scope",
+  "maturity",
+]
+
+allowed_scopes = [
+  "source-baseline",
+  "consumer-runtime",
+]
+
+allowed_maturity = [
+  "draft",
+  "candidate",
+  "stable",
+  "deprecated",
+]
+
+[execution]
+required = [
+  "context_strategy",
+  "delegation_mode",
+  "entrypoints",
+  "activation_modes",
+  "output_modes",
+]
+
+allowed_context_strategies = [
+  "metadata-first",
+  "local-first",
+  "artifact-first",
+  "tool-only",
+  "hybrid",
+]
+
+allowed_delegation_modes = [
+  "local-only",
+  "manager-optional",
+  "worker-preferred",
+]
+
+allowed_entrypoints = [
+  "chat",
+  "work-item",
+  "review",
+  "automation",
+  "script",
+]
+
+allowed_activation_modes = [
+  "explicit",
+  "router",
+  "state-gate",
+  "policy-gate",
+]
+
+allowed_output_modes = [
+  "summary",
+  "artifact-path",
+  "structured-json",
+  "state-mutation",
+]
+
+[permissions]
+required = [
+  "allowed_tools",
+  "read_roots",
+  "write_roots",
+  "forbidden_roots",
+]
+
+tool_names_are_provider_neutral = true
+write_roots_must_be_explicit = true
+forbidden_roots_take_precedence = true
+
+[artifacts]
+required = [
+  "default_artifact_type",
+  "default_artifact_path",
+]
+
+recommended_task_local_paths = [
+  ".harness/tasks/<task-id>/attachments/",
+  ".harness/tasks/<task-id>/closure/",
+]
+
+governance_paths_require_explicit_promotion = true
+
+[loading]
+required = [
+  "lazy_load_paths",
+]
+
+metadata_preload_only = true
+read_manifest_before_skill = true
+recursive_bundle_preload = false
+
+[delegation]
+worker_identity_is_runtime_only = true
+capability_is_not_agent_identity = true
+worker_payload_should_include = [
+  "bundle_slug",
+  "owned_paths_or_read_scope",
+  "output_contract",
+  "write_permission_boundary",
+]
+
+[validation]
+bundle_must_not_store_runtime_truth = true
+bundle_must_not_define_provider_specific_subagent_surface_as_canonical = true
+bundle_outputs_should_prefer_external_artifacts_over_large_chat_payloads = true
+
+[notes]
+design_center = "capability bundle as entity, agent instance as runtime, task record as external truth"
+default_orchestration = "single manager agent with optional worker delegation"
+challenge_statement = "do not make one permanent agent per capability by default"

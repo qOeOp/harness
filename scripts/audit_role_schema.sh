@@ -1,25 +1,47 @@
 #!/bin/sh
 set -eu
 
-quiet="${1:-}"
+quiet=""
+role_dir=""
 ok=1
 
-if [ -f "SKILL.md" ] && [ -d "roles" ]; then
+usage() {
+  cat <<'EOF' >&2
+usage: ./scripts/audit_role_schema.sh [--quiet] [--role-dir <path>]
+EOF
+  exit 1
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --quiet)
+      quiet="--quiet"
+      shift
+      ;;
+    --role-dir)
+      [ "$#" -ge 2 ] || usage
+      role_dir="${2:-}"
+      shift 2
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+if [ -n "$role_dir" ]; then
+  canonical_root="$role_dir"
+elif [ -f "SKILL.md" ] && [ -d "roles" ] && [ ! -d ".harness" ]; then
   canonical_root="roles"
-elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
-  canonical_root=".agents/skills/harness/roles"
 else
-  echo "unable to resolve canonical roles directory" >&2
+  echo "audit_role_schema.sh only validates the framework source repo canonical roles directory unless --role-dir is provided." >&2
   exit 1
 fi
 
-claude_root=".claude/agents"
-codex_root=".codex/agents"
-check_claude_projection=0
-check_codex_projection=0
-
-[ -d "$claude_root" ] && check_claude_projection=1
-[ -d "$codex_root" ] && check_codex_projection=1
+[ -d "$canonical_root" ] || {
+  echo "missing role directory: $canonical_root" >&2
+  exit 1
+}
 
 say() {
   [ "$quiet" = "--quiet" ] || echo "$1"
@@ -28,6 +50,22 @@ say() {
 fail() {
   ok=0
   say "$1"
+}
+
+csv_contains() {
+  csv="$1"
+  needle="$2"
+  value_list=$(printf '%s' "$csv" | tr ',' '\n')
+  printf '%s\n' "$value_list" | awk -v needle="$needle" '
+    {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $0)
+      if ($0 == needle) {
+        found = 1
+        exit
+      }
+    }
+    END { exit found ? 0 : 1 }
+  '
 }
 
 frontmatter_value() {
@@ -95,25 +133,67 @@ for role_file in "$canonical_root"/*.md; do
   [ "$schema_version" = "1" ] || fail "unsupported schema_version '$schema_version' in $role_file"
   [ "$slug" = "$(basename "$role_file" .md)" ] || fail "role slug '$slug' does not match file basename in $role_file"
 
-  if ! grep -Fq "## Canonical Instructions" "$role_file"; then
-    fail "missing Canonical Instructions section in $role_file"
+  if ! grep -Eq '^## (Canonical|Runtime) Instructions$' "$role_file"; then
+    fail "missing Canonical Instructions or Runtime Instructions section in $role_file"
   fi
 
-  if [ "$check_claude_projection" -eq 1 ]; then
-    if [ ! -f "$claude_root/$claude_file" ]; then
-      fail "missing Claude projection '$claude_root/$claude_file' for $role_file"
-    elif ! grep -Fq "AUTO-GENERATED projection" "$claude_root/$claude_file"; then
-      fail "Claude projection missing generated marker in $claude_root/$claude_file"
+  policy_present=0
+  for policy_key in \
+    policy_allowed_entrypoints \
+    policy_allowed_actions \
+    policy_mutation_actions \
+    policy_write_roots \
+    policy_forbidden_roots \
+    policy_required_artifact_type \
+    policy_required_stage
+  do
+    if [ -n "$(frontmatter_value "$role_file" "$policy_key")" ]; then
+      policy_present=1
+      break
+    fi
+  done
+
+  if [ "$policy_present" -eq 1 ] || [ "$slug" = "runtime-role-manager" ]; then
+    for policy_key in \
+      policy_allowed_entrypoints \
+      policy_allowed_actions \
+      policy_mutation_actions \
+      policy_write_roots \
+      policy_forbidden_roots \
+      policy_required_artifact_type \
+      policy_required_stage
+    do
+      require_key "$role_file" "$policy_key"
+    done
+
+    policy_allowed_entrypoints=$(frontmatter_value "$role_file" "policy_allowed_entrypoints")
+    policy_allowed_actions=$(frontmatter_value "$role_file" "policy_allowed_actions")
+    policy_mutation_actions=$(frontmatter_value "$role_file" "policy_mutation_actions")
+    policy_write_roots=$(frontmatter_value "$role_file" "policy_write_roots")
+    policy_required_artifact_type=$(frontmatter_value "$role_file" "policy_required_artifact_type")
+    policy_required_stage=$(frontmatter_value "$role_file" "policy_required_stage")
+
+    [ "$policy_allowed_entrypoints" != "none" ] || fail "policy_allowed_entrypoints must not be none in $role_file"
+    [ "$policy_allowed_actions" != "none" ] || fail "policy_allowed_actions must not be none in $role_file"
+
+    if [ "$policy_mutation_actions" != "none" ] && [ "$policy_write_roots" = "none" ]; then
+      fail "mutation-capable role must declare policy_write_roots in $role_file"
+    fi
+
+    if [ "$policy_required_artifact_type" != "none" ] && [ "$policy_required_stage" = "none" ]; then
+      fail "artifact-gated role must declare policy_required_stage in $role_file"
+    fi
+
+    if [ "$slug" = "runtime-role-manager" ]; then
+      csv_contains "$policy_allowed_entrypoints" "scripts/runtime_role_manager.sh" || fail "runtime-role-manager must allow scripts/runtime_role_manager.sh in $role_file"
+      csv_contains "$policy_allowed_actions" "create" || fail "runtime-role-manager policy must allow create in $role_file"
+      csv_contains "$policy_allowed_actions" "edit" || fail "runtime-role-manager policy must allow edit in $role_file"
+      csv_contains "$policy_allowed_actions" "audit" || fail "runtime-role-manager policy must allow audit in $role_file"
+      [ "$policy_required_artifact_type" = "role-change-proposal" ] || fail "runtime-role-manager must require role-change-proposal in $role_file"
+      [ "$policy_required_stage" = "post-acceptance-compounding" ] || fail "runtime-role-manager must require post-acceptance-compounding in $role_file"
     fi
   fi
 
-  if [ "$check_codex_projection" -eq 1 ]; then
-    if [ ! -f "$codex_root/$codex_file" ]; then
-      fail "missing Codex projection '$codex_root/$codex_file' for $role_file"
-    elif ! grep -Fq "AUTO-GENERATED projection" "$codex_root/$codex_file"; then
-      fail "Codex projection missing generated marker in $codex_root/$codex_file"
-    fi
-  fi
 done
 
 if [ "$ok" -eq 1 ]; then

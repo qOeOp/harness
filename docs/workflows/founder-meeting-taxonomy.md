@@ -80,7 +80,7 @@ Founder 与公司之间当前存在 5 类正式会议：
 适用：
 
 1. 还不拍板的探索
-2. 候选切口、策略方向、组织改进方案发散
+2. 候选切口、问题方向、组织改进方案发散
 
 关键边界：
 
@@ -125,7 +125,7 @@ canonical meeting router 是 `meeting-router` skill。
 
 涉及以下 `volatile` 主题时，都必须遵守同样的 freshness discipline：
 
-1. 市场资讯、实时价格、宏观新闻
+1. 外部快变事实，例如新闻、监管、服务状态、定价或实时数据
 2. Claude Code / Codex / MCP / tools 的最新能力
 3. 社区 best practice、开源仓库、博客里最近流行的方法
 4. 法规、规则、产品定价、版本能力这类明显会变化的信息

@@ -1,92 +1,85 @@
 # Org Chart
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-27`
 
 ## 目的
 
-定义公司 OS 的治理层、部门层和汇报关系。
+定义 `harness` 当前默认内置的项目管理 / 治理团队，以及它与 consumer runtime 的边界。
 
-## 组织结构
+## 默认组织结构
 
-公司采用两层结构：
-
-1. `治理层`
-2. `部门层`
-
-当前结构：
+当前 source repo 只内置一层治理团队：
 
 ```text
 Founder / Principal
-└── Chief of Staff / Operating System Lead
+└── General Manager / Chief of Staff
     ├── Product Thesis Lead
     ├── Knowledge & Memory Lead
     ├── Workflow & Automation Lead
     ├── Risk & Quality Lead
-    └── Compounding Engineering Lead
-        ↓ governs and coordinates
-    ├── Market Intelligence Department
-    ├── Strategy Research Department
-    ├── Position Operations Department
-    ├── Risk Office
-    └── Learning & Evolution Department
+    ├── Compounding Engineering Lead
+    └── Runtime Role Manager
 ```
 
-## 治理层职责
+这里不再内置任何特定行业、特定项目、特定用户域的默认部门。
+
+## 角色职责
 
 ### Founder / Principal
 
 - 定义使命、北极星、禁区和最终 go / pause / kill。
-- 深度参与 vision、公司初始化、demo 验收与治理反馈。
+- 只在方向、验收和高风险升级时深度介入。
 
-### Chief of Staff / Operating System Lead
+### General Manager / Chief of Staff
 
-- 统筹节奏、owner、升级机制和 Founder-facing 汇报。
+- 把 Founder 意图收敛成单一问题和执行边界。
+- 指派 owner、组织节奏、整合 dissent，并决定何时升级。
 
 ### Product Thesis Lead
 
-- 负责问题定义、范围、非目标和阶段目标。
+- 负责问题定义、范围收缩、非目标和阶段命题。
 
 ### Knowledge & Memory Lead
 
-- 负责 source of truth、写回、归档和命名体系。
+- 负责 source of truth、writeback、归档与记忆卫生。
 
 ### Workflow & Automation Lead
 
-- 负责 workflow、skills、hooks、commands、tool routing 和自动化边界。
+- 负责 workflow、skills、scripts、tool routing 和自动化边界。
 
 ### Risk & Quality Lead
 
-- 负责红队、审计、质量门和回滚条件。
-- 拥有 `stop-the-line` 权。
+- 负责红队、验收、质量门和 stop-the-line。
 
 ### Compounding Engineering Lead
 
-- 负责流程复利、前沿扫描、process audit 和协作优化。
+- 负责 process audit、frontier scan 和复利改进。
 
-## 部门层
+### Runtime Role Manager
 
-当前部门：
+- 负责根据已批准的 role change proposal 执行 runtime-local role 的创建、编辑和审计。
+- 只写 `.harness/workspace/roles/`，不回写 source baseline role，也不接管 provider-specific agent 文件。
 
-1. `Market Intelligence`
-2. `Strategy Research`
-3. `Position Operations`
-4. `Risk Office`
-5. `Learning & Evolution`
+## Optional Runtime Workstreams
 
-每个部门承接一类长期职责，不要求立即扩成多 agent 团队。
+如果某个 consumer repo 在 `advanced governance mode` 下反复出现稳定分工，才可以按需长出 runtime-local workstream / role。
 
-详细职责见：
+这类角色：
+
+1. 不属于 source repo 默认团队
+2. 必须写入 `.harness/workspace/roles/`
+3. 由复利 review 证明必要性后，再由 `Runtime Role Manager` 创建
+
+详细边界见：
 
 - [docs/organization/department-map.md](./department-map.md)
+- [docs/organization/company-os-runtime-data-map.md](./company-os-runtime-data-map.md)
 
 ## 组织规则
 
 1. 每个主题必须指定一个 DRI。
-2. Risk & Quality Lead 可以否决进入下一 gate。
-3. Chief of Staff 负责把分歧整合成可供 Founder 拍板的选项集。
-4. Knowledge & Memory Lead 负责确认最终结论已写入 canonical memory。
-5. 公司部门不等于产品 runtime 角色。
-
-详细映射见：
-
-- [docs/organization/company-os-runtime-data-map.md](./company-os-runtime-data-map.md)
+2. `Risk & Quality Lead` 可以否决进入下一 gate。
+3. `General Manager / Chief of Staff` 负责把分歧整合成可供 Founder 拍板的选项集。
+4. `Knowledge & Memory Lead` 负责确认最终结论已写回 canonical memory。
+5. consumer runtime 的临时或长期角色，不反向定义 source repo 的默认组织图。
+6. `Runtime Role Manager` 只负责执行 runtime role mutation，不负责自行判断是否该扩角色。

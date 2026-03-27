@@ -1,152 +1,103 @@
 # Company Bootstrap Loop
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-27`
 
 ## 目的
 
-定义公司从愿景锁定到部门、员工、内部 loop 启动的初始化阶段。
+定义 `harness` 从默认 PM / governance baseline，到按需启用 consumer runtime workstream 的启动顺序。
 
 ## 当前状态
 
-公司已经完成了部分治理初始化，但还没有完成部门初始化、员工初始化和内部 loop 启动。
+当前重点不是模拟一个完整公司，而是先把默认 `/harness` 入口、task runtime 和治理边界做稳。
 
 ## Bootstrap Phases
 
-### Phase 0: Founder Vision Lock
+### Phase 0: Vision Lock
 
 目标：
 
-1. Founder 明确产品愿景
-2. Founder 明确自身参与边界
-3. Founder 明确第一阶段的资产范围和非目标
+1. Founder 明确产品愿景。
+2. Founder 明确自身参与边界。
+3. Founder 明确当前阶段的非目标。
 
-当前已收敛：
-
-1. 第一阶段产品是 `BTC-only AI 交易决策副驾`
-2. Founder 深度参与：
-   - vision
-   - 公司初始化
-   - acceptance review
-   - governance / compounding meeting
-3. Founder 不参与：
-   - 日常 requirements 拆解
-   - 日常实现讨论
-   - 普通部门 review
-
-### Phase 1: Governance Bring-up
+### Phase 1: Governance Baseline Bring-up
 
 目标：
 
-1. 初始化治理层角色
-2. 初始化阶段门、记忆、meeting taxonomy、demo gate
-3. 初始化 hooks / commands / skills / rules 的最低基线
+1. 建立默认 PM / governance 团队。
+2. 建立 decision rights、memory writeback 和 acceptance gate。
+3. 建立最低限度的 skills / scripts / contracts。
 
 完成标准：
 
-1. 治理层 agents 已存在
-2. decision rights 已明确
-3. memory writeback 已明确
-4. Founder-facing meetings 已定义
+1. baseline roles 已存在。
+2. decision workflow 已明确。
+3. writeback 闭环已明确。
+4. Founder-facing review 入口已明确。
 
-当前状态：`已基本完成`
-
-### Phase 2: Department Bring-up
+### Phase 2: Core Task Runtime Stabilization
 
 目标：
 
-1. 初始化部门 charter、interfaces、owned paths
-2. 初始化每个部门的 `lead agent`
-3. 确定哪些部门现在只是 dormant，哪些部门开始 active
+1. 把 `/harness` 入口做成默认可用。
+2. 把 task-level scoping、tracking、resume、closure 做稳。
+3. 验证 `.harness/` 只在确有需要时 materialize。
 
-当前状态：`正在进行`
+完成标准：
 
-第一批 active 部门建议：
+1. task runtime 路径稳定。
+2. state transition 和 writeback 可恢复。
+3. 默认体验不依赖 advanced governance。
 
-1. `strategy-research`
-2. `position-operations`
-3. `risk-office`
-
-第一批 supporting / lighter departments：
-
-1. `market-intelligence`
-2. `learning-evolution`
-
-### Phase 3: Internal Brainstorm Loop
+### Phase 3: Optional Runtime Workstream Bring-up
 
 目标：
 
-1. 不是继续让 Founder 头脑风暴
-2. 而是让内部管理层和部门负责人基于已批准 vision 自行发散
-3. 输出候选方向、风险、缺口和 demo 切口
+1. 只在重复工作真实出现时，创建 repo-local runtime role。
+2. 避免把临时分工误升级成 framework baseline。
 
 规则：
 
-1. brainstorming 输出不是决策
-2. 只能进入候选池
-3. 若涉及外部事实，必须过 freshness gate
+1. 先用 baseline 团队跑多个回合。
+2. 只有当输入输出、handoff 和 owner 都稳定后，才 promotion。
+3. 新角色必须写到 `.harness/workspace/roles/`。
+4. 不允许把 consumer runtime role 回写到 source repo `roles/`。
 
-输出：
-
-1. internal brainstorming notes
-2. candidate experiments
-3. likely requirements seeds
-
-### Phase 4: Internal Requirements Loop
+### Phase 4: Internal Planning Loop
 
 目标：
 
-1. 公司内部自己把 vision 翻译成 requirements
-2. Founder 不参加日常拆解
-
-规则：
-
-1. 由 `Chief of Staff` 主持
-2. `Product Thesis Lead` 收缩范围
-3. `Risk & Quality Lead` 负责 dissent
-4. 只有碰到已批准 vision 边界，才升级给 Founder
+1. 公司内部自己把 vision 翻译成 requirements。
+2. 默认由 baseline 团队组织，而不是先扩组织图。
 
 输出：
 
 1. scoped requirements brief
-2. department tasking
+2. tasking
 3. acceptance target
 
 ### Phase 5: Implementation Loop
 
 目标：
 
-1. 各部门承接任务
-2. 产出 artifact handoff
-3. review / revise / integrate
+1. 承接任务并产出 artifact。
+2. 通过 review / revise / integrate 收敛交付。
+3. 把 runtime role 只当局部执行单元，而不是身份膨胀工具。
 
-Founder 不参与日常实现环节。
-
-### Phase 6: Acceptance & Governance Loop
+### Phase 6: Acceptance & Compounding Loop
 
 目标：
 
-1. 向 Founder 展示 runnable demo
-2. Founder 只做验收和方向性质疑
-3. `Compounding Engineering Lead` 负责把反馈转成部门改进和流程优化
+1. 对 runnable slice 做验收。
+2. 把反馈写回 task-local artifacts。
+3. 在 compounding review 中决定是否需要新的 runtime-local role。
+4. 若成立，再由 `Runtime Role Manager` 写入 `.harness/workspace/roles/`。
 
-## 当前真实状态
+## 当前真实顺序
 
-当前公司处于：
+当前最合理的顺序不是先长一套行业组织，而是：
 
-1. `Phase 0` 已完成
-2. `Phase 1` 已基本完成
-3. `Phase 2` 刚开始
-4. `Phase 3-6` 还没有真正跑起来
-
-所以 Founder 的质疑是正确的：
-
-**现在还不能说“公司已经自循环”，因为员工和部门还没有被真正初始化。**
-
-## 下一步顺序
-
-当前最合理的顺序不是立刻开 requirements 会，而是：
-
-1. 初始化首批 active 部门的 lead agents
-2. 召开一次内部 brainstorming session
-3. 由公司内部生成第一份 requirements brief
-4. Founder 等到 acceptance review 再回来
+1. 稳定默认 `/harness` 入口和 task runtime。
+2. 用 baseline 团队完成若干真实回合。
+3. 在复利 review 中确认是否存在反复出现的专门职责。
+4. 只有证据充分时，再在 `.harness/workspace/roles/` 创建 runtime-local role。

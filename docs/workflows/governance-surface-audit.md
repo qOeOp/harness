@@ -11,7 +11,7 @@
 - source repo:
   - `./scripts/run_governance_surface_diagnostic.sh --mode source`
 - consumer / dogfood repo:
-  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
+  - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 ## 治理表面
 
@@ -94,7 +94,7 @@
 - source repo:
   - `./scripts/run_governance_surface_diagnostic.sh --mode source`
 - consumer / dogfood repo:
-  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
+  - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 ## Audit-the-Auditors
 
@@ -118,11 +118,10 @@
 
 对以下主题，默认视为 `volatile`：
 
-1. 市场资讯
-2. 实时价格
-3. 规则/工具最新能力
-4. 社区 best practice
-5. 最新新闻和时间敏感判断
+1. 外部快变事实
+2. 规则/工具最新能力
+3. 社区 best practice
+4. 最新新闻和时间敏感判断
 
 这类内容如果没有：
 

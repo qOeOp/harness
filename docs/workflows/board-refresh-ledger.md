@@ -37,10 +37,10 @@
 
 ## 生成规则
 
-1. `./.agents/skills/harness/scripts/refresh_boards.sh --check`
+1. `./scripts/refresh_boards.sh --check`
    - 只验证 board 是否和 `task.md` 派生结果同步
    - 不写 event
-2. `./.agents/skills/harness/scripts/refresh_boards.sh`
+2. `./scripts/refresh_boards.sh`
    - 若无 board 内容变化，不写 event
    - 若有变化，写一条 board refresh event
 3. write mode 必须带显式非 `system` 的 `STATE_ACTOR`
@@ -62,12 +62,12 @@
 
 ## 审计边界
 
-1. `./.agents/skills/harness/scripts/audit_state_system.sh` 校验：
+1. `./scripts/audit_state_system.sh` 校验：
    - board refresh event hash chain 完整
    - target 路径合法且存在
    - actor 非空且非 `system`
    - minimum-core runtime 不强制要求 board surface
-2. `./.agents/skills/harness/scripts/run_state_validation_slice.sh` 在 sandbox 里证明 board refresh ledger 会被实际写出。
+2. `./scripts/run_state_validation_slice.sh` 在 sandbox 里证明 board refresh ledger 会被实际写出。
 
 ## 非目标
 

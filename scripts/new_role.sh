@@ -12,6 +12,10 @@ required:
 
 optional:
   --print-template                    print a role-design brief template and exit
+  --consumer-runtime <name>           resolve a consumer runtime root from the user-owned route table
+  --consumer-runtime-root <path>      create a consumer-local runtime role under <path>/.harness/workspace/roles/
+  --consumer-runtime-table <path>     override the route table used by --consumer-runtime
+  --runtime-root <path>               deprecated alias for --consumer-runtime-root
   --claude-name <name>                 default: <slug>
   --claude-tools <csv>                default: Read, Glob, Grep, Bash
   --claude-model <model>              default: sonnet
@@ -20,8 +24,14 @@ optional:
   --codex-reasoning-effort <level>    default: medium
   --codex-sandbox-mode <mode>         default: read-only
   --codex-nicknames <csv>             default: auto-generated from slug
+  --policy-allowed-entrypoints <csv>  optional role policy extension
+  --policy-allowed-actions <csv>      optional role policy extension
+  --policy-mutation-actions <csv>     optional role policy extension
+  --policy-write-roots <csv>          optional role policy extension
+  --policy-forbidden-roots <csv>      optional role policy extension
+  --policy-required-artifact-type <t> optional role policy extension
+  --policy-required-stage <name>      optional role policy extension
   --instructions-file <path>          use file contents as Canonical Instructions body
-  --no-sync                           do not run sync + audit after scaffold
 EOF
   exit 1
 }
@@ -37,13 +47,31 @@ codex_model="gpt-5.4-mini"
 codex_reasoning_effort="medium"
 codex_sandbox_mode="read-only"
 codex_nicknames=""
+policy_allowed_entrypoints=""
+policy_allowed_actions=""
+policy_mutation_actions=""
+policy_write_roots=""
+policy_forbidden_roots=""
+policy_required_artifact_type=""
+policy_required_stage=""
 instructions_file=""
-do_sync=1
+runtime_root=""
+runtime_name=""
+route_table_path=""
+deprecated_runtime_root_flag=0
 print_template=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --print-template) print_template=1; shift ;;
+    --consumer-runtime) runtime_name="${2:-}"; shift 2 ;;
+    --consumer-runtime-root) runtime_root="${2:-}"; shift 2 ;;
+    --consumer-runtime-table) route_table_path="${2:-}"; shift 2 ;;
+    --runtime-root)
+      runtime_root="${2:-}"
+      deprecated_runtime_root_flag=1
+      shift 2
+      ;;
     --slug) slug="${2:-}"; shift 2 ;;
     --claude-name) claude_name="${2:-}"; shift 2 ;;
     --claude-description) claude_description="${2:-}"; shift 2 ;;
@@ -55,8 +83,14 @@ while [ "$#" -gt 0 ]; do
     --codex-reasoning-effort) codex_reasoning_effort="${2:-}"; shift 2 ;;
     --codex-sandbox-mode) codex_sandbox_mode="${2:-}"; shift 2 ;;
     --codex-nicknames) codex_nicknames="${2:-}"; shift 2 ;;
+    --policy-allowed-entrypoints) policy_allowed_entrypoints="${2:-}"; shift 2 ;;
+    --policy-allowed-actions) policy_allowed_actions="${2:-}"; shift 2 ;;
+    --policy-mutation-actions) policy_mutation_actions="${2:-}"; shift 2 ;;
+    --policy-write-roots) policy_write_roots="${2:-}"; shift 2 ;;
+    --policy-forbidden-roots) policy_forbidden_roots="${2:-}"; shift 2 ;;
+    --policy-required-artifact-type) policy_required_artifact_type="${2:-}"; shift 2 ;;
+    --policy-required-stage) policy_required_stage="${2:-}"; shift 2 ;;
     --instructions-file) instructions_file="${2:-}"; shift 2 ;;
-    --no-sync) do_sync=0; shift ;;
     *) usage ;;
   esac
 done
@@ -70,18 +104,42 @@ case "$slug" in
 esac
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+. "$script_dir/lib_consumer_runtime.sh"
+. "$script_dir/lib_consumer_runtime_routes.sh"
 repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$script_dir/.." && pwd))
 cd "$repo_root"
 
-if [ -f "SKILL.md" ] && [ -d "roles" ]; then
-  role_dir="roles"
-  template_path="docs/templates/role-design-brief.md"
-elif [ -f ".agents/skills/harness/SKILL.md" ] && [ -d ".agents/skills/harness/roles" ]; then
-  role_dir=".agents/skills/harness/roles"
-  template_path=".agents/skills/harness/docs/templates/role-design-brief.md"
-else
-  echo "unable to resolve harness repo layout" >&2
+template_path="$repo_root/docs/templates/role-design-brief.md"
+
+[ -z "$runtime_root" ] || [ -z "$runtime_name" ] || {
+  echo "use either --consumer-runtime or --consumer-runtime-root, not both." >&2
   exit 1
+}
+
+if [ -n "$runtime_name" ]; then
+  runtime_root=$(resolve_consumer_runtime_root_from_table "$runtime_name" "$route_table_path")
+fi
+
+if [ -n "$runtime_root" ]; then
+  resolved_runtime_root=$(normalize_consumer_runtime_root "$runtime_root")
+  [ -n "$resolved_runtime_root" ] || {
+    echo "unable to resolve runtime root: $runtime_root" >&2
+    exit 1
+  }
+  if [ "$deprecated_runtime_root_flag" -eq 1 ]; then
+    echo "warning: --runtime-root is deprecated; use --consumer-runtime-root instead." >&2
+  fi
+  require_advanced_governance_consumer_runtime_root "$resolved_runtime_root" "new_role.sh" "$repo_root"
+  role_dir="$resolved_runtime_root/.harness/workspace/roles"
+  instructions_heading="## Runtime Instructions"
+else
+  if [ -f "SKILL.md" ] && [ -d "roles" ] && [ ! -d ".harness" ]; then
+    role_dir="$repo_root/roles"
+    instructions_heading="## Canonical Instructions"
+  else
+    echo "new_role.sh only runs in the framework source repo unless --consumer-runtime or --consumer-runtime-root is provided." >&2
+    exit 1
+  fi
 fi
 
 if [ "$print_template" -eq 1 ]; then
@@ -117,6 +175,44 @@ if [ -z "$codex_nicknames" ]; then
   codex_nicknames=$(printf '%s, %s, %s' "$base_one" "$base_two" "$base_three" | sed 's/  */ /g')
 fi
 
+policy_enabled=0
+for value in \
+  "$policy_allowed_entrypoints" \
+  "$policy_allowed_actions" \
+  "$policy_mutation_actions" \
+  "$policy_write_roots" \
+  "$policy_forbidden_roots" \
+  "$policy_required_artifact_type" \
+  "$policy_required_stage"
+do
+  if [ -n "$value" ]; then
+    policy_enabled=1
+    break
+  fi
+done
+
+if [ "$policy_enabled" -eq 1 ]; then
+  [ -n "$policy_allowed_entrypoints" ] || policy_allowed_entrypoints="none"
+  [ -n "$policy_allowed_actions" ] || policy_allowed_actions="none"
+  [ -n "$policy_mutation_actions" ] || policy_mutation_actions="none"
+  [ -n "$policy_write_roots" ] || policy_write_roots="none"
+  [ -n "$policy_forbidden_roots" ] || policy_forbidden_roots="none"
+  [ -n "$policy_required_artifact_type" ] || policy_required_artifact_type="none"
+  [ -n "$policy_required_stage" ] || policy_required_stage="none"
+  policy_block=$(cat <<EOF
+policy_allowed_entrypoints: $policy_allowed_entrypoints
+policy_allowed_actions: $policy_allowed_actions
+policy_mutation_actions: $policy_mutation_actions
+policy_write_roots: $policy_write_roots
+policy_forbidden_roots: $policy_forbidden_roots
+policy_required_artifact_type: $policy_required_artifact_type
+policy_required_stage: $policy_required_stage
+EOF
+)
+else
+  policy_block=""
+fi
+
 mkdir -p "$role_dir"
 
 if [ -n "$instructions_file" ]; then
@@ -148,16 +244,14 @@ codex_model: $codex_model
 codex_reasoning_effort: $codex_reasoning_effort
 codex_sandbox_mode: $codex_sandbox_mode
 codex_nicknames: $codex_nicknames
+$policy_block
 ---
 
-## Canonical Instructions
+${instructions_heading}
 
 $instructions_body
 EOF
 
-if [ "$do_sync" -eq 1 ]; then
-  "$script_dir/sync_agent_projections.sh" >/dev/null
-  "$script_dir/audit_role_schema.sh" >/dev/null
-fi
+"$script_dir/audit_role_schema.sh" --quiet --role-dir "$role_dir"
 
 echo "$role_file"

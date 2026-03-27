@@ -1,10 +1,10 @@
 # Retrospective Compaction And Trap Check
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-27`
 
 ## 目的
 
-定义复盘如何压缩、守门和回流到下一次决策。
+定义复盘如何压缩、守门和回流到下一次高风险决策。
 
 ## 结构
 
@@ -16,12 +16,12 @@
 
 作用：
 
-- 保留每一笔被采纳交易的完整证据链、执行链、结果和复盘文本
+- 保留每一次重要决策、实现或自动化升级的完整证据链、执行链、结果和复盘文本
 
 规则：
 
 1. append-only
-2. 一笔交易一份 retro
+2. 一次高风险变更一份 retro
 3. 不作为默认推理上下文全量注入
 
 ## Layer 2: Pattern Compactions
@@ -32,13 +32,13 @@
 
 例如：
 
-1. 突破后追高，但缺少成交量确认
-2. 宏观利空出现后 thesis 已弱化，却仍按旧计划加仓
-3. 新闻 headline 和价格结构矛盾时，过度相信 headline
+1. 边界未封板，却提前进入实现
+2. 上游事实已变化，却仍按旧假设继续推进
+3. review 未完成，却把草稿当成可执行结论
 
 规则：
 
-1. 由复利/学习流程周期性提炼
+1. 由复利流程周期性提炼
 2. 多个相似 retro 合并成一个 pattern memo
 3. pattern memo 必须回指原始 retros
 
@@ -58,12 +58,12 @@
 
 ## Anti-Repeat Debate
 
-在新的交易计划进入正式输出前，不要把所有 raw retros 全部塞给主决策 agent。
+在新的高风险计划进入正式输出前，不要把所有 raw retros 全部塞给主决策 agent。
 
 更优结构是：
 
-1. `Decision Agent`
-   - 负责基于当前市场和证据链形成 thesis 与交易计划
+1. `Primary Owner`
+   - 负责基于当前证据链形成计划
 2. `Retrospective Guardian`
    - 只读取压缩后的 pattern compactions 和 active trap library
    - 专门攻击当前计划是否落入旧陷阱
@@ -94,10 +94,10 @@
 
 建议至少两种节奏：
 
-1. `per-trade`
-   - 每笔被采纳交易后生成 raw retro
+1. `per-change`
+   - 每次高风险决策、实现或自动化升级后生成 raw retro
 2. `periodic`
-   - 每周或每 N 笔交易，提炼 pattern compactions 和 trap updates
+   - 每周或每 N 次重要变更后，提炼 pattern compactions 和 trap updates
 
 ## 输出要求
 
@@ -107,4 +107,4 @@
 2. Why this plan may repeat them
 3. Why this plan is meaningfully different
 4. Remaining unresolved trap risk
-5. Final effect on confidence / risk / no-trade decision
+5. Final effect on confidence / scope / pause-or-proceed decision

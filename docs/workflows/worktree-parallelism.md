@@ -53,11 +53,9 @@
 ### 公司级
 
 - `docs/`
-- 根 `CLAUDE.md`
-- 根 `AGENTS.md`
-- `.claude/`
-- `.codex/`
-- `.agents/skills/`
+- `SKILL.md`
+- `roles/`
+- `references/contracts/`
 
 这些只能由治理层或被明确授权的线程修改。
 

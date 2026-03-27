@@ -8,7 +8,7 @@ claude_tools: Read, Glob, Grep, WebSearch, WebFetch
 claude_model: sonnet
 codex_file: product-thesis.toml
 codex_name: product_thesis
-codex_description: Problem-framing specialist that narrows scope and sharpens the product thesis.
+codex_description: Problem-definition specialist that narrows scope and sharpens the product thesis.
 codex_model: gpt-5.4-mini
 codex_reasoning_effort: high
 codex_sandbox_mode: read-only

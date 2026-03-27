@@ -17,10 +17,8 @@
 - `docs/workflows/`
 - `docs/memory/`
 - 根 `README.md`
-- 根 `AGENTS.md`
-- 根 `CLAUDE.md`
-- 根 `GEMINI.md`
-- 部门级 `README.md` / `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` / `charter.md` / `interfaces.md`
+- 根 `SKILL.md`
+- 部门级 `README.md` / `charter.md` / `interfaces.md`
 
 作用：
 
@@ -55,6 +53,8 @@
 
 适用：
 
+- `.harness/tasks/<task-id>/attachments/`
+- `.harness/tasks/<task-id>/closure/`
 - `.harness/workspace/briefs/`
 - `.harness/workspace/decisions/log/`
 - `.harness/workspace/status/snapshots/`
@@ -63,6 +63,7 @@
 作用：
 
 - 保留推导、取舍、上下文、拍板结果和阶段状态
+- 默认先贴着 task 写；只有明确需要跨任务可见性时才 promote 到 governance surface
 
 写法要求：
 
@@ -129,6 +130,6 @@
 
 使用：
 
-1. `./.agents/skills/harness/scripts/audit_doc_style.sh`
+1. `./scripts/audit_doc_style.sh`
 
 它会检查 canonical docs 中是否残留禁止标题。

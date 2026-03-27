@@ -1,6 +1,6 @@
 # Process Compounding Cadence
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-27`
 
 ## 目的
 
@@ -10,17 +10,17 @@
 
 | 节奏 | Owner | 核心输入 | 核心输出 |
 | --- | --- | --- | --- |
-| 每日部门日报 | 各活跃部门 leader | 当日输入、输出、阻塞、handoff 摩擦 | 部门日报 |
-| 每日 company digest | `Chief of Staff` | 各部门日报 | 公司级运营摘要 |
-| 每周 operating checkpoint | `Chief of Staff` | digest、open blockers、跨部门承诺 | 本周运行状态与升级事项 |
-| 每周 process audit | `Compounding Engineering Lead` | 部门 retro、checkpoint、Founder feedback | process audit、实验提案、治理会议输入 |
+| 每日 workstream / department 日报 | 各活跃 owner | 当日输入、输出、阻塞、handoff 摩擦 | 日报 |
+| 每日 company digest | `General Manager / Chief of Staff` | 各日报 | 公司级运营摘要 |
+| 每周 operating checkpoint | `General Manager / Chief of Staff` | digest、open blockers、跨角色承诺 | 本周运行状态与升级事项 |
+| 每周 process audit | `Compounding Engineering Lead` | retro、checkpoint、Founder feedback | process audit、实验提案、治理会议输入 |
 | 每周 governance surface audit | `Compounding Engineering Lead` | 文档/脚本/skills/hooks/rules 当前状态 | keep/compress/archive/promote 清单 |
 | 每月 audit-the-auditors | `Compounding Engineering Lead` | 各类审计脚本、最近 audit 结果、新结构变更 | 审计覆盖缺口、脚本更新计划 |
 | 周期性 frontier scan | `Compounding Engineering Lead` | 官方文档、社区实践、研究材料 | 候选试点与 adopt/reject 建议 |
 
 ## Daily Rituals
 
-每个部门每天至少沉淀一条日报。
+每个已 materialize 的 workstream / department 每天至少沉淀一条日报。
 
 最小字段：
 
@@ -38,14 +38,14 @@
 
 - `.harness/workspace/departments/<department>/workspace/reports/daily/`
 
-由 `Chief of Staff` 汇总各部门日报，形成公司级运营摘要。
+由 `General Manager / Chief of Staff` 汇总各日报，形成公司级运营摘要。
 
 company digest 至少覆盖：
 
 1. 今天公司整体输入了什么
 2. 今天公司整体产出了什么
-3. 哪些 blocker 正在阻塞多个部门
-4. 哪些 cross-department commitments 有风险
+3. 哪些 blocker 正在阻塞多个角色
+4. 哪些 cross-role commitments 有风险
 5. 哪些事项可能需要升级给 Founder
 
 模板：
@@ -62,7 +62,7 @@ company digest 至少覆盖：
 
 治理层每周至少审阅一次：
 
-1. 哪些部门在重复做相同工作
+1. 哪些角色在重复做相同工作
 2. 哪些流程有热点冲突
 3. 哪些 handoff 经常失败
 4. 哪些 ritual 应该删掉或加强
@@ -73,7 +73,7 @@ company digest 至少覆盖：
 
 输入：
 
-- 各部门日报
+- 各日报
 - checkpoint
 - postmortem
 - Founder feedback
@@ -94,12 +94,12 @@ company digest 至少覆盖：
 - 部门 retro: `.harness/workspace/departments/<department>/workspace/reports/retros/`
 - 公司级 process audit: `.harness/workspace/status/process-audits/`
 
-对交易决策相关的复盘，还应额外遵守：
+对高风险决策、自动化升级或重复失败相关的复盘，还应额外遵守：
 
 1. raw retros append-only 保留
 2. 周期性提炼 repeated mistake patterns
 3. 维护一个当前有效的 `active trap library`
-4. 新交易计划进入正式输出前，应先做一轮 `trap check`
+4. 新的高风险计划进入正式输出前，应先做一轮 `trap check`
 
 详细见：
 
@@ -115,7 +115,7 @@ company digest 至少覆盖：
 - source repo:
   - `./scripts/run_governance_surface_diagnostic.sh --mode source`
 - consumer / dogfood repo:
-  - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
+  - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 详细规则见：
 
@@ -130,9 +130,7 @@ Founder 治理会议由以下节奏产物触发，而不是单独维护一套平
 2. process audit
 3. governance surface audit
 4. frontier scan
-5. 需要升级的跨部门问题
-
-本文件只定义它的触发来源，不展开会议内部流程。
+5. 需要升级的跨角色问题
 
 详细流程与会议路由见：
 
@@ -172,15 +170,15 @@ Founder 治理会议由以下节奏产物触发，而不是单独维护一套平
 
 最少检查对象：
 
-1. source repo:
+1. source repo：
    - `./scripts/validate_source_repo.sh`
    - `./scripts/audit_role_schema.sh`
    - `./scripts/run_governance_surface_diagnostic.sh --mode source`
-2. consumer / dogfood repo:
-   - `./.agents/skills/harness/scripts/audit_document_system.sh`
-   - `./.agents/skills/harness/scripts/audit_doc_style.sh`
-   - `./.agents/skills/harness/scripts/validate_workspace.sh`
-   - `./.agents/skills/harness/scripts/run_governance_surface_diagnostic.sh --mode consumer`
+2. consumer / dogfood repo：
+   - `./scripts/audit_document_system.sh`
+   - `./scripts/audit_doc_style.sh`
+   - `./scripts/validate_workspace.sh`
+   - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
 输出：
 

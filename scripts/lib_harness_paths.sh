@@ -24,7 +24,7 @@ resolve_harness_root_dir() {
       return 0
     fi
 
-    parent=$(CDPATH= cd -- "$current/.." && pwd)
+    parent=$(CDPATH= cd -- "$current/.." && pwd -L 2>/dev/null || pwd)
     if [ "$parent" = "$current" ]; then
       break
     fi
@@ -36,14 +36,7 @@ resolve_harness_root_dir() {
 }
 
 detect_harness_layout() {
-  case "$1" in
-    */.agents/skills/harness)
-      printf '%s\n' "consumer"
-      ;;
-    *)
-      printf '%s\n' "carrier"
-      ;;
-  esac
+  printf '%s\n' "source"
 }
 
 init_harness_paths() {
@@ -58,11 +51,7 @@ init_harness_paths() {
   HARNESS_LAYOUT=$(detect_harness_layout "$HARNESS_ROOT")
 
   case "$HARNESS_LAYOUT" in
-    consumer)
-      HARNESS_REPO_ROOT=$(CDPATH= cd -- "$HARNESS_ROOT/../../.." && pwd)
-      HARNESS_ROOT_REL=".agents/skills/harness"
-      ;;
-    carrier)
+    source)
       HARNESS_REPO_ROOT="$HARNESS_ROOT"
       HARNESS_ROOT_REL="."
       ;;
