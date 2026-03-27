@@ -1,29 +1,29 @@
 # Decision Rights
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-27`
 
 ## Founder 必须拍板的事项
 
 1. 使命改变或产品方向改变。
 2. 阶段性 go / pause / kill。
 3. 风险豁免与高权限自动化升级。
-4. 新增关键角色或删除关键流程。
-5. 第一阶段产品楔子和资产范围改变，例如从 `BTC-only` 扩张到更多资产。
+4. 把 consumer runtime role 升级成 source repo baseline role，或删除现有 baseline role。
+5. runnable demo 的最终验收，或任何跨越已批准产品边界的交付。
 
 ## Founder 默认不参与的事项
 
 1. 日常 requirements 拆解。
 2. 日常实现讨论与技术选型争论。
-3. 普通部门内部 review。
+3. 普通内部 review。
 4. 已批准 vision 内的日常优先级微调。
 
-## Chief of Staff 可自主决定的事项
+## General Manager / Chief of Staff 可自主决定的事项
 
 1. 当前阶段 owner 分配。
 2. 会议 cadence 与汇报节奏。
 3. 文档模板的采用与淘汰。
 4. 什么内容需要先返工再上报 Founder。
-5. 已批准 vision 内的日常 requirements meeting 是否召开、由谁主持、如何分发到部门。
+5. 是否需要新建 consumer runtime role，还是继续由 baseline 团队兼任。
 
 ## Product Thesis Lead 可自主决定的事项
 
@@ -38,7 +38,7 @@
 1. 文档分类和命名规范。
 2. 哪些文档是 source of truth。
 3. 何时归档、如何归档。
-4. 决策日志与研究索引格式。
+4. 决策日志、研究索引和 closure artifact 的格式。
 
 ## Workflow & Automation Lead 可自主决定的事项
 
@@ -59,57 +59,51 @@
 1. 日报、retro、checkpoint 的标准格式与节奏。
 2. 哪些流程问题值得进入 process audit。
 3. 哪些社区实践值得进入观察、研究或试点。
-4. 哪些 playbook、skill、hook、ritual 需要提出优化建议。
-5. Founder governance 会议的议程和预读材料结构。
+4. 哪些 playbook、skill、script、ritual 需要提出优化建议。
+5. 哪些重复工作已值得 promotion 为 runtime-local role。
+6. 在 accepted task 的复利 review 后，是否需要提交 `Role Change Proposal` 并调用 `Runtime Role Manager` 执行。
 
-## Compounding Engineering Lead 必须升级的事项
+## Runtime Role Manager 可自主决定的事项
 
-1. 需要改变公司级治理结构或关键阶段门。
-2. 需要引入新的高权限自动化范式。
-3. 需要调整 Founder review 方式或 demo gate。
-4. 需要改变跨部门 owned paths 或核心接口协议。
-5. 需要改变 Chief of Staff 的承诺管理或部门间协作责任分配。
+1. 在已批准 proposal 范围内，如何创建、编辑和审计 `.harness/workspace/roles/<slug>.md`。
+2. role file 的命名、frontmatter 合法性和 schema 合规性。
+3. 是否因 proposal 缺失、写边界越权或 schema 非法而拒绝执行并升级。
 
-## Chief of Staff 关于会议与执行的职责
+## Optional Runtime Role Owners 可自主决定的事项
 
-1. 负责产出 company daily digest。
-2. 负责在 Founder 会议后把跨部门承诺和 owner 落实为执行计划。
-3. 负责监督部门 leader 的改进计划是否按约推进。
+仅当 `advanced governance mode` 已启用且该角色已经 materialize 时：
 
-## Department Leads 可自主决定的事项
+1. 在既有 charter 内如何完成本角色职责。
+2. 需要向哪个相邻角色发起 handoff。
+3. 哪些输入质量不足，必须退回上游。
+4. 本角色 runtime-local artifacts 的组织方式。
 
-1. 本部门内部 memo、SOP、检查清单格式。
-2. 在既有 charter 内如何完成本部门职责。
-3. 需要向哪个相邻部门发起 handoff。
-4. 哪些输入质量不足，必须退回上游。
-5. 本部门 `workspace/` 子树内的内容组织与迭代。
+## Optional Runtime Role Owners 必须升级的事项
 
-## Department Leads 必须升级的事项
-
-1. 要改变跨部门接口协议。
-2. 要改变 Founder 已批准的策略、风险约束或阶段目标。
+1. 要改变跨角色接口协议。
+2. 要改变 Founder 已批准的产品边界、阶段目标或风险约束。
 3. 要新增高权限自动化或外部数据接入方式。
-4. 发现当前部门 charter 已经不适配实际工作。
-5. 需要改动公司级规范文件或其他部门 owned paths。
+4. 需要改动 source repo 的 canonical docs、baseline roles 或 shared contracts。
+5. 需要把自己 promotion 成 source repo 的默认基线角色。
 
 ## Founder 输入物料的升级规则
 
-1. Founder 输入先进入 `Learning & Evolution Department`。
-2. 该部门可以决定：丢弃、观察、进入研究、进入试点建议。
-3. 如果要让 Founder 输入升级为正式策略或正式流程变更，必须经过：
-   - Strategy Research review
-   - Risk review
-   - Chief of Staff 汇总
-4. 若涉及北极星、风险豁免或资源重分配，最终由 Founder 拍板。
+1. Founder 输入默认先进入 `General Manager / Chief of Staff`。
+2. 由其决定：丢弃、观察、进入研究、进入试点建议。
+3. 默认优先复用 baseline 团队处理，而不是立刻新建 runtime role。
+4. 如果该类输入反复出现并证明需要独立 owner，应在 accepted task 的复利 review 中提出 `Role Change Proposal`。
+5. proposal 获得通过后，由 `Runtime Role Manager` 在 `.harness/workspace/roles/` materialize runtime-local role。
+6. 若涉及北极星、风险豁免或资源重分配，最终仍由 Founder 拍板。
 
 ## 升级规则
 
-1. 角色间争议先由 Chief of Staff 裁决。
+1. 角色间争议先由 `General Manager / Chief of Staff` 裁决。
 2. 如果争议触及使命、风险豁免、预算或高权限自动化，升级给 Founder。
-3. 任何未经回写到 `.harness/workspace/decisions/log` 的决定无效。
+3. 任何未经 writeback 到 task-local artifacts 或显式 governance memory 的决定无效。
 
 ## Owned Paths Policy
 
-1. 部门线程主写路径为 `.harness/workspace/departments/<department>/`.
-2. 公司级 `.harness/workspace/` 仅允许 append-only 写入。
-3. `docs/`、根 `CLAUDE.md`、根 `AGENTS.md` 只允许治理层角色修改。
+1. runtime-local role 定义文件路径是 `.harness/workspace/roles/<slug>.md`。
+2. 公司级 `.harness/workspace/` 只允许 append-only 写入。
+3. `SKILL.md`、`docs/`、`roles/`、`references/contracts/` 只允许治理基线角色修改。
+4. runtime role mutation 必须先有 `Role Change Proposal`，再通过 `scripts/runtime_role_manager.sh` 执行。

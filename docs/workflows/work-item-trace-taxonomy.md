@@ -21,7 +21,7 @@
 
 1. 新协议 transition event 应包含 `Event type`。
 2. `Event type` 由受控写脚本生成，不靠手工补写。
-3. `./.agents/skills/harness/scripts/audit_state_system.sh` 负责验证 `Event type` 属于 allowlist。
+3. `./scripts/audit_state_system.sh` 负责验证 `Event type` 属于 allowlist。
 
 ## Allowlist
 
@@ -29,7 +29,7 @@
    - 普通状态迁移。
    - 包含 create、ready/in-progress/review/done/killed 等常规推进。
 2. `artifact-link`
-   - `Linked artifacts` 发生变化，但 `From == To`。
+   - `Linked attachments` 发生变化，但 `From == To`。
 3. `approval-pause`
    - 进入 `paused` 的中断事件。
    - 必须伴随合法 `Interrupt marker` 和 `Resume target`。
@@ -56,24 +56,24 @@
 
 ## 当前脚本映射
 
-1. `./.agents/skills/harness/scripts/new_work_item.sh` -> `state-transition`
-2. `./.agents/skills/harness/scripts/transition_work_item.sh`
+1. `./scripts/new_work_item.sh` -> `state-transition`
+2. `./scripts/transition_work_item.sh`
    - 普通迁移 -> `state-transition`
    - 进入 `paused` -> `approval-pause`
    - 从 `paused` 恢复 -> `resume`
-3. `./.agents/skills/harness/scripts/link_work_item_artifact.sh` -> `artifact-link`
-4. `./.agents/skills/harness/scripts/update_work_item_fields.sh` -> `field-update`
-5. `./.agents/skills/harness/scripts/cleanup_terminal_work_item.sh`
+3. `./scripts/link_work_item_artifact.sh` -> `artifact-link`
+4. `./scripts/update_work_item_fields.sh` -> `field-update`
+5. `./scripts/cleanup_terminal_work_item.sh`
    - root cleanup -> `terminal-cleanup`
    - downstream release -> `blocker-release`
-6. `./.agents/skills/harness/scripts/backfill_interrupt_fields.sh` -> `schema-migration`
+6. `./scripts/backfill_interrupt_fields.sh` -> `schema-migration`
 
 ## 校验边界
 
-1. `./.agents/skills/harness/scripts/audit_state_system.sh`
+1. `./scripts/audit_state_system.sh`
    - 校验 typed event 属于 allowlist
    - 校验 pause/resume 与 `Event type` 的基本一致性
-2. `./.agents/skills/harness/scripts/run_state_validation_slice.sh`
+2. `./scripts/run_state_validation_slice.sh`
    - 在 sandbox 里证明至少一个 item chain 同时出现：
      - `state-transition`
      - `artifact-link`

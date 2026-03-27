@@ -118,7 +118,7 @@ validate_field_update() {
   value="$3"
 
   case "$field" in
-    Title|Owner|Sponsor|Objective|Ready\ criteria|Done\ criteria|Why\ it\ matters|Decision\ needed|Required\ artifacts|Current\ blocker|Next\ handoff)
+    Title|Owner|Sponsor|Objective|Ready\ criteria|Done\ criteria|Why\ it\ matters|Decision\ needed|Required\ artifacts|Current\ blocker|Next\ handoff|Assignee|Worktree|Current\ stage\ owner|Current\ stage\ role|Next\ gate)
       if [ -z "$value" ]; then
         echo "field must not be empty: $field" >&2
         exit 1
@@ -139,6 +139,24 @@ validate_field_update() {
     Founder\ escalation)
       if ! is_valid_founder_escalation "$value"; then
         echo "invalid Founder escalation: $value" >&2
+        exit 1
+      fi
+      ;;
+    Claimed\ at|Claim\ expires\ at|Archived\ at)
+      if ! is_iso_timestamp_or_none "$value"; then
+        echo "invalid $field (expected ISO timestamp or none): $value" >&2
+        exit 1
+      fi
+      ;;
+    Lease\ version)
+      if ! is_nonnegative_integer "$value"; then
+        echo "invalid Lease version: $value" >&2
+        exit 1
+      fi
+      ;;
+    Decision\ status|Review\ status|QA\ status|UAT\ status|Acceptance\ status)
+      if ! is_valid_gate_status "$value"; then
+        echo "invalid $field: $value" >&2
         exit 1
       fi
       ;;
@@ -317,7 +335,7 @@ while IFS=$(printf '\t') read -r field value; do
 done <"$pair_file"
 
 rewrite_work_item_header_snapshot "$@"
-sync_progress_snapshot_if_present "$work_item_file"
+sync_recovery_snapshot_if_present "$work_item_file"
 refresh_boards_if_enabled
 
 echo "$work_item_file"

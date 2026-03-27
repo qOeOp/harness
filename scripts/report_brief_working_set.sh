@@ -55,7 +55,7 @@ for brief_file in $(find "$briefs_dir" -maxdepth 1 -type f -name '*.md' ! -name 
   nonterminal_item_refs="none"
   terminal_item_refs="none"
 
-  route_refs=$(rg -l -F "$brief_rel_path" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" "$task_runtime_dir" 2>/dev/null || true)
+  route_refs=$(rg -l -F "$brief_rel_path" .harness/workspace/current "$state_boards_dir" "$task_runtime_dir" 2>/dev/null || true)
   if [ -n "$route_refs" ]; then
     for ref_file in $route_refs; do
       current_route_refs=$(append_csv "$current_route_refs" "$ref_file")
@@ -63,10 +63,16 @@ for brief_file in $(find "$briefs_dir" -maxdepth 1 -type f -name '*.md' ! -name 
     direct_route_count=$((direct_route_count + 1))
   fi
 
-  item_refs=$(rg -l -F "$brief_rel_path" "$state_items_dir" 2>/dev/null || true)
-  if [ -n "$item_refs" ]; then
-    for item_file in $item_refs; do
-      item_id=$(field_value "$item_file" "ID")
+  if [ -n "$linked_work_items" ] && [ "$linked_work_items" != "none" ]; then
+    old_ifs=${IFS- }
+    IFS=','
+    set -- $linked_work_items
+    IFS=$old_ifs
+    for item_id in "$@"; do
+      item_id=$(trim "$item_id")
+      [ -n "$item_id" ] || continue
+      item_file=$(work_item_path "$item_id")
+      [ -f "$item_file" ] || continue
       item_status=$(field_value_or_none "$item_file" "Status")
       item_entry="$item_id($item_status)"
       case "$item_status" in

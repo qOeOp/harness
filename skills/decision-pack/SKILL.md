@@ -21,5 +21,5 @@ Read [../../docs/workflows/volatile-research-default.md](../../docs/workflows/vo
 Read [../../docs/workflows/internal-research-routing.md](../../docs/workflows/internal-research-routing.md).
 Read [../../docs/workflows/task-artifact-routing.md](../../docs/workflows/task-artifact-routing.md).
 If a volatile external claim lacks a linked research dispatch, fresh source-note support, or a current URL, treat it as exploratory rather than final.
-Default to a task-local decision pack under `.harness/tasks/<task-id>/refs/`.
+Default to a task-local decision pack under `.harness/tasks/<task-id>/attachments/`.
 Only promote it into `.harness/workspace/decisions/log/` or department-level governance outputs when `advanced governance mode` is explicitly enabled.

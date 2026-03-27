@@ -5,15 +5,17 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 work_item_id=""
+promote_governance=0
 actor="${STATE_ACTOR:-}"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
   cat <<EOF >&2
-usage: $0 [--work-item <WI-xxxx>] <title>
+usage: $0 [--work-item <WI-xxxx>] [--promote-governance] <title>
 
-Defaults to the active .harness/current-task when present.
-In minimum-core runtime, a workspace-scoped source note is not allowed without a task context.
+Source notes default to task-local routing.
+Pass --work-item explicitly for task-local routing.
+Use --promote-governance only for cross-task evidence in advanced governance mode.
 EOF
   exit 1
 }
@@ -24,6 +26,10 @@ while [ "$#" -gt 0 ]; do
       [ "$#" -ge 2 ] || usage
       work_item_id="$2"
       shift 2
+      ;;
+    --promote-governance)
+      promote_governance=1
+      shift
       ;;
     --help|-h)
       usage
@@ -37,17 +43,31 @@ done
 title="${1:-untitled-source}"
 slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)
-resolved_work_item_id=$(resolve_task_artifact_work_item_id "$work_item_id" || true)
+resolved_work_item_id=""
+
+if [ "$promote_governance" -eq 1 ]; then
+  if [ -n "$work_item_id" ]; then
+    require_work_item "$work_item_id" >/dev/null
+  fi
+  require_governance_mode_for_workspace_artifact "source note" || exit 1
+  target=".harness/workspace/research/sources/${date}-${slug}.md"
+else
+  if [ -z "$work_item_id" ]; then
+    require_explicit_promotion_for_workspace_artifact "source note" || exit 1
+  fi
+  resolved_work_item_id="$work_item_id"
+fi
 
 if [ -n "$resolved_work_item_id" ]; then
   work_item_id="$resolved_work_item_id"
+  require_work_item "$work_item_id" >/dev/null
   ensure_task_directory_skeleton "$work_item_id"
-  set_current_task_id "$work_item_id"
-  target="$(canonical_work_item_refs_dir "$work_item_id")/sources/${date}-${slug}.md"
-else
-  require_governance_mode_for_workspace_artifact "source note" || exit 1
-  target=".harness/workspace/research/sources/${date}-${slug}.md"
+  target="$(canonical_work_item_attachment_sources_dir "$work_item_id")/${date}-${slug}.md"
+elif [ "$promote_governance" -ne 1 ]; then
+  require_explicit_promotion_for_workspace_artifact "source note" || exit 1
 fi
+
+mkdir -p "$(dirname "$target")"
 
 if [ -e "$target" ]; then
   echo "exists: $target" >&2

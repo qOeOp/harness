@@ -44,7 +44,7 @@ dispatch 必须回答：
 
 dispatch 不是聊天记录，而是一个单独 artifact：
 
-- 默认路径：`.harness/tasks/<task-id>/working/<date>-<slug>-research-dispatch.md`
+- 默认路径：`.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md`
 - 只有显式升级到 `advanced governance mode` 后，才允许 promote 到 `.harness/workspace/research/dispatches/<date>-<slug>.md`
 - 模板： [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
 

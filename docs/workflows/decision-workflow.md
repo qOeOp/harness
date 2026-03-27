@@ -28,10 +28,10 @@
 
 ## Gate 0: Trigger
 
-Owner:
+Owner：
 
 - `Founder`
-- 或 `Chief of Staff`
+- 或 `General Manager / Chief of Staff`
 
 输出：
 
@@ -52,14 +52,14 @@ Owner:
 
 ## Gate 0.5: Volatile Detection & Research Dispatch
 
-Owner:
+Owner：
 
-- `Chief of Staff`
-- 或当前 internal trigger 的部门负责人
+- `General Manager / Chief of Staff`
+- 或被明确指派的 `research owner`
 
 适用：
 
-- 任何涉及市场、新闻、实时价格、工具链最新能力、社区 best practice 的内部讨论
+- 任何涉及外部最新事实、工具链最新能力、社区 best practice 的内部讨论
 
 输出：
 
@@ -71,14 +71,14 @@ Owner:
 
 硬规则：
 
-1. 没完成 `research dispatch` 的 volatile 议题，不能直接进入正式 decision pack
-2. 只能作为 exploratory notes 存在
-3. 若需要外部最新事实，必须遵守 [docs/workflows/volatile-research-default.md](./volatile-research-default.md)
-4. research dispatch 细节见 [docs/workflows/internal-research-routing.md](./internal-research-routing.md)
+1. 没完成 `research dispatch` 的 volatile 议题，不能直接进入正式 decision pack。
+2. 只能作为 exploratory notes 存在。
+3. 若需要外部最新事实，必须遵守 [docs/workflows/volatile-research-default.md](./volatile-research-default.md)。
+4. research dispatch 细节见 [docs/workflows/internal-research-routing.md](./internal-research-routing.md)。
 
 ## Gate 1: Problem Framing
 
-Owner: `Chief of Staff`
+Owner：`General Manager / Chief of Staff`
 
 输入：Founder brief 或 approved vision / internal trigger
 
@@ -91,11 +91,12 @@ Owner: `Chief of Staff`
 
 ## Gate 2: Independent Research
 
-Owners:
+Owners：
 
 - `Product Thesis Lead`
 - `Knowledge & Memory Lead`
 - `Risk & Quality Lead`
+- 必要时由 `General Manager / Chief of Staff` 指派 runtime-local role
 
 输出：
 
@@ -110,7 +111,7 @@ Owners:
 
 ## Gate 3: Cross Review
 
-Owner: `Risk & Quality Lead`
+Owner：`Risk & Quality Lead`
 
 要求：
 
@@ -120,7 +121,7 @@ Owner: `Risk & Quality Lead`
 
 ## Gate 4: Decision Pack
 
-Owner: `Chief of Staff`
+Owner：`General Manager / Chief of Staff`
 
 输出必须包含：
 
@@ -139,13 +140,13 @@ Owner: `Chief of Staff`
 
 ## Gate 5A: Internal Approval
 
-Owner: `Chief of Staff`
+Owner：`General Manager / Chief of Staff`
 
 适用：
 
-- 已批准 vision 内的日常需求、实现、部门协作和内部流程推进
+- 已批准 vision 内的日常需求、实现、角色协作和内部流程推进
 
-Chief of Staff 只做：
+`General Manager / Chief of Staff` 只做：
 
 - 批准进入执行
 - 要求返工
@@ -159,12 +160,12 @@ Chief of Staff 只做：
 
 ## Gate 5B: Founder Review / Acceptance
 
-Owner: `Founder`
+Owner：`Founder`
 
 只在以下情况触发：
 
 1. vision / 使命 / 北极星变更
-2. BTC-only 等产品楔子边界变更
+2. 产品楔子、目标用户或交付边界发生变化
 3. go / pause / kill
 4. 高风险自动化或风险豁免
 5. runnable demo 验收
@@ -176,15 +177,41 @@ Founder 只做：
 - 增加约束
 - 要求追加反证
 
-## Gate 6: Memory Writeback
+## Gate 6: Post-Acceptance Compounding
 
-Owner: `Knowledge & Memory Lead`
+Owner：`Compounding Engineering Lead`
+
+只在以下条件同时满足时触发：
+
+1. 主控 agent 已提交 completion candidate
+2. 用户 / Founder 已明确认可交付
+3. 本轮 task 已具备可复盘的 artifact
+
+输出：
+
+1. 对本轮流程的 compounding review
+2. 必要时的 `Process Audit`
+3. 若角色边界不足，则生成 `Role Change Proposal`
+4. 如 proposal 成立，由 `Runtime Role Manager` 执行 runtime role mutation
+
+硬规则：
+
+1. `Compounding Engineering Lead` 负责判断是否需要 role 变更
+2. `Runtime Role Manager` 只负责执行，不负责自行决定是否长角色
+3. runtime role mutation 只允许写 `.harness/workspace/roles/`
+4. provider-specific agent 文件仍属于 user-owned adapter surface，不是本 gate 的 canonical 输出
+
+详细协议见 [post-acceptance-compounding-loop.md](./post-acceptance-compounding-loop.md)。
+
+## Gate 7: Memory Writeback
+
+Owner：`Knowledge & Memory Lead`
 
 默认闭环不是直接写 company-level workspace，而是先把决策和证据收回当前 task：
 
-- `.harness/tasks/<task-id>/refs/`
-- `.harness/tasks/<task-id>/outputs/`
-- 必要时刷新 `.harness/tasks/<task-id>/progress.md` 或 `closure/`
+- `.harness/tasks/<task-id>/attachments/`
+- `.harness/tasks/<task-id>/closure/`
+- 必要时刷新 `task.md` 里的 `## Recovery`
 
 只有当 runtime 已显式升级到 `advanced governance mode`，且该结论确实需要跨任务沉淀时，才 promote 到：
 
@@ -199,29 +226,29 @@ Owner: `Knowledge & Memory Lead`
 
 除了上面的通用决策 workflow，公司还存在 3 条常驻回路：
 
-1. `Research-to-Thesis Loop`
-   - Market Intelligence 提供清洗后的信号
-   - Strategy Research 形成 thesis
-   - Risk Office 审核
-   - Position Operations 承接
+1. `Research Dispatch Loop`
+   - `General Manager / Chief of Staff` 识别 volatile 议题
+   - 指派 baseline 角色或已有 runtime-local role 取证
+   - `Knowledge & Memory Lead` 负责可追溯写回
 
-2. `Position Monitoring Loop`
-   - Position Operations 监控仓位
-   - 当条件满足时触发 decision update
-   - Risk Office 判断是否需要升级
-   - Founder 只接收高密度更新，不接收原始流水
+2. `Delivery And Acceptance Loop`
+   - `Product Thesis Lead` 收缩问题
+   - 相关执行 owner 交付 artifact
+   - `Risk & Quality Lead` 审核
+   - `General Manager / Chief of Staff` 决定是否进入 Founder 验收
 
 3. `Founder Input Evolution Loop`
    - Founder 提供物料
-   - Learning & Evolution triage
-   - 相关部门研究是否值得吸收
-   - 若通过，则更新 playbook / workflow / strategy
+   - baseline 团队 triage
+   - accepted task 结束后进入 compounding review
+   - 如有重复摩擦，再由 `Runtime Role Manager` materialize runtime-local role
 
 详细见：
 
 - [docs/workflows/founder-intake-evolution-loop.md](./founder-intake-evolution-loop.md)
 - [docs/workflows/worktree-parallelism.md](./worktree-parallelism.md)
 - [docs/workflows/agile-runnable-demo-policy.md](./agile-runnable-demo-policy.md)
+- [docs/workflows/post-acceptance-compounding-loop.md](./post-acceptance-compounding-loop.md)
 - [docs/workflows/volatile-research-default.md](./volatile-research-default.md)
 
 ## Stop-The-Line Conditions
@@ -230,6 +257,6 @@ Owner: `Knowledge & Memory Lead`
 
 1. 当前 source of truth 不清楚
 2. 同一主题出现多个 active 规则
-3. 部门 owner、接口或职责边界仍然模糊
+3. owner、接口或职责边界仍然模糊
 4. Founder-facing 交付还依赖“口头解释”才能成立
 5. 关键 dissent 没被处理，只是被时间压力掩盖

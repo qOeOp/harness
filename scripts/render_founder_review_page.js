@@ -6,11 +6,8 @@ const { pathToFileURL } = require("url");
 const { spawnSync } = require("child_process");
 
 const harnessRoot = path.resolve(__dirname, "..");
-const installedHarnessSuffix = `${path.sep}.agents${path.sep}skills${path.sep}harness`;
-const harnessLayout = harnessRoot.endsWith(installedHarnessSuffix) ? "consumer" : "carrier";
-const repoRoot = harnessLayout === "consumer" ? path.resolve(harnessRoot, "../../..") : harnessRoot;
-const scriptsRoot = harnessLayout === "consumer" ? "./.agents/skills/harness/scripts" : "./scripts";
-const stateRoot = path.join(repoRoot, ".harness/workspace/state");
+const repoRoot = harnessRoot;
+const scriptsRoot = "./scripts";
 const taskRoot = path.join(repoRoot, ".harness/tasks");
 const manifestPath = path.join(repoRoot, ".harness/manifest.toml");
 
@@ -62,44 +59,13 @@ function canonicalWorkItemPath(workItemId) {
   return path.join(taskRoot, workItemId, "task.md");
 }
 
-function legacyWorkItemPath(workItemId) {
-  return path.join(stateRoot, "items", `${workItemId}.md`);
-}
-
 function resolveWorkItemPath(workItemId) {
   const canonicalPath = canonicalWorkItemPath(workItemId);
-  if (fs.existsSync(canonicalPath)) {
-    return canonicalPath;
-  }
-
-  const legacyPath = legacyWorkItemPath(workItemId);
-  if (fs.existsSync(legacyPath)) {
-    return legacyPath;
-  }
-
-  return "";
-}
-
-function canonicalProgressPath(workItemId) {
-  return path.join(taskRoot, workItemId, "progress.md");
-}
-
-function legacyProgressPath(workItemId) {
-  return path.join(stateRoot, "progress", `${workItemId}.md`);
-}
-
-function resolveProgressPath(workItemId) {
-  const canonicalPath = canonicalProgressPath(workItemId);
-  if (fs.existsSync(canonicalPath) || fs.existsSync(path.join(taskRoot, workItemId))) {
-    return canonicalPath;
-  }
-
-  return legacyProgressPath(workItemId);
+  return fs.existsSync(canonicalPath) ? canonicalPath : "";
 }
 
 function listWorkItemPaths() {
   const paths = [];
-  const canonicalIds = new Set();
 
   if (fs.existsSync(taskRoot)) {
     for (const entry of fs.readdirSync(taskRoot)) {
@@ -107,22 +73,7 @@ function listWorkItemPaths() {
       if (!fs.existsSync(workItemPath)) {
         continue;
       }
-      canonicalIds.add(entry);
       paths.push(workItemPath);
-    }
-  }
-
-  const legacyItemsDir = path.join(stateRoot, "items");
-  if (fs.existsSync(legacyItemsDir)) {
-    for (const entry of fs.readdirSync(legacyItemsDir)) {
-      if (!entry.endsWith(".md") || entry === "README.md") {
-        continue;
-      }
-      const workItemId = entry.replace(/\.md$/, "");
-      if (canonicalIds.has(workItemId)) {
-        continue;
-      }
-      paths.push(path.join(legacyItemsDir, entry));
     }
   }
 
@@ -186,11 +137,22 @@ function bulletSection(markdown, heading) {
     .map((line) => line.slice(2).trim());
 }
 
+function sectionFieldValue(markdown, heading, label) {
+  const lines = bulletSection(markdown, heading);
+  const prefix = `${label}: `;
+  const match = lines.find((line) => line.startsWith(prefix));
+  return match ? match.slice(prefix.length).trim() : "none";
+}
+
 function prettyValue(value) {
   return value && value !== "none" ? value : "none";
 }
 
-function parseLinkedArtifacts(raw) {
+function linkedAttachmentsValue(markdown) {
+  return fieldValue(markdown, "Linked attachments");
+}
+
+function parseLinkedAttachments(raw) {
   if (!raw || raw === "none") {
     return [];
   }
@@ -241,8 +203,8 @@ function linkedWorkItemsForArtifact(outputPath) {
   for (const workItemPath of listWorkItemPaths()) {
     const itemMarkdown = mustReadFile(workItemPath);
     const workItemId = fieldValue(itemMarkdown, "ID");
-    const artifacts = parseLinkedArtifacts(fieldValue(itemMarkdown, "Linked artifacts"));
-    if (artifacts.some((artifact) => artifact.artifactPath === artifactPath)) {
+    const attachments = parseLinkedAttachments(linkedAttachmentsValue(itemMarkdown));
+    if (attachments.some((artifact) => artifact.artifactPath === artifactPath)) {
       linkedIds.add(workItemId);
     }
   }
@@ -370,7 +332,7 @@ function resolveSelection() {
     return {
       workItemId,
       workItemPath,
-      boardPath: scope === "department" ? `.harness/workspace/departments/${department}/workspace/board.md` : `.harness/workspace/state/boards/${scope}.md`,
+      routeHint: scope === "department" ? `department:${department}` : scope,
       outputPath,
       selectionResult: "explicit",
       selectionReason: "work item provided explicitly",
@@ -384,9 +346,9 @@ function resolveSelection() {
     openArgs.push(department);
   }
 
-  const result = run(scriptCommand("open_current_work_item.sh"), openArgs);
+  const result = run(scriptCommand("open_work_item.sh"), openArgs);
   if (![0, 2].includes(result.status)) {
-    throw new Error(result.stderr || "failed to open current work item");
+    throw new Error(result.stderr || "failed to open work item");
   }
 
   const payload = JSON.parse(result.stdout);
@@ -395,12 +357,12 @@ function resolveSelection() {
     throw new Error(`no work item available for scope ${scope}`);
   }
 
-  return {
-    workItemId: selected.id,
-    workItemPath: path.resolve(repoRoot, selected.path),
-    boardPath: payload.board,
-    outputPath,
-    selectionResult: payload.result || "unknown",
+    return {
+      workItemId: selected.id,
+      workItemPath: path.resolve(repoRoot, selected.path),
+      routeHint: payload.route || payload.board || scope,
+      outputPath,
+      selectionResult: payload.result || "unknown",
     selectionReason:
       payload.selector_reason ||
       (payload.next_blocked_candidate && payload.next_blocked_candidate.blocked_because) ||
@@ -412,34 +374,31 @@ function resolveSelection() {
 }
 
 function renderPage(context) {
-  const progressHtml = context.progress
+  const recoveryHtml = context.recovery
     ? renderDefinitionGrid([
-        ["Updated at", context.progress.updatedAt],
-        ["Status snapshot", context.progress.statusSnapshot],
-        ["State version snapshot", context.progress.stateVersionSnapshot],
-        ["Last operation ID snapshot", context.progress.lastOperationIdSnapshot],
-        ["Current focus", context.progress.currentFocus],
-        ["Next command", context.progress.nextCommand],
-        ["Recovery notes", context.progress.recoveryNotes],
+        ["Task updated at", context.recovery.updatedAt],
+        ["Current focus", context.recovery.currentFocus],
+        ["Next command", context.recovery.nextCommand],
+        ["Recovery notes", context.recovery.recoveryNotes],
       ])
-    : '<p class="muted">No progress artifact is attached to this work item.</p>';
+    : '<p class="muted">No recovery snapshot is stored in this task record.</p>';
 
-  const artifactHtml = context.artifacts.length
-    ? `<div class="artifact-list">${context.artifacts
-        .map((artifact) => {
-          const stateClass = artifact.exists ? "ok" : "warn";
-          const href = artifact.exists ? toFileHref(artifact.absPath) : "";
+  const attachmentHtml = context.attachments.length
+    ? `<div class="artifact-list">${context.attachments
+        .map((attachment) => {
+          const stateClass = attachment.exists ? "ok" : "warn";
+          const href = attachment.exists ? toFileHref(attachment.absPath) : "";
           const body = `
-            <div class="artifact-type">${escapeHtml(artifact.artifactType)}</div>
-            <div class="artifact-path">${escapeHtml(artifact.artifactPath)}</div>
-            <div class="artifact-meta">${escapeHtml(artifact.artifactStatus)}${artifact.exists ? "" : " | missing file"}</div>
+            <div class="artifact-type">${escapeHtml(attachment.artifactType)}</div>
+            <div class="artifact-path">${escapeHtml(attachment.artifactPath)}</div>
+            <div class="artifact-meta">${escapeHtml(attachment.artifactStatus)}${attachment.exists ? "" : " | missing file"}</div>
           `;
-          return artifact.exists
+          return attachment.exists
             ? `<a class="artifact-card ${stateClass}" href="${escapeHtml(href)}">${body}</a>`
             : `<div class="artifact-card ${stateClass}">${body}</div>`;
         })
         .join("")}</div>`
-    : '<p class="muted">No linked artifacts.</p>';
+    : '<p class="muted">No linked attachments.</p>';
 
   const checksHtml = `<div class="check-list">${context.checks
     .map(
@@ -765,8 +724,8 @@ ${linkedWorkItemsComment}<html lang="en">
         <h2>State Spine</h2>
         ${renderDefinitionGrid([
           ["Task source path", context.taskPath],
-          ["Progress path", context.progressPath],
-          ["Derived board route", context.boardPath],
+          ["Recovery surface", context.recoveryPath],
+          ["Selector route", context.routeHint],
           ["Selection result", context.selectionResult],
           ["Selection reason", context.selectionReason],
           ["State version", context.stateVersion],
@@ -781,13 +740,13 @@ ${linkedWorkItemsComment}<html lang="en">
       </section>
 
       <section class="panel span-6">
-        <h2>Progress Recovery</h2>
-        ${progressHtml}
+        <h2>Recovery Snapshot</h2>
+        ${recoveryHtml}
       </section>
 
       <section class="panel span-12">
-        <h2>Supporting Artifacts</h2>
-        ${artifactHtml}
+        <h2>Supporting Attachments</h2>
+        ${attachmentHtml}
       </section>
 
       <section class="panel span-6">
@@ -813,7 +772,7 @@ ${linkedWorkItemsComment}<html lang="en">
         <h2>How To Verify</h2>
         <ul>
           <li>Open this file directly in a browser. No server is required.</li>
-          <li>Run <code>${escapeHtml(scriptCommand("open_current_work_item.sh"))} --json founder</code> to confirm the founder route.</li>
+          <li>Run <code>${escapeHtml(scriptCommand("open_work_item.sh"))} --json founder</code> to confirm the founder route.</li>
           <li>Run <code>${escapeHtml(scriptCommand("render_founder_review_page.sh"))} --scope founder</code> to regenerate from live state.</li>
           <li>Run the checks above to confirm the repo still passes its control gates.</li>
         </ul>
@@ -831,9 +790,7 @@ function main() {
   const markdown = mustReadFile(selection.workItemPath);
   const workItemId = fieldValue(markdown, "ID");
   const workItemAbsPath = selection.workItemPath;
-  const linkedArtifacts = parseLinkedArtifacts(fieldValue(markdown, "Linked artifacts"));
-  const progressAbsPath = resolveProgressPath(workItemId);
-  const progressMarkdown = fs.existsSync(progressAbsPath) ? mustReadFile(progressAbsPath) : "";
+  const linkedAttachments = parseLinkedAttachments(linkedAttachmentsValue(markdown));
   const checks = parseChecks();
 
   const outputPath =
@@ -861,26 +818,23 @@ function main() {
     lastOperationId: fieldValue(markdown, "Last operation ID"),
     lastTransitionEvent: fieldValue(markdown, "Last transition event"),
     summary: bulletSection(markdown, "Summary"),
-    artifacts: linkedArtifacts,
+    attachments: linkedAttachments,
     checks,
     generatedAt: localTimestampValue(),
     linkedWorkItems,
     taskPath: path.relative(repoRoot, workItemAbsPath),
-    progressPath: fs.existsSync(progressAbsPath) ? path.relative(repoRoot, progressAbsPath) : "none",
-    boardPath: selection.boardPath,
+    recoveryPath: `${path.relative(repoRoot, workItemAbsPath)}#Recovery`,
+    routeHint: selection.routeHint,
     selectionResult: selection.selectionResult,
     selectionReason: selection.selectionReason,
     scopeLabel:
       selection.scope === "department" ? `department:${selection.department}` : selection.scope,
-    progress: progressMarkdown
+    recovery: markdown
       ? {
-          updatedAt: fieldValue(progressMarkdown, "Updated at"),
-          statusSnapshot: fieldValue(progressMarkdown, "Status snapshot"),
-          stateVersionSnapshot: fieldValue(progressMarkdown, "State version snapshot"),
-          lastOperationIdSnapshot: fieldValue(progressMarkdown, "Last operation ID snapshot"),
-          currentFocus: fieldValue(progressMarkdown, "Current focus"),
-          nextCommand: fieldValue(progressMarkdown, "Next command"),
-          recoveryNotes: fieldValue(progressMarkdown, "Recovery notes"),
+          updatedAt: fieldValue(markdown, "Updated at"),
+          currentFocus: sectionFieldValue(markdown, "Recovery", "Current focus"),
+          nextCommand: sectionFieldValue(markdown, "Recovery", "Next command"),
+          recoveryNotes: sectionFieldValue(markdown, "Recovery", "Recovery notes"),
         }
       : null,
   };

@@ -57,10 +57,10 @@ for file in $(list_work_items); do
   current_blocker=$(field_value "$file" "Current blocker")
   blocks=$(field_value "$file" "Blocks")
   required_artifacts=$(field_value "$file" "Required artifacts")
-  linked_artifacts=$(field_value "$file" "Linked artifacts")
+  linked_artifacts=$(field_value "$file" "Linked attachments")
 
   case "$status" in
-    backlog|framing|planning|ready|in-progress|review|paused)
+    backlog|planning|ready|in-progress|review|paused)
       if [ "$updated_at" \< "$cutoff" ]; then
         report "stale active item: $id ($title) last updated $updated_at"
       fi
@@ -68,8 +68,8 @@ for file in $(list_work_items); do
   esac
 
   if [ "$status" = "in-progress" ]; then
-    progress_sync_state=$(work_item_progress_sync_state "$id")
-    case "$progress_sync_state" in
+    recovery_sync_state=$(work_item_recovery_sync_state "$id")
+    case "$recovery_sync_state" in
       missing)
         report "in-progress item missing progress artifact: $id ($title)"
         ;;

@@ -93,5 +93,4 @@ fi
   "$artifact_type" \
   "$new_status" >/dev/null
 
-set_current_task_id "$work_item_id"
 printf '%s\n' "$artifact_path"

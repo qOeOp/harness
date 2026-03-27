@@ -1,0 +1,33 @@
+schema_version = 1
+runtime_mode = "minimum-core"
+source_repo_pure = true
+
+required_directories = [
+  ".harness",
+  ".harness/tasks",
+  ".harness/archive",
+  ".harness/archive/tasks",
+  ".harness/locks",
+]
+
+generated_files = [
+  ".harness/entrypoint.md",
+  ".harness/README.md",
+  ".harness/manifest.toml",
+]
+
+lazily_created_files = [
+  ".harness/current-task",
+  ".harness/tasks/<task-id>/task.md",
+  ".harness/tasks/<task-id>/progress.md",
+  ".harness/tasks/<task-id>/refs/index.toml",
+  ".harness/tasks/<task-id>/history/transitions/TX-*.md",
+]
+
+[notes]
+harness_owned_surfaces = "consumer runtime is limited to .harness/"
+skill_distribution = "skill installation path is user-managed and outside the runtime contract"
+provider_surfaces = "consumer repo AGENTS.md / CLAUDE.md / GEMINI.md and .claude/ / .codex/ / .gemini/ are user-owned and out of scope"
+task_truth = "task directory is the only runtime source of truth"
+global_workspace = "advanced governance surfaces are not part of the minimum scaffold"
+validation = "materialize with scripts/materialize_runtime_fixture.sh and verify with scripts/run_state_validation_slice.sh"

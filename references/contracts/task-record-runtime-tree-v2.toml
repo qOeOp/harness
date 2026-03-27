@@ -1,0 +1,105 @@
+schema_version = 2
+runtime_model = "task-record"
+source_repo_pure = true
+
+required_directories = [
+  ".harness",
+  ".harness/tasks",
+  ".harness/locks",
+]
+
+generated_files = [
+  ".harness/entrypoint.md",
+  ".harness/README.md",
+  ".harness/manifest.toml",
+]
+
+lazily_created_paths = [
+  ".harness/tasks/<task-id>",
+  ".harness/tasks/<task-id>/task.md",
+  ".harness/tasks/<task-id>/attachments",
+]
+
+[task_record]
+header_required = [
+  "Schema version",
+  "State authority",
+  "State version",
+  "Last operation ID",
+  "ID",
+  "Title",
+  "Type",
+  "Status",
+  "Priority",
+  "Owner",
+  "Sponsor",
+  "Assignee",
+  "Worktree",
+  "Claimed at",
+  "Claim expires at",
+  "Lease version",
+  "Objective",
+  "Ready criteria",
+  "Done criteria",
+  "Required departments",
+  "Participation records",
+  "Current stage owner",
+  "Current stage role",
+  "Next gate",
+  "Founder escalation",
+  "Decision status",
+  "Review status",
+  "QA status",
+  "UAT status",
+  "Acceptance status",
+  "Blocked by",
+  "Current blocker",
+  "Next handoff",
+  "Linked attachments",
+  "Created at",
+  "Updated at",
+  "Archived at",
+]
+
+primary_statuses = [
+  "backlog",
+  "planning",
+  "ready",
+  "in-progress",
+  "review",
+  "paused",
+  "done",
+  "killed",
+  "archived",
+]
+
+gate_fields = [
+  "Decision status",
+  "Review status",
+  "QA status",
+  "UAT status",
+  "Acceptance status",
+]
+
+recommended_sections = [
+  "Summary",
+  "Recovery",
+  "Workflow Notes",
+  "Signoff Notes",
+  "Attachment Notes",
+  "Transition Log",
+  "Notes",
+]
+
+[query_surface]
+persisted_boards = false
+shell_generated_views = true
+default_excludes_archived = true
+explicit_current_task_pointer = false
+task_local_writeback = "explicit work-item required"
+
+[notes]
+task_truth = "task.md is the only task source of truth in v2 core"
+archive_semantics = "archived is represented by task status plus Archived at"
+attachment_routing = "task-local materials live under attachments/ and are linked from task.md"
+recovery_model = "Recovery lives inside task.md as part of the task record"

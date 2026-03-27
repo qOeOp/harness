@@ -44,6 +44,7 @@ cat >"$target" <<EOF
 - State authority: $work_item_state_authority
 - State version: 1
 - Last operation ID: $operation_id
+- Last transition event: none
 - ID: $id
 - Title: $title
 - Type: $type
@@ -51,40 +52,74 @@ cat >"$target" <<EOF
 - Priority: $priority
 - Owner: $owner
 - Sponsor: $sponsor
+- Assignee: none
+- Worktree: none
+- Claimed at: none
+- Claim expires at: none
+- Lease version: 0
 - Objective: none
 - Ready criteria: none
 - Done criteria: none
 - Required artifacts: none
+- Required departments: none
+- Participation records: none
+- Current stage owner: $owner
+- Current stage role: triage
+- Next gate: planning
+- Founder escalation: not-needed
+- Decision status: none
+- Review status: pending
+- QA status: not-needed
+- UAT status: not-needed
+- Acceptance status: pending
 - Why it matters: fill-me
 - Decision needed: none
 - Deadline: none
-- Created at: $date
-- Updated at: $date
 - Due review at: none
-- Founder escalation: not-needed
-- Required departments: none
-- Participation records: none
-- Linked artifacts: none
-- Last transition event: none
-- Interrupt marker: none
-- Resume target: none
 - Blocked by: none
 - Blocks: none
 - Current blocker: none
 - Next handoff: none
+- Linked attachments: none
+- Interrupt marker: none
+- Resume target: none
+- Created at: $date
+- Updated at: $date
+- Archived at: none
 
 ## Summary
 
 - fill-me
 
-## Notes
+## Recovery
+
+- Current focus: none
+- Next command: none
+- Recovery notes: none
+
+## Workflow Notes
 
 - Seeded by $seed_command on $date.
+
+## Signoff Notes
+
+- Review status starts at pending until the designated reviewer signs off.
+
+## Attachment Notes
+
+- Attach decision, research, review, QA, and output materials under attachments/ as they are created.
+
+## Transition Log
+
+- Created from backlog on $date by $seed_command.
+
+## Notes
+
+- none
 EOF
 
 event_path=$(write_transition_event "$id" "none" "backlog" "$actor" "work item created" "none" "none" "$operation_id" "none" "0" "0" "1" "none" "none" "state-transition")
 rewrite_work_item_header_snapshot "$target" "Last transition event" "$event_path"
-claim_current_task_id_if_missing "$id"
 refresh_boards_if_enabled
 
 echo "$target"

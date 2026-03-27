@@ -90,5 +90,4 @@ else
     "$reason")
 fi
 
-set_current_task_id "$work_item_id"
 printf '%s\n' "$transition_output"

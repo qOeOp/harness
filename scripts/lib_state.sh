@@ -7,16 +7,13 @@ if [ -n "${script_dir:-}" ] && [ -f "$script_dir/lib_harness_paths.sh" ]; then
 fi
 
 state_root=".harness/workspace/state"
-state_items_dir="$state_root/items"
 state_boards_dir="$state_root/boards"
-state_progress_dir="$state_root/progress"
 state_transitions_dir="$state_root/transitions"
 state_board_refreshes_dir="$state_root/board-refreshes"
 state_locks_dir=".harness/locks"
 task_runtime_dir=".harness/tasks"
-current_task_pointer_path=".harness/current-task"
 runtime_manifest_path=".harness/manifest.toml"
-work_item_schema_version="1"
+work_item_schema_version="2"
 work_item_state_authority="script-only"
 runtime_manifest_schema_version="1"
 default_runtime_mode="minimum-core"
@@ -36,25 +33,6 @@ runtime_mode = "$default_runtime_mode"
 advanced_governance_enabled = false
 created_at = "$today"
 updated_at = "$today"
-EOF
-}
-
-ensure_legacy_compat_readme_if_present() {
-  legacy_compat_dir="$1"
-  legacy_compat_title="$2"
-  legacy_compat_canonical_path="$3"
-
-  if [ ! -d "$legacy_compat_dir" ]; then
-    return 0
-  fi
-
-  cat >"$legacy_compat_dir/README.md" <<EOF
-# $legacy_compat_title
-
-- Compatibility only: true
-- Runtime writes allowed: false
-- Canonical path: $legacy_compat_canonical_path
-- Purpose: migration fallback for legacy readers during task state cutover
 EOF
 }
 
@@ -90,14 +68,12 @@ runtime_governance_enabled() {
 }
 
 ensure_core_runtime_dirs() {
-  mkdir -p "$state_locks_dir" "$task_runtime_dir" ".harness/archive/tasks"
+  mkdir -p "$state_locks_dir" "$task_runtime_dir"
   ensure_runtime_manifest
-  ensure_legacy_compat_readme_if_present "$state_items_dir" "Legacy Work Item Compatibility Mirror" ".harness/tasks/<WI-ID>/task.md"
-  ensure_legacy_compat_readme_if_present "$state_progress_dir" "Legacy Progress Compatibility Mirror" ".harness/tasks/<WI-ID>/progress.md"
 }
 
 ensure_governance_runtime_dirs() {
-  mkdir -p "$state_boards_dir" "$state_board_refreshes_dir"
+  :
 }
 
 ensure_state_dirs() {
@@ -109,44 +85,23 @@ ensure_state_dirs() {
 }
 
 ensure_boards_in_sync() {
-  if ! runtime_governance_enabled; then
-    return 0
-  fi
-
-  if [ "${STATE_SKIP_BOARD_SYNC:-0}" = "1" ]; then
-    return 0
-  fi
-
-  if "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
-    return 0
-  fi
-
-  "$script_dir/refresh_boards.sh" >/dev/null
-  "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1
+  :
 }
 
 refresh_boards_if_enabled() {
-  if ! runtime_governance_enabled; then
-    return 0
-  fi
-
-  "$script_dir/refresh_boards.sh" >/dev/null
+  :
 }
 
-sync_progress_snapshot_if_present() {
-  work_item_file="$1"
-  work_item_id=$(field_value "$work_item_file" "ID")
-  progress_path=$(work_item_progress_path "$work_item_id")
+sync_recovery_snapshot_if_present() {
+  :
+}
 
-  if [ ! -f "$progress_path" ]; then
-    return 0
-  fi
+now_iso_timestamp() {
+  date '+%Y-%m-%dT%H:%M:%S%z'
+}
 
-  rewrite_progress_snapshot_file "$progress_path" \
-    "Updated at" "$(date +%F)" \
-    "Status snapshot" "$(field_value "$work_item_file" "Status")" \
-    "State version snapshot" "$(field_value "$work_item_file" "State version")" \
-    "Last operation ID snapshot" "$(field_value "$work_item_file" "Last operation ID")"
+linked_attachments_field_label() {
+  printf '%s\n' "Linked attachments"
 }
 
 trim() {
@@ -310,6 +265,7 @@ Schema version
 State authority
 State version
 Last operation ID
+Last transition event
 ID
 Title
 Type
@@ -317,27 +273,40 @@ Status
 Priority
 Owner
 Sponsor
+Assignee
+Worktree
+Claimed at
+Claim expires at
+Lease version
 Objective
 Ready criteria
 Done criteria
 Required artifacts
+Required departments
+Participation records
+Current stage owner
+Current stage role
+Next gate
+Founder escalation
+Decision status
+Review status
+QA status
+UAT status
+Acceptance status
 Why it matters
 Decision needed
 Deadline
-Created at
-Updated at
 Due review at
-Founder escalation
-Required departments
-Participation records
-Linked artifacts
-Last transition event
-Interrupt marker
-Resume target
 Blocked by
 Blocks
 Current blocker
 Next handoff
+Linked attachments
+Interrupt marker
+Resume target
+Created at
+Updated at
+Archived at
 EOF
 }
 
@@ -365,28 +334,37 @@ work_item_header_schema_matches() {
   return 1
 }
 
-progress_header_labels() {
-  cat <<'EOF'
-Linked work items
-Work Item
-Created at
-Updated at
-Status snapshot
-State version snapshot
-Last operation ID snapshot
-Current focus
-Next command
-Recovery notes
-EOF
-}
-
 default_work_item_tail() {
   cat <<'EOF'
 ## Summary
 
 - fill-me
 
+## Recovery
+
+- Current focus: none
+- Next command: none
+- Recovery notes: none
+
+## Workflow Notes
+
+- none
+
+## Signoff Notes
+
+- none
+
+## Attachment Notes
+
+- none
+
+## Transition Log
+
+- none
+
 ## Notes
+
+- none
 EOF
 }
 
@@ -470,99 +448,24 @@ rewrite_work_item_header_snapshot() {
   mv "$rewrite_work_item_tmp" "$rewrite_work_item_snapshot_file"
 }
 
-progress_tail_after_recovery_notes() {
-  progress_tail_source_file="$1"
-  awk '
-    BEGIN {
-      found = 0
-    }
-    /^- Recovery notes: / {
-      found = 1
-      next
-    }
-    found {
-      print
-    }
-  ' "$progress_tail_source_file"
-}
-
-progress_snapshot_value_for_label() {
-  progress_snapshot_value_file="$1"
-  progress_snapshot_value_pair_file="$2"
-  progress_snapshot_value_label="$3"
-
-  if [ -f "$progress_snapshot_value_pair_file" ]; then
-    while IFS=$(printf '\t') read -r progress_pair_label progress_pair_value; do
-      if [ "$progress_pair_label" = "$progress_snapshot_value_label" ]; then
-        printf '%s\n' "$progress_pair_value"
-        return 0
-      fi
-    done <"$progress_snapshot_value_pair_file"
-  fi
-
-  if [ -f "$progress_snapshot_value_file" ]; then
-    field_value "$progress_snapshot_value_file" "$progress_snapshot_value_label"
-    return 0
-  fi
-
-  printf '\n'
-}
-
-rewrite_progress_snapshot_file() {
-  rewrite_progress_snapshot_target_file="$1"
-  shift
-
-  if [ "$#" -eq 0 ] || [ $(( $# % 2 )) -ne 0 ]; then
-    echo "rewrite_progress_snapshot_file requires label/value pairs" >&2
-    return 1
-  fi
-
-  rewrite_progress_pair_file=$(mktemp)
-  rewrite_progress_labels_file=$(mktemp)
-  rewrite_progress_tail_file=$(mktemp)
-  rewrite_progress_tmp=$(mktemp)
-
-  while [ "$#" -gt 0 ]; do
-    printf '%s\t%s\n' "$1" "$2" >>"$rewrite_progress_pair_file"
-    shift 2
-  done
-
-  progress_header_labels >"$rewrite_progress_labels_file"
-
-  if [ -f "$rewrite_progress_snapshot_target_file" ]; then
-    progress_tail_after_recovery_notes "$rewrite_progress_snapshot_target_file" >"$rewrite_progress_tail_file"
-  else
-    : >"$rewrite_progress_tail_file"
-  fi
-
-  {
-    printf '# Work Item Progress\n\n'
-    while IFS= read -r rewrite_progress_label; do
-      rewrite_progress_value=$(progress_snapshot_value_for_label \
-        "$rewrite_progress_snapshot_target_file" \
-        "$rewrite_progress_pair_file" \
-        "$rewrite_progress_label")
-      printf -- '- %s: %s\n' "$rewrite_progress_label" "$rewrite_progress_value"
-    done <"$rewrite_progress_labels_file"
-    if [ -s "$rewrite_progress_tail_file" ]; then
-      printf '\n'
-      cat "$rewrite_progress_tail_file"
-    fi
-  } >"$rewrite_progress_tmp"
-
-  rm -f "$rewrite_progress_pair_file" "$rewrite_progress_labels_file" "$rewrite_progress_tail_file"
-  mv "$rewrite_progress_tmp" "$rewrite_progress_snapshot_target_file"
-}
-
 field_value() {
   field_value_file="$1"
   field_value_label="$2"
-  awk -v label="$field_value_label" '
+  value=$(
+    awk -v label="$field_value_label" '
     index($0, "- " label ": ") == 1 {
       print substr($0, length("- " label ": ") + 1)
       exit
     }
   ' "$field_value_file"
+  )
+
+  if [ -n "$value" ]; then
+    printf '%s\n' "$value"
+    return 0
+  fi
+
+  return 0
 }
 
 field_value_or_none() {
@@ -662,6 +565,110 @@ replace_fields_atomic() {
   mv "$replace_fields_atomic_tmp" "$replace_fields_atomic_file"
 }
 
+section_field_value() {
+  section_field_value_file="$1"
+  section_heading="$2"
+  section_label="$3"
+
+  awk -v heading="## $section_heading" -v label="$section_label" '
+    BEGIN {
+      in_section = 0
+    }
+    $0 == heading {
+      in_section = 1
+      next
+    }
+    in_section && /^## / {
+      exit
+    }
+    in_section && index($0, "- " label ": ") == 1 {
+      print substr($0, length("- " label ": ") + 1)
+      exit
+    }
+  ' "$section_field_value_file"
+}
+
+rewrite_markdown_section() {
+  rewrite_section_file="$1"
+  rewrite_section_heading="$2"
+  rewrite_section_body_file="$3"
+  rewrite_section_tmp=$(mktemp)
+
+  awk -v heading="## $rewrite_section_heading" -v body_file="$rewrite_section_body_file" '
+    function emit_body(   i) {
+      for (i = 1; i <= body_count; i++) {
+        print body[i]
+      }
+    }
+    BEGIN {
+      body_count = 0
+      while ((getline line < body_file) > 0) {
+        body[++body_count] = line
+      }
+      close(body_file)
+      in_section = 0
+      replaced = 0
+    }
+    $0 == heading {
+      print $0
+      emit_body()
+      in_section = 1
+      replaced = 1
+      next
+    }
+    in_section {
+      if ($0 ~ /^## /) {
+        in_section = 0
+        print $0
+      }
+      next
+    }
+    {
+      print
+    }
+    END {
+      if (!replaced) {
+        if (NR > 0) {
+          print ""
+        }
+        print heading
+        emit_body()
+      }
+    }
+  ' "$rewrite_section_file" >"$rewrite_section_tmp"
+
+  mv "$rewrite_section_tmp" "$rewrite_section_file"
+}
+
+recovery_field_value_or_none() {
+  recovery_file="$1"
+  recovery_label="$2"
+  recovery_value=$(section_field_value "$recovery_file" "Recovery" "$recovery_label")
+
+  if [ -n "$recovery_value" ]; then
+    printf '%s\n' "$recovery_value"
+  else
+    printf '%s\n' "none"
+  fi
+}
+
+rewrite_work_item_recovery_section() {
+  recovery_file="$1"
+  current_focus="$2"
+  next_command="$3"
+  recovery_notes="$4"
+  recovery_body=$(mktemp)
+
+  cat >"$recovery_body" <<EOF
+- Current focus: $current_focus
+- Next command: $next_command
+- Recovery notes: $recovery_notes
+EOF
+
+  rewrite_markdown_section "$recovery_file" "Recovery" "$recovery_body"
+  rm -f "$recovery_body"
+}
+
 next_work_item_id() {
   ensure_state_dirs
   max=0
@@ -699,6 +706,16 @@ canonical_work_item_refs_dir() {
   printf '%s/refs\n' "$(canonical_work_item_dir "$id")"
 }
 
+canonical_work_item_attachments_dir() {
+  id="$1"
+  printf '%s/attachments\n' "$(canonical_work_item_dir "$id")"
+}
+
+canonical_work_item_attachment_sources_dir() {
+  id="$1"
+  printf '%s/sources\n' "$(canonical_work_item_attachments_dir "$id")"
+}
+
 canonical_work_item_working_dir() {
   id="$1"
   printf '%s/working\n' "$(canonical_work_item_dir "$id")"
@@ -707,6 +724,11 @@ canonical_work_item_working_dir() {
 canonical_work_item_outputs_dir() {
   id="$1"
   printf '%s/outputs\n' "$(canonical_work_item_dir "$id")"
+}
+
+canonical_work_item_closure_dir() {
+  id="$1"
+  printf '%s/closure\n' "$(canonical_work_item_dir "$id")"
 }
 
 canonical_work_item_history_dir() {
@@ -719,225 +741,60 @@ canonical_work_item_transition_dir() {
   printf '%s/transitions\n' "$(canonical_work_item_history_dir "$id")"
 }
 
-legacy_work_item_path() {
-  id="$1"
-  printf '%s/%s.md\n' "$state_items_dir" "$id"
-}
-
 work_item_path() {
   id="$1"
-  canonical_path=$(canonical_work_item_path "$id")
-  if [ -f "$canonical_path" ]; then
-    printf '%s\n' "$canonical_path"
-    return 0
-  fi
-  legacy_work_item_path "$id"
-}
-
-canonical_work_item_progress_path() {
-  id="$1"
-  printf '%s/progress.md\n' "$(canonical_work_item_dir "$id")"
-}
-
-legacy_work_item_progress_path() {
-  id="$1"
-  printf '%s/%s.md\n' "$state_progress_dir" "$id"
-}
-
-work_item_progress_path() {
-  id="$1"
-  canonical_dir=$(canonical_work_item_dir "$id")
-  canonical_progress=$(canonical_work_item_progress_path "$id")
-  legacy_progress=$(legacy_work_item_progress_path "$id")
-
-  if [ -f "$canonical_progress" ]; then
-    printf '%s\n' "$canonical_progress"
-    return 0
-  fi
-
-  if [ -f "$legacy_progress" ]; then
-    printf '%s\n' "$legacy_progress"
-    return 0
-  fi
-
-  if [ -d "$canonical_dir" ]; then
-    printf '%s\n' "$canonical_progress"
-    return 0
-  fi
-
-  printf '%s\n' "$legacy_progress"
-}
-
-materialize_canonical_progress_if_present() {
-  id="$1"
-  canonical_progress=$(canonical_work_item_progress_path "$id")
-  legacy_progress=$(legacy_work_item_progress_path "$id")
-
-  if [ -f "$canonical_progress" ] || [ ! -f "$legacy_progress" ]; then
-    return 0
-  fi
-
-  ensure_core_runtime_dirs
-  ensure_task_directory_skeleton "$id"
-  cp "$legacy_progress" "$canonical_progress"
+  printf '%s\n' "$(canonical_work_item_path "$id")"
 }
 
 require_work_item_for_write() {
   id="$1"
   canonical_path=$(canonical_work_item_path "$id")
-  legacy_path=$(legacy_work_item_path "$id")
 
   if [ -f "$canonical_path" ]; then
     ensure_core_runtime_dirs
     ensure_task_directory_skeleton "$id"
-    materialize_canonical_progress_if_present "$id"
     printf '%s\n' "$canonical_path"
     return 0
   fi
 
-  if [ ! -f "$legacy_path" ]; then
-    echo "missing work item: $id" >&2
-    return 1
-  fi
-
-  ensure_core_runtime_dirs
-  ensure_task_directory_skeleton "$id"
-  cp "$legacy_path" "$canonical_path"
-  materialize_canonical_progress_if_present "$id"
-  printf '%s\n' "$canonical_path"
+  echo "missing work item: $id" >&2
+  return 1
 }
 
-work_item_progress_path_for_write() {
+work_item_recovery_path() {
+  id="$1"
+  printf '%s\n' "$(canonical_work_item_path "$id")"
+}
+
+work_item_recovery_path_for_write() {
   id="$1"
   require_work_item_for_write "$id" >/dev/null
-  ensure_task_directory_skeleton "$id"
-  materialize_canonical_progress_if_present "$id"
-  printf '%s\n' "$(canonical_work_item_progress_path "$id")"
+  printf '%s\n' "$(canonical_work_item_path "$id")"
 }
 
 ensure_task_directory_skeleton() {
   id="$1"
   task_dir=$(canonical_work_item_dir "$id")
   mkdir -p \
-    "$task_dir/refs" \
-    "$task_dir/refs/sources" \
-    "$task_dir/working/discussions" \
-    "$task_dir/working/agent-passes" \
-    "$task_dir/working/scratch" \
+    "$task_dir/attachments" \
+    "$task_dir/attachments/sources" \
     "$task_dir/outputs" \
     "$task_dir/closure" \
     "$task_dir/history/transitions"
-
-  refs_index="$task_dir/refs/index.toml"
-  if [ ! -f "$refs_index" ]; then
-    cat >"$refs_index" <<EOF
-schema_version = 1
-task_id = "$id"
-EOF
-  fi
 }
 
 list_work_item_transition_events() {
   id="$1"
   canonical_transition_dir=$(canonical_work_item_transition_dir "$id")
-  legacy_pattern="*-$id-*.md"
-  canonical_found=0
 
   if [ -d "$canonical_transition_dir" ]; then
     find "$canonical_transition_dir" -maxdepth 1 -type f -name 'TX-*.md' | sort
-    canonical_found=1
-  fi
-
-  if [ "$canonical_found" -eq 1 ]; then
-    return 0
-  fi
-
-  if [ -d "$state_transitions_dir" ]; then
-    find "$state_transitions_dir" -maxdepth 1 -type f -name "$legacy_pattern" | sort
   fi
 }
 
 list_transition_events() {
-  canonical_tmp=$(mktemp)
-  legacy_tmp=$(mktemp)
-
   if [ -d "$task_runtime_dir" ]; then
-    find "$task_runtime_dir" -mindepth 4 -maxdepth 4 -type f -path '*/history/transitions/TX-*.md' | sort >"$canonical_tmp"
-  else
-    : >"$canonical_tmp"
-  fi
-
-  if [ -d "$state_transitions_dir" ]; then
-    find "$state_transitions_dir" -maxdepth 1 -type f -name 'TX-*.md' | sort >"$legacy_tmp"
-  else
-    : >"$legacy_tmp"
-  fi
-
-  cat "$canonical_tmp"
-
-  while IFS= read -r legacy_file; do
-    [ -n "$legacy_file" ] || continue
-    legacy_work_item=$(field_value "$legacy_file" "Work Item")
-    canonical_transition_dir=$(canonical_work_item_transition_dir "$legacy_work_item")
-
-    if [ -d "$canonical_transition_dir" ] && find "$canonical_transition_dir" -maxdepth 1 -type f -name 'TX-*.md' | grep -q .; then
-      continue
-    fi
-
-    printf '%s\n' "$legacy_file"
-  done <"$legacy_tmp"
-
-  rm -f "$canonical_tmp" "$legacy_tmp"
-}
-
-read_current_task_id() {
-  if [ ! -f "$current_task_pointer_path" ]; then
-    return 1
-  fi
-
-  awk 'NF { print $0; exit }' "$current_task_pointer_path"
-}
-
-set_current_task_id() {
-  id="$1"
-  ensure_core_runtime_dirs
-  printf '%s\n' "$id" >"$current_task_pointer_path"
-}
-
-claim_current_task_id_if_missing() {
-  id="$1"
-  ensure_current_task_pointer
-
-  if read_current_task_id >/dev/null 2>&1; then
-    return 0
-  fi
-
-  set_current_task_id "$id"
-}
-
-claim_current_task_id_for_execution() {
-  id="$1"
-  status="$2"
-
-  case "$status" in
-    in-progress|paused)
-      set_current_task_id "$id"
-      ;;
-    *)
-      ensure_current_task_pointer
-      ;;
-  esac
-}
-
-clear_current_task_id_if_matches() {
-  id="$1"
-  if [ ! -f "$current_task_pointer_path" ]; then
-    return 0
-  fi
-
-  current_id=$(read_current_task_id 2>/dev/null || true)
-  if [ "$current_id" = "$id" ]; then
-    rm -f "$current_task_pointer_path"
+    find "$task_runtime_dir" -mindepth 4 -maxdepth 4 -type f -path '*/history/transitions/TX-*.md' | sort
   fi
 }
 
@@ -954,28 +811,6 @@ first_open_work_item_id() {
   return 1
 }
 
-ensure_current_task_pointer() {
-  if [ -f "$current_task_pointer_path" ]; then
-    current_id=$(read_current_task_id 2>/dev/null || true)
-    if [ -n "$current_id" ]; then
-      current_path=$(work_item_path "$current_id")
-      if [ -f "$current_path" ]; then
-        current_status=$(field_value "$current_path" "Status")
-        if is_open_work_item_status "$current_status"; then
-          return 0
-        fi
-      fi
-    fi
-
-    rm -f "$current_task_pointer_path"
-  fi
-
-  next_open_id=$(first_open_work_item_id || true)
-  if [ -n "$next_open_id" ]; then
-    set_current_task_id "$next_open_id"
-  fi
-}
-
 resolve_task_artifact_work_item_id() {
   requested_id="${1:-}"
 
@@ -985,23 +820,7 @@ resolve_task_artifact_work_item_id() {
     return 0
   fi
 
-  ensure_current_task_pointer
-  current_id=$(read_current_task_id 2>/dev/null || true)
-  if [ -z "$current_id" ]; then
-    return 1
-  fi
-
-  current_path=$(work_item_path "$current_id")
-  if [ ! -f "$current_path" ]; then
-    return 1
-  fi
-
-  current_status=$(field_value "$current_path" "Status")
-  if ! is_open_work_item_status "$current_status"; then
-    return 1
-  fi
-
-  printf '%s\n' "$current_id"
+  return 1
 }
 
 require_governance_mode_for_workspace_artifact() {
@@ -1013,34 +832,21 @@ require_governance_mode_for_workspace_artifact() {
 
   cat >&2 <<EOF
 $artifact_kind requires a work-item context in minimum-core runtime.
-Pass --work-item <WI-xxxx> or ensure .harness/current-task points at the active task.
+Pass --work-item <WI-xxxx> explicitly.
 Workspace-scoped governance artifacts are only allowed when advanced governance mode is enabled.
 EOF
   return 1
 }
 
-progress_field_value_or_none() {
-  progress_path="$1"
-  label="$2"
+require_explicit_promotion_for_workspace_artifact() {
+  artifact_kind="$1"
 
-  if [ ! -f "$progress_path" ]; then
-    printf '%s\n' "none"
-    return 0
-  fi
-
-  value=$(field_value "$progress_path" "$label")
-  if [ -n "$value" ]; then
-    printf '%s\n' "$value"
-  else
-    printf '%s\n' "none"
-  fi
-}
-
-is_open_work_item_status() {
-  case "$1" in
-    backlog|framing|planning|ready|in-progress|review|paused) return 0 ;;
-    *) return 1 ;;
-  esac
+  cat >&2 <<EOF
+$artifact_kind defaults to task-local routing.
+Pass --work-item <WI-xxxx> explicitly.
+Use --promote-governance only when this artifact truly needs cross-task visibility in advanced governance mode.
+EOF
+  return 1
 }
 
 work_item_matches_scope() {
@@ -1069,53 +875,15 @@ work_item_matches_scope() {
   esac
 }
 
-resolve_current_work_item_path_for_scope() {
-  scope="${1:-company}"
-  department="${2:-}"
-  current_id=$(read_current_task_id 2>/dev/null || true)
-
-  if [ -z "$current_id" ]; then
-    return 1
-  fi
-
-  current_path=$(work_item_path "$current_id")
-  if [ ! -f "$current_path" ]; then
-    return 1
-  fi
-
-  current_status=$(field_value "$current_path" "Status")
-  is_open_work_item_status "$current_status" || return 1
-  work_item_matches_scope "$current_path" "$scope" "$department" || return 1
-
-  printf '%s\n' "$current_path"
-}
-
-work_item_progress_sync_state() {
+work_item_recovery_sync_state() {
   id="$1"
   work_item_file=$(require_work_item "$id")
-  progress_path=$(work_item_progress_path "$id")
+  current_focus=$(recovery_field_value_or_none "$work_item_file" "Current focus")
+  next_command=$(recovery_field_value_or_none "$work_item_file" "Next command")
+  recovery_notes=$(recovery_field_value_or_none "$work_item_file" "Recovery notes")
 
-  if [ ! -f "$progress_path" ]; then
+  if value_is_missing "$current_focus" && value_is_missing "$next_command" && value_is_missing "$recovery_notes"; then
     printf '%s\n' "missing"
-    return 0
-  fi
-
-  expected_entry="$progress_path|progress-artifact|active"
-  existing_entry=$(linked_artifact_entry_for_path "$work_item_file" "$progress_path" || true)
-  if [ "$existing_entry" != "$expected_entry" ] || ! artifact_has_work_item_link "$progress_path" "$id"; then
-    printf '%s\n' "unlinked"
-    return 0
-  fi
-
-  current_status=$(field_value "$work_item_file" "Status")
-  current_version=$(field_value "$work_item_file" "State version")
-  current_operation_id=$(field_value "$work_item_file" "Last operation ID")
-  progress_status=$(progress_field_value_or_none "$progress_path" "Status snapshot")
-  progress_version=$(progress_field_value_or_none "$progress_path" "State version snapshot")
-  progress_operation_id=$(progress_field_value_or_none "$progress_path" "Last operation ID snapshot")
-
-  if [ "$progress_status" != "$current_status" ] || [ "$progress_version" != "$current_version" ] || [ "$progress_operation_id" != "$current_operation_id" ]; then
-    printf '%s\n' "stale"
     return 0
   fi
 
@@ -1154,7 +922,7 @@ require_work_item() {
 
 is_valid_work_item_status() {
   case "$1" in
-    backlog|framing|planning|ready|in-progress|review|done|paused|killed) return 0 ;;
+    backlog|planning|ready|in-progress|review|done|paused|killed|archived) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -1173,6 +941,21 @@ is_valid_founder_escalation() {
   esac
 }
 
+is_valid_gate_status() {
+  case "$1" in
+    none|pending|approved|rejected|not-needed) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_iso_timestamp_or_none() {
+  value="$1"
+  case "$value" in
+    none|????-??-??T??:??:??* ) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 is_valid_interrupt_marker() {
   case "$1" in
     none|manual-review-required|founder-review-required|risk-review-required) return 0 ;;
@@ -1182,7 +965,7 @@ is_valid_interrupt_marker() {
 
 is_valid_resume_target() {
   case "$1" in
-    none|backlog|framing|planning|ready|in-progress|review) return 0 ;;
+    none|backlog|planning|ready|in-progress|review) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -1237,13 +1020,13 @@ transition_allowed() {
   current="$1"
   next="$2"
   case "$current:$next" in
-    backlog:framing|backlog:paused|backlog:killed) return 0 ;;
-    framing:planning|framing:paused|framing:killed) return 0 ;;
-    planning:ready|planning:framing|planning:paused|planning:killed) return 0 ;;
+    backlog:planning|backlog:paused|backlog:killed) return 0 ;;
+    planning:ready|planning:backlog|planning:paused|planning:killed) return 0 ;;
     ready:in-progress|ready:planning|ready:paused|ready:killed) return 0 ;;
     in-progress:review|in-progress:planning|in-progress:paused|in-progress:killed) return 0 ;;
     review:done|review:planning|review:paused|review:killed) return 0 ;;
-    paused:framing|paused:planning|paused:ready|paused:in-progress|paused:killed) return 0 ;;
+    paused:backlog|paused:planning|paused:ready|paused:in-progress|paused:review|paused:killed) return 0 ;;
+    done:archived|killed:archived) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -1284,7 +1067,7 @@ transition_event_type_for_status_change() {
     *:paused)
       printf '%s\n' "approval-pause"
       ;;
-    paused:backlog|paused:framing|paused:planning|paused:ready|paused:in-progress|paused:review)
+    paused:backlog|paused:planning|paused:ready|paused:in-progress|paused:review)
       printf '%s\n' "resume"
       ;;
     *)
@@ -1293,34 +1076,74 @@ transition_event_type_for_status_change() {
   esac
 }
 
+is_open_work_item_status() {
+  case "$1" in
+    backlog|planning|ready|in-progress|review|paused) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+default_stage_role_for_status() {
+  case "$1" in
+    backlog) printf '%s\n' "triage" ;;
+    planning) printf '%s\n' "planner" ;;
+    ready) printf '%s\n' "dispatcher" ;;
+    in-progress) printf '%s\n' "executor" ;;
+    review) printf '%s\n' "reviewer" ;;
+    paused) printf '%s\n' "paused" ;;
+    done|killed) printf '%s\n' "closer" ;;
+    archived) printf '%s\n' "archive" ;;
+    *) printf '%s\n' "none" ;;
+  esac
+}
+
+default_next_gate_for_status() {
+  case "$1" in
+    backlog) printf '%s\n' "planning" ;;
+    planning) printf '%s\n' "ready" ;;
+    ready) printf '%s\n' "in-progress" ;;
+    in-progress) printf '%s\n' "review" ;;
+    review) printf '%s\n' "acceptance" ;;
+    paused) printf '%s\n' "resume" ;;
+    done|killed) printf '%s\n' "archive" ;;
+    archived) printf '%s\n' "none" ;;
+    *) printf '%s\n' "none" ;;
+  esac
+}
+
+default_stage_owner_for_status() {
+  stage_owner_file="$1"
+  stage_owner_status="$2"
+  stage_owner_actor="${3:-none}"
+  owner=$(field_value_or_none "$stage_owner_file" "Owner")
+  assignee=$(field_value_or_none "$stage_owner_file" "Assignee")
+
+  case "$stage_owner_status" in
+    in-progress|paused)
+      if ! value_is_missing "$assignee"; then
+        printf '%s\n' "$assignee"
+      elif ! value_is_missing "$stage_owner_actor"; then
+        printf '%s\n' "$stage_owner_actor"
+      else
+        printf '%s\n' "$owner"
+      fi
+      ;;
+    *)
+      if ! value_is_missing "$owner"; then
+        printf '%s\n' "$owner"
+      elif ! value_is_missing "$stage_owner_actor"; then
+        printf '%s\n' "$stage_owner_actor"
+      else
+        printf '%s\n' "none"
+      fi
+      ;;
+  esac
+}
+
 list_work_items() {
-  canonical_tmp=$(mktemp)
-  legacy_tmp=$(mktemp)
-
   if [ -d "$task_runtime_dir" ]; then
-    find "$task_runtime_dir" -mindepth 2 -maxdepth 2 -type f -name 'task.md' | sort >"$canonical_tmp"
-  else
-    : >"$canonical_tmp"
+    find "$task_runtime_dir" -mindepth 2 -maxdepth 2 -type f -name 'task.md' | sort
   fi
-
-  if [ -d "$state_items_dir" ]; then
-    find "$state_items_dir" -maxdepth 1 -type f -name 'WI-*.md' | sort >"$legacy_tmp"
-  else
-    : >"$legacy_tmp"
-  fi
-
-  cat "$canonical_tmp"
-
-  while IFS= read -r legacy_file; do
-    [ -n "$legacy_file" ] || continue
-    legacy_id=$(basename "$legacy_file" .md)
-    if [ -f "$(canonical_work_item_path "$legacy_id")" ]; then
-      continue
-    fi
-    printf '%s\n' "$legacy_file"
-  done <"$legacy_tmp"
-
-  rm -f "$canonical_tmp" "$legacy_tmp"
 }
 
 list_departments() {
@@ -1459,7 +1282,7 @@ department_participation() {
 
 first_linked_artifact_path() {
   first_linked_artifact_path_file="$1"
-  first_linked_artifact_path_links=$(field_value "$first_linked_artifact_path_file" "Linked artifacts")
+  first_linked_artifact_path_links=$(field_value "$first_linked_artifact_path_file" "Linked attachments")
   case "$first_linked_artifact_path_links" in
     ""|none) printf '%s\n' "-" ;;
     *)
@@ -1472,7 +1295,7 @@ first_linked_artifact_path() {
 linked_artifact_entry_for_path() {
   linked_artifact_entry_work_item_file="$1"
   linked_artifact_entry_artifact_path="$2"
-  linked_artifact_entry_links=$(field_value "$linked_artifact_entry_work_item_file" "Linked artifacts")
+  linked_artifact_entry_links=$(field_value "$linked_artifact_entry_work_item_file" "Linked attachments")
 
   if value_is_missing "$linked_artifact_entry_links"; then
     return 1
@@ -2084,9 +1907,9 @@ upsert_linked_artifact_entry() {
   artifact_path="$2"
   artifact_type="$3"
   artifact_status="$4"
-  existing_links=$(field_value "$work_item_file" "Linked artifacts")
+  existing_links=$(field_value "$work_item_file" "Linked attachments")
   updated_links=$(updated_linked_artifacts_value "$existing_links" "$artifact_path" "$artifact_type" "$artifact_status")
-  rewrite_work_item_header_snapshot "$work_item_file" "Linked artifacts" "$updated_links"
+  rewrite_work_item_header_snapshot "$work_item_file" "Linked attachments" "$updated_links"
 }
 
 upsert_task_ref_index_entry() {
@@ -2176,7 +1999,7 @@ required_departments_satisfied() {
 required_artifacts_satisfied() {
   file="$1"
   required_artifacts=$(field_value "$file" "Required artifacts")
-  linked_artifacts=$(field_value "$file" "Linked artifacts")
+  linked_artifacts=$(field_value "$file" "Linked attachments")
 
   if value_is_missing "$required_artifacts"; then
     return 0

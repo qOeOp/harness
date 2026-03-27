@@ -62,7 +62,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 active_refs=$(
-  rg -n -F "$source_file" .harness/workspace/current "$state_boards_dir" "$state_progress_dir" "$task_runtime_dir" 2>/dev/null || true
+  rg -n -F "$source_file" .harness/workspace/current "$state_boards_dir" "$task_runtime_dir" 2>/dev/null || true
 )
 
 if [ -n "$active_refs" ]; then
@@ -71,23 +71,21 @@ if [ -n "$active_refs" ]; then
   exit 1
 fi
 
-item_refs=$(
-  rg -l -F "$source_file" "$state_items_dir" 2>/dev/null || true
-)
-
 active_item_refs=""
-
-if [ -n "$item_refs" ]; then
-  for item_file in $item_refs; do
-    item_status=$(awk '
-      index($0, "- Status: ") == 1 {
-        print substr($0, length("- Status: ") + 1)
-        exit
-      }
-    ' "$item_file")
+if [ -n "$linked_work_items" ]; then
+  old_ifs=${IFS- }
+  IFS=','
+  set -- $linked_work_items
+  IFS=$old_ifs
+  for item_id in "$@"; do
+    item_id=$(trim "$item_id")
+    [ -n "$item_id" ] || continue
+    item_file=$(work_item_path "$item_id")
+    [ -f "$item_file" ] || continue
+    item_status=$(field_value_or_none "$item_file" "Status")
 
     case "$item_status" in
-      done|killed) ;;
+      done|killed|archived) ;;
       *)
         active_item_refs="${active_item_refs}${item_file} (status=${item_status:-unknown})\n"
         ;;

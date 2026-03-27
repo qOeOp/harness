@@ -76,7 +76,7 @@ process_work_item() {
     "State version" "$next_version" \
     "Last operation ID" "$operation_id" \
     "Last transition event" "$event_path"
-  sync_progress_snapshot_if_present "$work_item_file"
+  sync_recovery_snapshot_if_present "$work_item_file"
 }
 
 case "$selection" in

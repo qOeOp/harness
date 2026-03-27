@@ -8,3 +8,5 @@ Read [../../docs/workflows/volatile-research-default.md](../../docs/workflows/vo
 Read [../../docs/workflows/internal-research-routing.md](../../docs/workflows/internal-research-routing.md).
 
 If acceptance criteria depend on volatile external facts, require a research dispatch plus fresh source-note support or mark those claims as needing freshness check.
+
+If the user accepts the slice and the task enters closure, queue a post-acceptance compounding review. When role-boundary gaps are discovered, create a role change proposal before any runtime role mutation.

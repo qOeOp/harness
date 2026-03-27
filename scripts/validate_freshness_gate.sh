@@ -31,7 +31,7 @@ collect_staged_files() {
 
 is_governed_artifact() {
   case "$1" in
-    .harness/tasks/*/refs/*.md|.harness/tasks/*/refs/sources/*.md|.harness/tasks/*/working/*.md|.harness/tasks/*/working/*/*.md|.harness/tasks/*/outputs/*.md|.harness/tasks/*/closure/*.md|\
+    .harness/tasks/*/attachments/*.md|.harness/tasks/*/attachments/*/*.md|.harness/tasks/*/outputs/*.md|.harness/tasks/*/closure/*.md|\
     .harness/workspace/research/sources/*.md|.harness/workspace/research/dispatches/*.md|.harness/workspace/decisions/log/*.md|.harness/workspace/briefs/*.md|.harness/workspace/departments/*/workspace/memos/*.md|.harness/workspace/departments/*/workspace/outputs/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -48,7 +48,7 @@ is_governed_artifact() {
 
 is_dispatch_note() {
   case "$1" in
-    .harness/tasks/*/working/*-research-dispatch.md|\
+    .harness/tasks/*/attachments/*-research-dispatch.md|\
     .harness/workspace/research/dispatches/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -65,7 +65,7 @@ is_dispatch_note() {
 
 is_source_note() {
   case "$1" in
-    .harness/tasks/*/refs/sources/*.md|\
+    .harness/tasks/*/attachments/sources/*.md|\
     .harness/workspace/research/sources/*.md)
       case "$(basename "$1")" in
         README.md)
@@ -210,7 +210,7 @@ require_external_reference_if_needed() {
 
   case "$mode" in
     web-verified|mixed)
-      if ! printf '%s\n' "$sources" | grep -Eq 'https?://|.harness/tasks/[A-Za-z0-9._-]+/refs/sources/|.harness/workspace/research/sources/'; then
+      if ! printf '%s\n' "$sources" | grep -Eq 'https?://|.harness/tasks/[A-Za-z0-9._-]+/attachments/sources/|.harness/workspace/research/sources/'; then
         printf '%s\n' "freshness gate failed: $file is '$mode' but 'Sources reviewed' has no URL or source-note reference" >&2
         return 1
       fi
@@ -224,7 +224,7 @@ validate_referenced_source_notes() {
   file="$1"
   mode=$(field_content "$file" "Verification mode")
   refs=$(
-    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/refs/sources/[A-Za-z0-9._/-]+\.md|\.harness/workspace/research/sources/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
+    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/attachments/sources/[A-Za-z0-9._/-]+\.md|\.harness/workspace/research/sources/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
   )
 
   case "$mode" in
@@ -250,7 +250,7 @@ validate_referenced_source_notes() {
 validate_referenced_dispatches() {
   file="$1"
   refs=$(
-    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/working/[A-Za-z0-9._/-]+-research-dispatch\.md|\.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
+    grep -Eo '(\.harness/tasks/[A-Za-z0-9._-]+/attachments/[A-Za-z0-9._/-]+-research-dispatch\.md|\.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md)' "$file" | sort -u || true
   )
 
   [ -n "$refs" ] || return 0
@@ -276,7 +276,7 @@ require_dispatch_reference_if_needed() {
 
   case "$mode" in
     web-verified|mixed)
-      if ! printf '%s\n' "$dispatch" | grep -Eq '.harness/tasks/[A-Za-z0-9._-]+/working/[A-Za-z0-9._/-]+-research-dispatch\.md|.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md'; then
+      if ! printf '%s\n' "$dispatch" | grep -Eq '.harness/tasks/[A-Za-z0-9._-]+/attachments/[A-Za-z0-9._/-]+-research-dispatch\.md|.harness/workspace/research/dispatches/[A-Za-z0-9._/-]+\.md'; then
         printf '%s\n' "freshness gate failed: $file is '$mode' but 'Research dispatch' does not reference a dispatch artifact" >&2
         return 1
       fi

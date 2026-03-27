@@ -16,7 +16,7 @@
 
 1. 任意 consumer repo 的 live task runtime truth
 2. root `AGENTS.md / CLAUDE.md / GEMINI.md` 的默认产品入口语义
-3. 安装仪式或 overlay-first 接入体验
+3. 任何 provider-owned surface 的默认接管逻辑
 
 ## Product Layers
 
@@ -24,7 +24,7 @@
 
 1. `core task runtime`
    - 默认 `/harness` 进入的任务执行层
-   - 关注 framing、state、resume、artifacts、closure
+   - 关注 scoping、state、resume、attachments、closure
 2. `advanced governance mode`
    - 用户显式升级后才出现的组织治理层
    - 关注 cadence、roles、escalation、cross-task coordination
@@ -32,9 +32,10 @@
 另有一层内部面：
 
 1. `internal plumbing`
-   - source repo 维护、provider packaging、projection、audit、diagnostic
+   - source repo 维护、archive hygiene、audit、diagnostic、runtime scaffold verification
    - 对用户来说不是主入口
    - 包括 runtime scaffold 与 smoke-chain verification
+   - 以及 user-owned consumer runtime route table 的解析脚本
 
 ## Source Repo Layout
 
@@ -45,13 +46,13 @@
 - `skills/`
   - 可复用 skill 包
 - `roles/`
-  - 内部 execution design 与 canonical role source
+  - `harness` 内置 PM / governance baseline role source
 - `scripts/`
   - runtime、audit、source maintenance 脚本
 - `docs/`
   - workflow、charter、organization 与 templates
 - `references/`
-  - active references、runtime contracts、vNext spec 与历史资料
+  - active references、runtime contracts、implementation-adjacent specs 与历史资料
 
 ## Runtime Contract
 
@@ -62,9 +63,7 @@
 默认最小 runtime 应围绕：
 
 - `tasks/`
-  - task 目录本体，内部承载 `task.md`、`progress.md`、`refs/`、`outputs/` 与 `closure/`
-- `archive/`
-  - 关闭后的任务记录
+  - task 目录本体，内部承载 `task.md`、`attachments/`、`closure/` 与 `history/transitions/`
 - `locks/`
   - 受控状态写入时的运行时锁
 - `manifest.toml`
@@ -85,10 +84,18 @@ source repo 只保留：
 
 迁移期说明：
 
-- `task`、`progress` 与 transition history 的 canonical source of truth 已收敛到 task 目录
+- `task`、`recovery` 与 transition history 的 canonical source of truth 已收敛到 task 目录
 - `.harness/workspace/state/transitions/` 只保留给 legacy fallback 读取，不再是默认写入面
 
 只有在用户显式升级到 `advanced governance mode` 时，才值得扩到更重的公司治理树。
+
+此时如果某个 consumer repo 需要新增 repo-local role，应写到：
+
+- `.harness/workspace/roles/`
+  - consumer-local runtime role definitions
+  - 优先通过 `./scripts/new_role.sh --consumer-runtime <name>` 创建
+  - 裸路径只作为低级逃生口：`--consumer-runtime-root <consumer-repo>`
+  - 不回写到 framework source repo 的 `roles/`
 
 ## Design Rule
 
