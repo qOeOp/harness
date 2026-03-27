@@ -1,6 +1,46 @@
 #!/bin/sh
 set -eu
 
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+company_retro_template_path="$repo_root/skills/retro/templates/process-audit.md"
+department_retro_template_path="$repo_root/skills/retro/templates/department-retro.md"
+
+render_company_retro_template() {
+  [ -f "$company_retro_template_path" ] || {
+    echo "missing template: $company_retro_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v retro_date="$date" \
+    '
+      /^- Date:$/ { $0 = "- Date: " retro_date }
+      /^- Scope:$/ { $0 = "- Scope: company" }
+      { print }
+    ' \
+    "$company_retro_template_path"
+}
+
+render_department_retro_template() {
+  department_name="$1"
+
+  [ -f "$department_retro_template_path" ] || {
+    echo "missing template: $department_retro_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v retro_date="$date" \
+    -v department_name="$department_name" \
+    '
+      /^- Date:$/ { $0 = "- Date: " retro_date }
+      /^- Department:$/ { $0 = "- Department: " department_name }
+      { print }
+    ' \
+    "$department_retro_template_path"
+}
+
 scope="${1:-}"
 label="${2:-retro}"
 
@@ -14,20 +54,7 @@ date=$(date +%F)
 
 if [ "$scope" = "company" ]; then
   target=".harness/workspace/status/process-audits/${date}-${slug}.md"
-  cat >"$target" <<EOF
-# Process Audit
-
-- Date: $date
-- Owner:
-- Scope: company
-- Signals reviewed:
-- Repeated frictions:
-- Cross-department failures:
-- Candidate root causes:
-- Proposed experiments:
-- Risks of change:
-- Recommendation:
-EOF
+  render_company_retro_template >"$target"
   echo "$target"
   exit 0
 fi
@@ -44,19 +71,6 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-cat >"$target" <<EOF
-# Department Retro
-
-- Date: $date
-- Department: $scope
-- Owner:
-- Period covered:
-- What worked:
-- What slowed us down:
-- Failed handoffs:
-- Repeated mistakes:
-- Improvements to try:
-- What should be escalated:
-EOF
+render_department_retro_template "$scope" >"$target"
 
 echo "$target"

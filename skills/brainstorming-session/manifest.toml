@@ -1,0 +1,24 @@
+schema_version = 1
+bundle_slug = "brainstorming-session"
+bundle_version = 1
+bundle_kind = "governance-skill"
+summary = "Facilitate exploratory ideation without letting candidate ideas masquerade as settled decisions."
+
+owner_role = "general-manager"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "work-item"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "web"]
+read_roots = ["skills/brainstorming-session/", "docs/workflows/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "brainstorming-notes"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/"]

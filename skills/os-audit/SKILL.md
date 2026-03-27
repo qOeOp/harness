@@ -3,6 +3,9 @@ name: os-audit
 description: Use when auditing the governance surface to prevent markdown bloat and recommend stronger control mechanisms.
 ---
 
+Read [./manifest.toml](./manifest.toml).
+Read [./refs/README.md](./refs/README.md).
+
 Audit:
 
 - docs
@@ -14,4 +17,4 @@ Audit:
 - rules
 - scripts
 
-Use [../../docs/templates/governance-surface-audit.md](../../docs/templates/governance-surface-audit.md).
+Use [./templates/governance-surface-audit.md](./templates/governance-surface-audit.md).

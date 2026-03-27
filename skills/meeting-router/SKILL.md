@@ -3,7 +3,8 @@ name: meeting-router
 description: Use when a founder-facing meeting needs to be routed to the correct canonical meeting skill.
 ---
 
-Read [../../docs/workflows/founder-meeting-taxonomy.md](../../docs/workflows/founder-meeting-taxonomy.md).
+Read [./manifest.toml](./manifest.toml).
+Read [./refs/README.md](./refs/README.md).
 
 Route the current request to exactly one of:
 

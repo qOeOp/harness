@@ -3,6 +3,9 @@ name: process-audit
 description: Use when reviewing department reports, checkpoints, and retros to improve process and coordination.
 ---
 
+Read [./manifest.toml](./manifest.toml).
+Read [./refs/README.md](./refs/README.md).
+
 Create a process audit focused on:
 
 - repeated friction
@@ -10,4 +13,4 @@ Create a process audit focused on:
 - workflow bottlenecks
 - candidate operating system improvements
 
-Use [../../docs/templates/process-audit.md](../../docs/templates/process-audit.md).
+Use [./templates/process-audit.md](./templates/process-audit.md).

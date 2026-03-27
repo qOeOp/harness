@@ -2,7 +2,33 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
+
+decision_template_path="$repo_root/skills/decision-pack/templates/decision-pack.md"
+
+render_decision_pack_template() {
+  linked_work_items="$1"
+  decision_date="$2"
+  decision_title="$3"
+
+  [ -f "$decision_template_path" ] || {
+    echo "missing template: $decision_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v linked_work_items="$linked_work_items" \
+    -v decision_date="$decision_date" \
+    -v decision_title="$decision_title" \
+    '
+      /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
+      /^- Date:$/ { $0 = "- Date: " decision_date }
+      /^- Decision:$/ { $0 = "- Decision: " decision_title }
+      { print }
+    ' \
+    "$decision_template_path"
+}
 
 work_item_id=""
 promote_governance=0
@@ -85,26 +111,7 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-cat >"$target" <<EOF
-# Decision Pack
-
-- Linked work items: ${work_item_id:-n/a}
-- Date: $date
-- Owner:
-- Decision: $title
-- Why now:
-- Research dispatch: .harness/tasks/<task-id>/attachments/...-research-dispatch.md / promoted governance dispatch / n/a
-- Verification date:
-- Verification mode: internal-only / web-verified / mixed
-- Sources reviewed:
-- Evidence:
-- Dissent:
-- Risks:
-- Freshness caveats:
-- Tradeoffs:
-- Ask from Founder:
-- Next 7 days:
-EOF
+render_decision_pack_template "${work_item_id:-n/a}" "$date" "$title" >"$target"
 
 if [ -n "$work_item_id" ]; then
   require_explicit_state_actor "$actor" "$0"

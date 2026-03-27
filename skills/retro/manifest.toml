@@ -1,0 +1,25 @@
+schema_version = 1
+bundle_slug = "retro"
+bundle_version = 1
+bundle_kind = "governance-skill"
+summary = "Generate company or department retrospectives and compact them into process-audit style operating improvements."
+
+owner_role = "compounding-engineering-lead"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "local-only"
+entrypoints = ["chat", "work-item", "script"]
+activation_modes = ["explicit", "state-gate"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "shell"]
+read_roots = ["skills/retro/", "docs/workflows/", ".harness/workspace/"]
+write_roots = [".harness/workspace/status/process-audits/", ".harness/workspace/departments/<department>/workspace/reports/retros/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "process-audit"
+default_artifact_path = ".harness/workspace/status/process-audits/"
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+preferred_scripts = ["skills/retro/scripts/new_retro.sh"]

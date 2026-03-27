@@ -42,6 +42,13 @@ require_dir "scripts"
 require_dir "docs"
 require_dir "references"
 
+for skill_dir in skills/*; do
+  [ -d "$skill_dir" ] || continue
+  require_file "$skill_dir/SKILL.md"
+  require_file "$skill_dir/manifest.toml"
+  require_file "$skill_dir/refs/README.md"
+done
+
 require_file "docs/project-structure.md"
 require_file "docs/memory/memory-architecture.md"
 require_file "references/layering.md"
@@ -78,6 +85,10 @@ require_exec "scripts/new_role_change_proposal.sh"
 require_exec "scripts/runtime_role_manager.sh"
 require_exec "skills/research/scripts/new_dispatch.sh"
 require_exec "skills/research/scripts/new_memo.sh"
+require_exec "skills/daily-digest/scripts/new_digest.sh"
+require_exec "skills/decision-pack/scripts/new_decision.sh"
+require_exec "skills/memory-checkpoint/scripts/new_checkpoint.sh"
+require_exec "skills/retro/scripts/new_retro.sh"
 
 forbidden_path ".harness"
 forbidden_path ".agents/skills/harness"
@@ -110,8 +121,15 @@ require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task
 require_contains "skills/research/SKILL.md" 'This bundle owns the `research` capability as one bounded entity.'
 require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
 require_contains "skills/research/manifest.toml" 'operation_modes = ['
+require_contains "skills/decision-pack/manifest.toml" 'bundle_slug = "decision-pack"'
+require_contains "skills/memory-checkpoint/manifest.toml" 'bundle_slug = "memory-checkpoint"'
 require_contains "scripts/new_research.sh" 'skills/research/templates/research-memo.md'
 require_contains "scripts/new_research_dispatch.sh" 'skills/research/templates/research-dispatch.md'
+require_contains "scripts/new_decision.sh" 'skills/decision-pack/templates/decision-pack.md'
+require_contains "scripts/new_checkpoint.sh" 'skills/memory-checkpoint/templates/checkpoint.md'
+require_contains "scripts/new_company_digest.sh" 'skills/daily-digest/templates/company-daily-digest.md'
+require_contains "scripts/new_retro.sh" 'skills/retro/templates/process-audit.md'
+require_contains "scripts/new_retro.sh" 'skills/retro/templates/department-retro.md'
 require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mode'
 require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'

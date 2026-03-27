@@ -1,0 +1,24 @@
+schema_version = 1
+bundle_slug = "founder-brief"
+bundle_version = 1
+bundle_kind = "task-skill"
+summary = "Frame a founder concern into a crisp brief with problem, urgency, constraints, and escalation boundaries."
+
+owner_role = "general-manager"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "local-only"
+entrypoints = ["chat", "work-item"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write"]
+read_roots = ["skills/founder-brief/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "founder-brief"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/"]

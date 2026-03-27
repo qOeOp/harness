@@ -1,8 +1,38 @@
 #!/bin/sh
 set -eu
 
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+digest_template_path="$repo_root/skills/daily-digest/templates/company-daily-digest.md"
+
 date="${1:-$(date +%F)}"
 target=".harness/workspace/status/digests/${date}-company-digest.md"
+
+render_company_digest_template() {
+  report_summary="$1"
+
+  [ -f "$digest_template_path" ] || {
+    echo "missing template: $digest_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v digest_date="$date" \
+    -v report_summary="$report_summary" \
+    '
+      /^- Date:$/ { $0 = "- Date: " digest_date }
+      /^- Owner:$/ { $0 = "- Owner: Chief of Staff" }
+      /^- Department reports reviewed:$/ { $0 = "- Department reports reviewed: " report_summary }
+      /^- Company-wide inputs:$/ { $0 = "- Company-wide inputs: Review department snapshots below and synthesize common inputs." }
+      /^- Company-wide outputs:$/ { $0 = "- Company-wide outputs: Review department snapshots below and synthesize shipped outputs." }
+      /^- Key blockers:$/ { $0 = "- Key blockers: Review department blockers below and collapse duplicates." }
+      /^- Cross-department risks:$/ { $0 = "- Cross-department risks: Review failed handoffs and process friction below." }
+      /^- Decisions at risk:$/ { $0 = "- Decisions at risk: Fill after reviewing blockers and unresolved dependencies." }
+      /^- Escalations for Founder:$/ { $0 = "- Escalations for Founder: Fill only if a blocker truly requires Founder intervention." }
+      { print }
+    ' \
+    "$digest_template_path"
+}
 
 if [ -e "$target" ]; then
   echo "exists: $target" >&2
@@ -45,35 +75,14 @@ trap 'rm -f "$reports_tmp"' EXIT
 
 find .harness/workspace/departments -path "*/workspace/reports/daily/${date}-*.md" ! -name README.md -type f | sort >"$reports_tmp"
 
-{
-  printf '# Company Daily Digest\n\n'
-  printf -- '- Date: %s\n' "$date"
-  printf -- '- Owner: Chief of Staff\n'
-  printf -- '- Department reports reviewed:\n'
+if [ -s "$reports_tmp" ]; then
+  report_summary="see department snapshots below"
+else
+  report_summary="none yet"
+fi
 
-  if [ -s "$reports_tmp" ]; then
-    while IFS= read -r report; do
-      [ -n "$report" ] || continue
-      printf '  - %s\n' "$report"
-    done <"$reports_tmp"
-  else
-    printf '  - none yet\n'
-  fi
-
-  printf -- '- Company-wide inputs:\n'
-  printf '  - Review department snapshots below and synthesize common inputs.\n'
-  printf -- '- Company-wide outputs:\n'
-  printf '  - Review department snapshots below and synthesize shipped outputs.\n'
-  printf -- '- Key blockers:\n'
-  printf '  - Review department blockers below and collapse duplicates.\n'
-  printf -- '- Cross-department risks:\n'
-  printf '  - Review failed handoffs and process friction below.\n'
-  printf -- '- Decisions at risk:\n'
-  printf '  - Fill after reviewing blockers and unresolved dependencies.\n'
-  printf -- '- Escalations for Founder:\n'
-  printf '  - Fill only if a blocker truly requires Founder intervention.\n'
-  printf '\n'
-} >"$target"
+render_company_digest_template "$report_summary" >"$target"
+printf '\n' >>"$target"
 
 if [ -s "$reports_tmp" ]; then
   {

@@ -1,0 +1,25 @@
+schema_version = 1
+bundle_slug = "memory-checkpoint"
+bundle_version = 1
+bundle_kind = "runtime-skill"
+summary = "Write a task-local checkpoint first, then promote a governance snapshot only when truly needed."
+
+owner_role = "knowledge-memory-lead"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "local-only"
+entrypoints = ["chat", "work-item", "script"]
+activation_modes = ["explicit", "state-gate"]
+output_modes = ["summary", "artifact-path", "state-mutation"]
+
+allowed_tools = ["read", "write", "shell"]
+read_roots = ["skills/memory-checkpoint/", "docs/memory/", "docs/workflows/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/tasks/<task-id>/closure/", ".harness/tasks/<task-id>/task.md", ".harness/workspace/status/snapshots/", ".harness/workspace/decisions/log/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "checkpoint"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+preferred_scripts = ["skills/memory-checkpoint/scripts/new_checkpoint.sh"]

@@ -2,7 +2,33 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
+
+checkpoint_template_path="$repo_root/skills/memory-checkpoint/templates/checkpoint.md"
+
+render_checkpoint_template() {
+  linked_work_items="$1"
+  checkpoint_date="$2"
+  checkpoint_label="$3"
+
+  [ -f "$checkpoint_template_path" ] || {
+    echo "missing template: $checkpoint_template_path" >&2
+    exit 1
+  }
+
+  awk \
+    -v linked_work_items="$linked_work_items" \
+    -v checkpoint_date="$checkpoint_date" \
+    -v checkpoint_label="$checkpoint_label" \
+    '
+      /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
+      /^- Date:$/ { $0 = "- Date: " checkpoint_date }
+      /^- Label:$/ { $0 = "- Label: " checkpoint_label }
+      { print }
+    ' \
+    "$checkpoint_template_path"
+}
 
 work_item_id=""
 promote_governance=0
@@ -71,17 +97,7 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-cat >"$target" <<EOF
-# Status Snapshot
-
-- Linked work items: ${work_item_id:-n/a}
-- Date: $date
-- Label: $label
-- New decisions:
-- Open risks:
-- Follow-ups:
-- What changed in current state:
-EOF
+render_checkpoint_template "${work_item_id:-n/a}" "$date" "$label" >"$target"
 
 if [ -n "$work_item_id" ]; then
   require_explicit_state_actor "$actor" "$0"

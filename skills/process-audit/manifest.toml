@@ -1,0 +1,24 @@
+schema_version = 1
+bundle_slug = "process-audit"
+bundle_version = 1
+bundle_kind = "governance-skill"
+summary = "Review repeated friction, failed handoffs, and operating bottlenecks to propose process improvements."
+
+owner_role = "compounding-engineering-lead"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "review", "work-item"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write"]
+read_roots = ["skills/process-audit/", "docs/workflows/", ".harness/workspace/"]
+write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/workspace/status/process-audits/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "process-audit"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/"]

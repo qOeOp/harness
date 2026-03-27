@@ -1,0 +1,24 @@
+schema_version = 1
+bundle_slug = "meeting-router"
+bundle_version = 1
+bundle_kind = "governance-skill"
+summary = "Route founder-facing meeting requests to one canonical meeting bundle."
+
+owner_role = "general-manager"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "metadata-first"
+delegation_mode = "local-only"
+entrypoints = ["chat"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "structured-json"]
+
+allowed_tools = ["read"]
+read_roots = ["skills/meeting-router/", "docs/workflows/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "meeting-route"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/"]

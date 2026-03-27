@@ -1,0 +1,24 @@
+schema_version = 1
+bundle_slug = "vision-meeting"
+bundle_version = 1
+bundle_kind = "governance-skill"
+summary = "Prepare a vision meeting brief around product direction, boundaries, value proposition, and strategic tensions."
+
+owner_role = "product-thesis-lead"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "review", "work-item"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "web"]
+read_roots = ["skills/vision-meeting/", "docs/workflows/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "vision-meeting-brief"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/"]

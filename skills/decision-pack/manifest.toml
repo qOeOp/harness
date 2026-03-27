@@ -1,0 +1,25 @@
+schema_version = 1
+bundle_slug = "decision-pack"
+bundle_version = 1
+bundle_kind = "task-skill"
+summary = "Turn a discussion into a dense decision artifact with evidence, dissent, tradeoffs, and next actions."
+
+owner_role = "general-manager"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "work-item", "review", "script"]
+activation_modes = ["explicit", "router", "state-gate"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "shell", "web"]
+read_roots = ["skills/decision-pack/", "docs/workflows/", "references/"]
+write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/workspace/decisions/log/", ".harness/workspace/departments/<department>/workspace/outputs/"]
+forbidden_roots = ["roles/", ".harness/workspace/roles/"]
+
+default_artifact_type = "decision-pack"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+preferred_scripts = ["skills/decision-pack/scripts/new_decision.sh"]
