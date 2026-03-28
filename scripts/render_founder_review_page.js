@@ -99,7 +99,7 @@ function runtimeValidationMode() {
   const runtimeMode = readManifestValue("runtime_mode");
   const governanceEnabled = readManifestValue("advanced_governance_enabled");
   if (runtimeMode === "advanced-governance" || governanceEnabled === "true") {
-    return "governance";
+    return "shared";
   }
   return "core";
 }

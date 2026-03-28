@@ -117,6 +117,7 @@ require_file "skills/os-audit/templates/surface-audit.md"
 require_exec "scripts/materialize_runtime_fixture.sh"
 require_exec "scripts/run_surface_diagnostic.sh"
 require_exec "scripts/run_governance_surface_diagnostic.sh"
+require_exec "scripts/run_shared_writeback_surface_diagnostic.sh"
 require_exec "scripts/run_state_validation_slice.sh"
 require_exec "scripts/audit_role_schema.sh"
 require_exec "scripts/new_role.sh"
@@ -299,7 +300,7 @@ require_contains "docs/workflows/surface-audit.md" '# Surface Audit'
 require_contains "docs/workflows/surface-audit.md" 'run_surface_diagnostic.sh'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" '慢速 human review / approval / feedback'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" 'cheap baseline check'
-require_contains "docs/workflows/document-routing-and-lifecycle.md" '兼容模式名'
+require_contains "docs/workflows/document-routing-and-lifecycle.md" '兼容别名保留'
 require_contains "docs/workflows/work-item-recovery-protocol.md" '等待 human approval / review / feedback 跨 session 时'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'cheap baseline check'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'checkpoint-relative re-entry'

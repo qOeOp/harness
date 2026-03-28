@@ -16,6 +16,7 @@ Default to task-local writeback first:
 Canonical script surface:
 
 - [./scripts/new_checkpoint.sh](./scripts/new_checkpoint.sh) `[--work-item <WI-xxxx>] <label>`
-- add `--promote-governance` only when the snapshot truly needs cross-task visibility
+- add `--promote-shared-writeback` only when the snapshot truly needs cross-task visibility
+- `--promote-governance` remains a compatibility alias
 
 Only append `.harness/workspace/decisions/log/` and `.harness/workspace/status/snapshots/` when shared writeback is explicitly enabled and the checkpoint truly needs cross-task visibility.

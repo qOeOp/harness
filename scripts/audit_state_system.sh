@@ -16,12 +16,15 @@ while [ $# -gt 0 ]; do
     --mode)
       shift
       if [ $# -eq 0 ]; then
-        echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+        echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
         exit 2
       fi
       case "$1" in
-        core|governance)
-          mode="$1"
+        core)
+          mode="core"
+          ;;
+        shared|governance)
+          mode="shared"
           ;;
         *)
           echo "invalid mode: $1" >&2
@@ -30,7 +33,7 @@ while [ $# -gt 0 ]; do
       esac
       ;;
     *)
-      echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+      echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
       exit 2
       ;;
   esac
@@ -41,7 +44,7 @@ if [ -z "$mode" ]; then
   runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "")
   advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "")
   if [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
-    mode="governance"
+    mode="shared"
   else
     mode="core"
   fi
@@ -110,7 +113,7 @@ case "$manifest_governance" in
     ;;
 esac
 
-if [ "$mode" = "governance" ]; then
+if [ "$mode" = "shared" ]; then
   require_dir "$state_root"
   require_dir "$state_boards_dir"
   require_dir "$state_board_refreshes_dir"
@@ -633,7 +636,7 @@ for event_file in $(list_transition_events); do
   fi
 done
 
-if [ "$mode" = "governance" ]; then
+if [ "$mode" = "shared" ]; then
   if ! "$script_dir/refresh_boards.sh" --check >/dev/null 2>&1; then
     if ! STATE_ACTOR="${STATE_ACTOR:-state-audit}" STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}" "$script_dir/refresh_boards.sh" >/dev/null 2>&1; then
       fail "boards refresh failed"

@@ -11,7 +11,7 @@
 1. source repo 与 consumer runtime 是两个不同的家。
 2. 默认 runtime memory 是 `task-scoped`，不是 `workspace-scoped`。
 3. `task.md` 既负责任务真相，也负责恢复协议。
-4. task-local evidence 默认进入 `attachments/`，不是先落 governance workspace。
+4. task-local evidence 默认进入 `attachments/`，不是先落 shared writeback workspace。
 5. `archived` 是状态语义，不是默认物理目录。
 6. provider conversation / response / thread state 是 transport handle，不是 canonical task truth。
 7. auto-injected `project memory / subagent memory`
@@ -130,14 +130,15 @@
 说明：
 
 1. 这一层是 projection，不是默认 truth。
-2. 只有显式 `--promote-governance` 时，才值得把 task-local 材料升级到这里。
+2. 只有显式 `--promote-shared-writeback` 时，才值得把 task-local 材料升级到这里。
+3. `--promote-governance` 只作为兼容别名保留。
 
 ## Writeback Rules
 
-1. 默认先写回 task 目录，再考虑是否 promote 到治理层。
+1. 默认先写回 task 目录，再考虑是否 promote 到 shared writeback surface。
 2. task 状态变更必须通过正式脚本和 transition event，不手工 patch `task.md` 伪造状态。
 3. Recovery 更新只写 `## Recovery`。
-4. 需要跨任务治理时，再写治理层 projection。
+4. 需要跨任务共享记录时，再写 shared writeback projection。
 5. 退出 active surface 时用 `Status: archived` 加 `Archived at` 表达。
 6. observability 或 tracing 若默认开启，必须显式声明 capture / redaction / disable policy，不把 vendor default 当作 least-data 基线。
 

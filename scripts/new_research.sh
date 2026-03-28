@@ -37,11 +37,12 @@ export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
   cat <<EOF >&2
-usage: $0 [--work-item <WI-xxxx>] [--promote-governance] [shared|company] <title>
+usage: $0 [--work-item <WI-xxxx>] [--promote-shared-writeback|--promote-governance] [shared] <title>
 
 Research memos default to task-local routing.
 Pass --work-item explicitly for task-local routing.
-Use --promote-governance only for shared cross-task memos in shared writeback mode.
+Use --promote-shared-writeback (compat: --promote-governance) only for shared cross-task memos in shared writeback mode.
+`company` remains accepted as a compatibility alias for the same shared surface.
 EOF
   exit 1
 }
@@ -53,7 +54,7 @@ while [ "$#" -gt 0 ]; do
       work_item_id="$2"
       shift 2
       ;;
-    --promote-governance)
+    --promote-shared-writeback|--promote-governance)
       promote_governance=1
       shift
       ;;
@@ -67,7 +68,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ "$#" -le 1 ]; then
-  scope="company"
+  scope="shared"
   title="${1:-untitled-research}"
 else
   scope="$1"

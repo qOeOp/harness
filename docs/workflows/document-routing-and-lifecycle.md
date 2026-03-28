@@ -153,13 +153,13 @@ materialized runtime：
 
 shared-writeback runtime：
 
-这里的 `--mode governance`
-仍是共享写回 runtime 的兼容模式名，
-不是新的默认产品层命名。
+这里的 `--mode shared`
+是共享写回 runtime 的默认校验入口；
+`--mode governance` 只作为兼容别名保留。
 
 ```bash
-./scripts/validate_workspace.sh --mode governance
-./scripts/audit_state_system.sh --mode governance
+./scripts/validate_workspace.sh --mode shared
+./scripts/audit_state_system.sh --mode shared
 ./scripts/audit_document_system.sh
 ./scripts/validate_freshness_gate.sh --staged
 ./scripts/run_surface_diagnostic.sh --mode consumer

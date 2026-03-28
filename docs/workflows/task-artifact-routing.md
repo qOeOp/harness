@@ -44,8 +44,9 @@
 
 1. 显式 `--work-item <WI-xxxx>` 时，写 task-local artifact
 2. 若没有 `--work-item`，直接拒绝
-3. 只有显式 `--promote-governance` 时，才允许走共享写回升级分支
+3. 只有显式 `--promote-shared-writeback` 时，才允许走共享写回升级分支
 4. promotion 分支仍要求 runtime 已启用共享写回模式
+5. `--promote-governance` 只作为兼容别名保留，不再是默认产品词汇
 
 ### 2. Canonical Task-Local Paths
 
@@ -83,7 +84,7 @@
 
 1. runtime 已显式启用共享写回模式
 2. artifact 的价值确实超出单个 task
-3. operator 明确传入 `--promote-governance`
+3. operator 明确传入 `--promote-shared-writeback`
 
 promotion 是显式升级动作，不再通过“缺少 task context 就退回 workspace”隐式触发。
 

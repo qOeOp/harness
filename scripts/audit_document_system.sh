@@ -63,7 +63,7 @@ infer_runtime_mode() {
   governance_enabled=$(awk -F'=' '/^[[:space:]]*advanced_governance_enabled[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
 
   if [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
-    printf '%s\n' "governance"
+    printf '%s\n' "shared"
   else
     printf '%s\n' "core"
   fi
@@ -87,7 +87,7 @@ forbid_pattern ".harness/entrypoint.md" ".gemini/"
 
 runtime_mode=$(infer_runtime_mode)
 
-if [ "$runtime_mode" = "governance" ] || [ -d ".harness/workspace/current" ] || [ -d ".harness/workspace/briefs" ]; then
+if [ "$runtime_mode" = "shared" ] || [ -d ".harness/workspace/current" ] || [ -d ".harness/workspace/briefs" ]; then
   require_file ".harness/workspace/current/README.md"
   require_file ".harness/workspace/archive/briefs/README.md"
 

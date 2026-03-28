@@ -9,6 +9,9 @@
 `governance-surface-audit` 这个旧文件名与
 `run_governance_surface_diagnostic.sh`
 这个旧脚本名只作为 compatibility alias 保留。
+若需要显式 shared-writeback 命名，
+可使用 `run_shared_writeback_surface_diagnostic.sh`
+这个桥接 alias；
 canonical 名称统一收敛到 `surface audit` /
 `run_surface_diagnostic.sh`，
 不把 `governance` 重新抬回默认产品层。

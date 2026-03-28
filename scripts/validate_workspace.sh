@@ -14,12 +14,15 @@ while [ $# -gt 0 ]; do
     --mode)
       shift
       if [ $# -eq 0 ]; then
-        echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+        echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
         exit 2
       fi
       case "$1" in
-        core|governance)
-          mode="$1"
+        core)
+          mode="core"
+          ;;
+        shared|governance)
+          mode="shared"
           ;;
         *)
           echo "invalid mode: $1" >&2
@@ -28,7 +31,7 @@ while [ $# -gt 0 ]; do
       esac
       ;;
     *)
-      echo "usage: $0 [--quiet] [--mode core|governance]" >&2
+      echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
       exit 2
       ;;
   esac
@@ -47,7 +50,7 @@ infer_runtime_mode() {
   governance_enabled=$(awk -F'=' '/^[[:space:]]*advanced_governance_enabled[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
 
   if [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
-    printf '%s\n' "governance"
+    printf '%s\n' "shared"
   else
     printf '%s\n' "core"
   fi
@@ -120,7 +123,7 @@ run_core_checks() {
   fi
 }
 
-run_governance_checks() {
+run_shared_writeback_checks() {
   check_file ".harness/workspace/decisions/log/README.md"
   check_file ".harness/workspace/current/README.md"
   check_file ".harness/workspace/research/dispatches/README.md"
@@ -160,16 +163,16 @@ run_governance_checks() {
     [ "$quiet" = "--quiet" ] || echo "doc style audit failed"
   fi
 
-  if ! "$script_dir/audit_state_system.sh" --mode governance --quiet >/dev/null 2>&1; then
+  if ! "$script_dir/audit_state_system.sh" --mode shared --quiet >/dev/null 2>&1; then
     ok=0
-    [ "$quiet" = "--quiet" ] || echo "state system audit failed (governance)"
+    [ "$quiet" = "--quiet" ] || echo "state system audit failed (shared writeback)"
   fi
 }
 
 run_core_checks
 
-if [ "$mode" = "governance" ]; then
-  run_governance_checks
+if [ "$mode" = "shared" ]; then
+  run_shared_writeback_checks
 fi
 
 if [ "$ok" -eq 1 ]; then

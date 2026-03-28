@@ -69,6 +69,10 @@ runtime_governance_enabled() {
   return 1
 }
 
+runtime_shared_writeback_enabled() {
+  runtime_governance_enabled
+}
+
 ensure_core_runtime_dirs() {
   mkdir -p "$state_locks_dir" "$task_runtime_dir"
   ensure_runtime_manifest
@@ -949,6 +953,10 @@ EOF
   return 1
 }
 
+require_shared_writeback_mode_for_workspace_artifact() {
+  require_governance_mode_for_workspace_artifact "$1"
+}
+
 require_advanced_governance_runtime_artifact() {
   artifact_kind="$1"
 
@@ -969,7 +977,7 @@ require_explicit_promotion_for_workspace_artifact() {
 cat >&2 <<EOF
 $artifact_kind defaults to task-local routing.
 Pass --work-item <WI-xxxx> explicitly.
-Use --promote-governance only when this artifact truly needs cross-task visibility in shared writeback mode.
+Use --promote-shared-writeback (compat: --promote-governance) only when this artifact truly needs cross-task visibility in shared writeback mode.
 EOF
   return 1
 }

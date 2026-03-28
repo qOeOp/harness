@@ -7,4 +7,4 @@ Recommended order:
 1. [docs/memory/memory-architecture.md](../../../docs/memory/memory-architecture.md)
 2. [docs/workflows/task-artifact-routing.md](../../../docs/workflows/task-artifact-routing.md)
 
-Default to task-local writeback first, then promote only when cross-task governance visibility is truly required.
+Default to task-local writeback first, then promote only when cross-task shared-writeback visibility is truly required.
