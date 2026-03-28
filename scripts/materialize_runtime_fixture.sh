@@ -93,6 +93,7 @@ write_file "$target/.harness/README.md" <<EOF
 - Durable support state under \`.harness/runtime/\` must carry explicit schema / format version
 - Cross-version restore of runtime support state must migrate or fail closed
 - Canonical task truth: \`.harness/tasks/<task-id>/task.md\`
+- Long-running execution should record explicit budget / stop boundary in task recovery or a linked artifact
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF
 
@@ -110,6 +111,7 @@ Runtime notes:
 - Mode: minimum-core
 - Task truth lives under \`.harness/tasks/<task-id>/\`
 - Recovery lives inside each task record
+- Long-running tasks should carry an explicit budget / stop boundary in \`## Recovery\`
 - Slow human approval / review should pause the task and resume later, not hide in session wait state
 - Harness does not manage consumer root/provider entry files or skill install location
 EOF

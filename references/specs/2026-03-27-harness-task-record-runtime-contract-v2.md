@@ -113,6 +113,11 @@
 2. `Next command`
 3. `Recovery notes`
 
+若任务是长回合、会委派 worker、或可能超过当前 session，
+`Recovery notes` 还应写明 budget / stop boundary，
+例如 `max turns / iterations`、timebox、tool / write budget、
+pause / cancel / kill semantics。
+
 ## State Model
 
 ### Primary Statuses
@@ -157,6 +162,17 @@ task record 同时承载状态与路由。
 1. 若等待会跨 session 或超出当前 run，自任务主状态切到 `paused`
 2. 用 `Interrupt marker` 与 `Resume target` 表达暂停语义，而不是只写自由文本 blocker
 3. 人审完成后通过正式 resume transition 恢复，而不是假设原 run 会继续挂起等待
+
+## Budget / Termination Model
+
+bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
+
+默认要求：
+
+1. 长任务在进入持续执行前，应把 budget / stop boundary 写进 `task.md` 的恢复面或对应 artifact
+2. budget 命中、cancel、kill、timebox 触发时，
+   应落成 transition reason、recovery 更新或正式 reviewable artifact
+3. 终止原因必须可审计，不能只留在临时日志里
 
 ## Attachment Routing
 

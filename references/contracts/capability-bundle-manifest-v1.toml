@@ -103,6 +103,15 @@ allowed_output_modes = [
   "state-mutation",
 ]
 
+long_running_execution_requires_explicit_budget_boundary = true
+budget_boundary_should_include_one_of = [
+  "max-turns-or-iterations",
+  "wall-clock-timebox",
+  "tool-or-write-budget",
+  "pause-cancel-kill-semantics",
+]
+termination_reason_should_write_to_task_history_or_reviewable_artifact = true
+
 [permissions]
 required = [
   "allowed_tools",
@@ -143,12 +152,20 @@ recursive_bundle_preload = false
 [delegation]
 worker_identity_is_runtime_only = true
 capability_is_not_agent_identity = true
+worker_payload_should_be_minimal_capability_packet = true
 worker_payload_should_include = [
   "bundle_slug",
   "owned_paths_or_read_scope",
   "output_contract",
   "write_permission_boundary",
+  "budget_or_stop_boundary",
 ]
+worker_payload_must_not_include = [
+  "full_parent_session_transcript",
+  "full_system_prompt",
+  "unbounded_temporary_context",
+]
+worker_budget_boundary_should_be_explicit = true
 
 [validation]
 bundle_must_not_store_runtime_truth = true

@@ -16,7 +16,9 @@ repo-local runtime 只在需要持久化时出现：
 
 1. `.harness/`
 
-本文件描述的是 `task-record runtime v2` 的默认 routing / lifecycle，而不是 board-first 或 company-workspace-first 体验。
+本文件描述的是 `task-record runtime v2`
+的默认 routing / lifecycle，
+而不是 board-first 或 company-workspace-first 体验。
 
 ## 硬规则
 
@@ -26,7 +28,10 @@ repo-local runtime 只在需要持久化时出现：
 4. board 和 company / workstream projection 不属于默认 core routing
 5. 一个线程一个 worktree，不共享同一工作目录并行编辑
 6. 不允许没有 disposition 的 durable write 进入 active surface
-7. 慢速 human review / approval / feedback 若会跨 session，必须显式 pause 并在后续 resume，不把 run 卡在隐藏等待态
+7. 慢速 human review / approval / feedback 若会跨 session，
+   必须显式 pause 并在后续 resume，不把 run 卡在隐藏等待态
+8. 长回合执行默认必须有显式 budget / stop boundary，
+   并写入 Recovery 或对应 artifact，而不是只留在聊天里
 
 ## Write Disposition Rule
 
@@ -82,7 +87,10 @@ repo-local runtime 只在需要持久化时出现：
    - 先读 `Interrupt marker` 与 `Resume target`
    - 再决定是否恢复，不要靠聊天记忆猜
    - 若等待的是慢速人工 gate，应先确认对应的 resume 条件与命令，而不是继续沿用旧 run 的隐式上下文
-5. 只在需要时读取：
+5. 若当前事项仍在长回合执行：
+   - 先确认 `## Recovery` 里的 budget / stop boundary
+   - budget、cancel、kill 与 timebox 命中后，不要继续隐式跑下去
+6. 只在需要时读取：
    - `attachments/`
    - `history/transitions/`
    - 显式 promote 的 shared writeback

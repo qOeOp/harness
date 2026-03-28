@@ -22,14 +22,20 @@
    - 当前在做什么
    - 下一条命令是什么
    - 从哪里继续
-6. 等待 human approval / review / feedback 跨 session 时，先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
+6. 长回合任务、worker run 或后台执行，
+   Recovery notes 应显式写明 budget / stop boundary，
+   不把 bounded autonomy 只留在聊天里
+7. 等待 human approval / review / feedback 跨 session 时，
+   先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
 
 ## 存储规则
 
 1. 路径固定为 `.harness/tasks/<task-id>/task.md`
 2. section 固定为 `## Recovery`
 3. 一个 task 最多一组当前 Recovery 字段
-4. 当前实现推荐通过 [upsert_work_item_recovery.sh](/Users/vx/WebstormProjects/harness/scripts/upsert_work_item_recovery.sh) 写入
+4. 当前实现推荐通过
+   [upsert_work_item_recovery.sh](/Users/vx/WebstormProjects/harness/scripts/upsert_work_item_recovery.sh)
+   写入
 
 ## 最小字段
 
@@ -41,6 +47,13 @@ Recovery 至少记录：
 
 这些字段应是短、硬、可执行的恢复信息，而不是 narrative 日志。
 
+若属于长任务，建议把以下信息压进 `Recovery notes`：
+
+1. `max turns / iterations`
+2. wall-clock timebox
+3. tool / write budget
+4. pause / cancel / kill semantics
+
 ## 何时必须创建或刷新
 
 1. task 进入 `in-progress` 后，如果不会在同一轮自然收口，应写 Recovery
@@ -48,6 +61,8 @@ Recovery 至少记录：
 3. 当前 focus 或下一条命令已变化时，应刷新 Recovery
 4. opener / starter 若显示 `Recovery sync state: missing`，应先补 Recovery 再继续
 5. 任务因 Founder / manual / risk review 进入 `paused` 后，应把 resume 命令和恢复条件刷进 `## Recovery`
+6. 任务 budget、timebox 或 stop boundary 发生变化时，
+   应同步刷新 Recovery
 
 ## 推荐操作
 

@@ -125,6 +125,10 @@ agent 不再是 capability 的持久身份，而是按任务动态加载 bundle 
 3. 并发只有在 `write scope` 清楚、owned paths 清楚、结果 contract 清楚时才成立
 4. tool 调用与脚本执行应尽量让大体量结果落盘，再返回轻引用，而不是把大块文本搬进主上下文
 5. provider-specific subagent syntax 不应成为 canonical contract
+6. 默认 handoff 必须是最小必要、结构化、可审计的
+   capability packet，而不是 full parent transcript 的整包继承
+7. 长任务与 worker run 必须带显式 budget / termination boundary，
+   不能把“模型自己会停”当成 contract
 
 ### Non-Negotiable Truths
 
@@ -248,10 +252,30 @@ capability bundle 的 canonical loading 顺序：
    - owned files 或只读范围
    - output contract
    - write permission boundary
+   - budget / stop boundary
 4. worker 返回：
    - concise summary
    - artifact path
    - 或结构化结果
+
+默认不应传给 worker：
+
+1. full parent session transcript
+2. full system prompt
+3. 未裁剪的临时 scratch context
+
+只有在下一步明确被同一段上下文直接阻塞时，才升级成更厚的上下文继承，并在 handoff 中说明理由。
+
+## Budget / Termination Boundary
+
+capability bundle 允许自治执行，但不允许无界自治。
+
+默认要求：
+
+1. 长任务至少声明一项 `max turns / iterations`、wall-clock timebox、tool / write budget、pause / cancel / kill semantics
+2. budget 命中、cancel、kill、timebox 触发，
+   必须写回 task history、recovery 或 reviewable artifact
+3. 预算信息服务 control surface，不应只藏在聊天里
 
 ## Writeback Model
 

@@ -36,7 +36,9 @@
    - 见 [work-item-recovery-protocol.md](./work-item-recovery-protocol.md)
    - 见 [work-item-interrupt-protocol.md](./work-item-interrupt-protocol.md)
 
-本文件定义共性 operator rules，不定义 provider-specific command、hook、subagent syntax、MCP 安装方式或 config 格式。
+本文件定义共性 operator rules，
+不定义 provider-specific command、hook、subagent syntax、
+MCP 安装方式或 config 格式。
 
 这些差异应下沉到 `docs/workflows/provider-deltas/`，并只作为次级参考。
 
@@ -82,20 +84,24 @@
 
 ## Decision Framework
 
-每次正式执行前，至少应显式判断以下 5 个维度：
+每次正式执行前，至少应显式判断以下 6 个维度：
 
 1. `Freshness`
    - 是否触碰 `volatile-by-default`
 2. `Write scope`
-   - 是否会改动 canonical docs、state、task-local code、consumer-local extensions、shared append-only memory
+   - 是否会改动 canonical docs、state、task-local code、
+     consumer-local extensions、shared append-only memory
 3. `Coupling`
    - 当前任务是否高度依赖即时上下文和连续推理
 4. `Parallelism value`
    - 是否真的存在可独立并行的问题分解
 5. `Verification burden`
    - 是否需要 tests、checks、review、official docs、source note 才能成立
+6. `Autonomy budget`
+   - 是否已经定义 `max turns / iterations`、wall-clock timebox、
+     tool / write budget、pause / cancel / kill semantics 之一
 
-如果这 5 个维度里任何一项不清楚，不要先写实现。
+如果这 6 个维度里任何一项不清楚，不要先写实现。
 
 ## Local-First Rule
 
@@ -137,7 +143,42 @@
 4. 是否允许写文件
 5. 何时主线程需要等待结果
 
+默认 handoff 载荷应是最小必要、结构化、可审计的 capability packet，而不是 parent session transcript 的整包继承。
+
+最小 packet 至少应包含：
+
+1. bundle slug 或能力名
+2. owned paths 或只读范围
+3. output contract
+4. write permission boundary
+5. budget / stop boundary
+
+不要默认继承：
+
+1. full parent session transcript
+2. full system prompt
+3. 未经筛选的临时 scratch context
+
+只有当下一步明确被同一段上下文直接阻塞时，才升级为更厚的上下文传递，并显式说明原因。
+
 如果当前 provider 不支持并行 delegation，则按同样原则顺序执行，不要强行模拟第二套治理语义。
+
+## Bounded Autonomy Rule
+
+长任务、长循环、后台执行或 worker run，在启动前都必须先定义显式 budget / termination boundary。
+
+至少要落下一项：
+
+1. `max turns / iterations`
+2. wall-clock timebox
+3. tool budget 或 write budget
+4. pause / cancel / kill semantics
+
+如果这些边界还不清楚：
+
+1. 不要直接开始长自治执行
+2. 先补 task / recovery / delegation brief
+3. 或先产出 reviewable artifact 再继续
 
 ## External Context Rules
 
@@ -213,8 +254,12 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 3. `upsert_work_item_recovery.sh`
 4. `update_work_item_fields.sh`
 5. provider execution handle 只作为 recovery / trace correlation 的辅助字段，不作为状态机真相
-6. 慢速 human review / approval / feedback 默认转成 `paused + interrupt metadata + formal resume transition`，不把任务留在隐藏等待态里
-7. durable checkpoint 或 serialized runtime support state 默认必须带显式 schema / format version，跨代码版本恢复要 migrate 或 fail closed
+6. 慢速 human review / approval / feedback 默认转成
+   `paused + interrupt metadata + formal resume transition`，
+   不把任务留在隐藏等待态里
+7. durable checkpoint 或 serialized runtime support state
+   默认必须带显式 schema / format version，
+   跨代码版本恢复要 migrate 或 fail closed
 
 不要：
 
@@ -240,11 +285,20 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 默认至少区分三层验证：
 
 1. `result-level`
-   - tests、checks、freshness gate、review 是否通过
+   - tests、contracts、schema checks、audits、freshness gate、review 是否通过
 2. `trace-level`
-   - decision、tool calls、handoff、retry、interrupt 是否可解释、可回放
+   - decision、tool calls、handoff、retry、interrupt、budget hit / stop reason 是否可解释、可回放
 3. `state-level`
    - transitions、locks、writeback、derived views 是否满足 runtime contract
+
+默认顺序应是：
+
+1. 先跑 deterministic / code-graded gate
+2. 再看 trace grading 或 LLM-graded eval
+
+后者主要服务 diagnosis、回归趋势与轨迹质量判断，不替代 deterministic gate、approval gate 与 human review。
+
+如果 grader 结论与 deterministic gate 冲突，以显式 contract 与可重复 gate 为准。
 
 对 volatile external conclusion：
 
