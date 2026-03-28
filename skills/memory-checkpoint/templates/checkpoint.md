@@ -3,6 +3,8 @@
 - Linked work items:
 - Date:
 - Label:
+- Flush boundary:
+- Crash-safe through:
 - New decisions:
 - Open risks:
 - Follow-ups:

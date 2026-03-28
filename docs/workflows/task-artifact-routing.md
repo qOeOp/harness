@@ -1,6 +1,6 @@
 # Task Artifact Routing
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -112,6 +112,24 @@ research / source / decision / acceptance-ledger / checkpoint / dispatch 这类 
 2. 明确哪些旧 artifact 已被它吸收
 3. 避免形成 `memo -> memo -> checkpoint -> recap` 的并行链条
 4. 若旧 checkpoint 已不再是默认入口，应让它退出 active working set
+5. 若 checkpoint 同时承担
+   durability / resume 边界，
+   必须显式写清 flush boundary
+   或 crash-safe 范围，
+   不把“有 checkpoint”
+   与“恢复到哪一步”混成一句话
+
+### 7. Delegated Large Outputs Stay External
+
+1. worker / subagent 的大体积、
+   高保真或结构化结果，
+   默认先落 task-local artifact
+2. 返回主线程时优先传
+   artifact path、locator、
+   content hash 或 concise summary
+3. 不要让多级 coordinator
+   用 transcript 做
+   “口耳相传” copy chain
 
 ## 禁止事项
 

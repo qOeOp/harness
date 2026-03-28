@@ -117,6 +117,16 @@ resume_is_checkpoint_relative_reentry = true
 resume_must_not_assume_instruction_pointer_continuation = true
 pre_boundary_side_effects_require_idempotency_or_effect_fence = true
 
+[checkpoints]
+checkpoint_is_compression_boundary = true
+checkpoint_durability_or_flush_boundary_must_be_explicit = true
+checkpoint_flush_boundary_examples = [
+  "sync",
+  "async",
+  "exit",
+]
+checkpoint_crash_safety_scope_must_not_be_implicit = true
+
 [wakeup]
 cross_run_wait_requires_explicit_handle_or_event = true
 async_delivery_model = "at-least-once"
@@ -145,6 +155,13 @@ prefix_breaking_changes = [
   "approval-mode",
   "cwd",
 ]
+
+[active_run]
+runtime_revision_binding_required = true
+tool_contract_binding_required = true
+prompt_bundle_or_policy_snapshot_binding_required = true
+cross_deploy_old_and_new_revisions_may_coexist_until_completion_or_migration = true
+active_run_must_not_silent_hot_swap = true
 
 [persisted_context]
 serialized_context_requires_explicit_version = true
@@ -203,6 +220,7 @@ attachment_routing = "task-local materials live under attachments/ and are linke
 acceptance_tracking = "long-running feature or acceptance checklist should prefer a task-local acceptance ledger under attachments/"
 recovery_model = "Recovery lives inside task.md as part of the task record"
 steady_state_resume = "resume reads task truth and recovery first, then runs a cheap baseline check before continuing"
+checkpoint_model = "checkpoint is a compression boundary whose durability or flush semantics must be explicit rather than implied"
 lock_model = "runtime lock directories carry owner plus lease-expiry metadata and are stale-reclaimed on expiry or dead pid"
 claim_model = "active task claims carry assignee, worktree, claimed-at, claim-expiration, and lease-version metadata"
 runtime_support_boundary = ".harness/runtime is reserved for non-canonical tool-owned support state when needed"
@@ -217,6 +235,7 @@ transport_state_boundary = "provider and SDK continuation handles preserve trans
 prompt_shape_boundary = "static instructions, examples, tool descriptors, image descriptors, and sandbox/cwd/approval metadata form a runtime config surface distinct from task truth"
 prompt_shape_stability = "long-running sessions should keep the exact prefix stable and append new task delta or tool observations at the tail"
 prefix_breaking_change_model = "changes to model, tool set/order, sandbox, approval mode, or cwd should be treated as explicit transitions rather than silent drift"
+active_run_binding = "active runs should bind runtime revision, tool contract, and prompt bundle or policy snapshot, and must not silent-hot-swap across deployments"
 persisted_context_boundary = "serialized app, agent, or session context is persisted data, must be versioned, and should not store raw secrets"
 provider_stored_state_boundary = "provider-side stored state used by background or pollable transport remains transport state and may carry retention or ZDR limits"
 subagent_memory_boundary = "auto-injected subagent or project memory is instruction surface plus persisted data plus capability grant, not canonical task truth"

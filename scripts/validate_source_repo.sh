@@ -28,7 +28,7 @@ require_exec() {
 require_contains() {
   file="$1"
   pattern="$2"
-  grep -Fq "$pattern" "$file" || fail "missing pattern '$pattern' in $file"
+  grep -Fq -- "$pattern" "$file" || fail "missing pattern '$pattern' in $file"
 }
 
 require_redirect_stub() {
@@ -49,7 +49,7 @@ require_legacy_redirect_stub() {
 forbid_contains() {
   file="$1"
   pattern="$2"
-  if grep -Fq "$pattern" "$file"; then
+  if grep -Fq -- "$pattern" "$file"; then
     fail "found retired pattern '$pattern' in $file"
   fi
 }
@@ -239,9 +239,12 @@ require_contains "references/contracts/task-record-runtime-tree-v2.toml" '.harne
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'durable_state_requires_explicit_version = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'slow_human_gates_require_pause_resume = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'resume_is_checkpoint_relative_reentry = true'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'checkpoint_durability_or_flush_boundary_must_be_explicit = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'async_delivery_model = "at-least-once"'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'exact_prefix_stability_is_runtime_discipline = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'mid_run_config_change_requires_explicit_transition = true'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'runtime_revision_binding_required = true'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'active_run_must_not_silent_hot_swap = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'source_provenance_must_survive_display_projection = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'required_metadata_files = ['
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'stale_reclaim_policy = "expired-lease-or-dead-pid"'
@@ -254,6 +257,9 @@ require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'exec
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'user_selectable_bundle_is_not_security_baseline = true'
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'bundle_local_memory_is_instruction_surface_when_auto_injected = true'
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'bundle_local_memory_is_persisted_data_when_durable = true'
+require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'worker_large_or_structured_results_should_write_to_artifact_first = true'
+require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'worker_return_should_prefer_handle_locator_or_summary = true'
+require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'multi_level_transcript_copy_chain_is_anti_pattern = true'
 require_contains "roles/README.md" '本仓库不再维护 provider-owned generated role mirrors'
 require_contains "roles/README.md" '.harness/workspace/roles/'
 require_contains "roles/README.md" '`runtime-role-manager`'
@@ -279,6 +285,10 @@ require_contains "docs/workflows/agent-operator-contract.md" 'capability packet'
 require_contains "docs/workflows/agent-operator-contract.md" 'full parent session transcript'
 require_contains "docs/workflows/agent-operator-contract.md" '`max turns / iterations`'
 require_contains "docs/workflows/agent-operator-contract.md" 'deterministic / code-graded gate'
+require_contains "docs/workflows/agent-operator-contract.md" 'content hash'
+require_contains "docs/workflows/agent-operator-contract.md" '不做静默 hot-swap'
+require_contains "docs/workflows/agent-operator-contract.md" 'tool choice 是否合理'
+require_contains "docs/workflows/agent-operator-contract.md" 'schema fit 是否正确'
 require_contains "docs/workflows/agent-operator-contract.md" 'versioned control surface'
 require_contains "docs/workflows/agent-operator-contract.md" 'steerability surface'
 require_contains "docs/workflows/agent-operator-contract.md" 'at-least-once delivery'
@@ -321,6 +331,9 @@ require_contains "references/specs/2026-03-27-harness-task-record-runtime-contra
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" '慢速 human approval / review / feedback'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'budget / stop boundary'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'checkpoint-relative、node-level re-entry'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'durability / flush boundary'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" '不做静默 hot-swap'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'artifact path、locator'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'at-least-once delivery'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'trust analysis'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'lock dir 元数据默认应带 `owner`'
@@ -342,6 +355,8 @@ require_contains "references/specs/2026-03-27-harness-capability-bundle-contract
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'version pin'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'bundle-local memory'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'persisted data 与 capability grant'
+require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'artifact path / locator'
+require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" '口耳相传'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
 require_contains "roles/general-manager.md" '你是默认任务编排负责人。'
 require_contains "docs/workflows/volatile-research-default.md" '上游输入 -> task loop 的入口'
@@ -389,6 +404,8 @@ require_contains "docs/workflows/work-item-recovery-protocol.md" 'budget / stop 
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'worker_payload_should_be_minimal_capability_packet = true'
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'worker_payload_must_not_include = ['
 require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'long_running_execution_requires_explicit_budget_boundary = true'
+require_contains "skills/memory-checkpoint/templates/checkpoint.md" '- Flush boundary:'
+require_contains "skills/memory-checkpoint/templates/checkpoint.md" '- Crash-safe through:'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'provider_or_sdk_handles_are_transport_state_only = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'transport_continuity_does_not_imply_instruction_continuity = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'serialized_context_requires_explicit_version = true'

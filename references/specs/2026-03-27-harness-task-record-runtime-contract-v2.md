@@ -54,6 +54,14 @@
 1. 若 support state 会 durable 到进程外、跨 session 或跨重启恢复，必须带显式 schema / format version
 2. 跨代码版本恢复这类 state 时，默认要 migrate 或 fail closed
 3. raw checkpoint internals、serialized agent state、provider-owned blobs 不能直接晋升为 task truth
+4. execution checkpoint 不是单一语义；
+   durability / flush boundary
+   必须显式声明，
+   例如 `sync`、`async`、
+   `exit` 这类差异，
+   不要把“有 checkpoint”
+   与“crash-safe 到哪一步”
+   混成一句话
 
 ## Lock And Claim Boundary
 
@@ -311,6 +319,13 @@ compaction 与行为稳定性。
    或其他会破坏前缀稳定性的配置，
    默认应视为显式 boundary /
    transition，而不是静默漂移
+5. active run 默认应绑定其启动时的
+   runtime revision、tool contract、
+   prompt bundle / policy snapshot
+6. 跨部署允许 old / new revision
+   并存，直到 run 完成、
+   迁移或 fail closed，
+   不做静默 hot-swap
 
 ## Budget / Termination Model
 
@@ -349,6 +364,15 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 长任务若需要跨 session 维护 feature / acceptance checklist，
 优先使用 `Acceptance Ledger` 这类结构化、可机读附件，
 不要把“已完成 / 已验证”只留在 prose 或 provider transcript。
+
+若 worker / subagent 产生大体积、
+高保真或结构化结果，
+默认应先直写 task-local artifact，
+再回传 artifact path、locator
+或简要摘要；
+不要让多级 coordinator
+用 transcript 做
+“口耳相传” copy chain。
 
 ## Query Surface
 

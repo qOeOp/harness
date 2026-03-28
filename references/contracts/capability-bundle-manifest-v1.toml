@@ -166,6 +166,9 @@ worker_payload_must_not_include = [
   "unbounded_temporary_context",
 ]
 worker_budget_boundary_should_be_explicit = true
+worker_large_or_structured_results_should_write_to_artifact_first = true
+worker_return_should_prefer_handle_locator_or_summary = true
+multi_level_transcript_copy_chain_is_anti_pattern = true
 
 [validation]
 bundle_must_not_store_runtime_truth = true

@@ -7,6 +7,9 @@ Read [./manifest.toml](./manifest.toml).
 Read [./refs/README.md](./refs/README.md).
 Use [./templates/checkpoint.md](./templates/checkpoint.md) as the canonical checkpoint shape.
 
+If the checkpoint also serves as a durability or resume boundary, fill in
+`Flush boundary` and `Crash-safe through` explicitly instead of implying how far the run is recoverable.
+
 Default to task-local writeback first:
 
 - `.harness/tasks/<task-id>/attachments/`

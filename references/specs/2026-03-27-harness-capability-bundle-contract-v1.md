@@ -283,6 +283,9 @@ capability bundle 的 canonical loading 顺序：
 2. 动态加载一个或多个 capability bundle
 3. 结果优先写入 task-local artifacts
 4. 聊天中只保留摘要、路径、结构化结果
+5. 若产出是大体积、高保真或结构化结果，
+   默认先落 artifact，
+   再回传 handle、locator 或 concise summary
 
 并发模式：
 
@@ -296,8 +299,14 @@ capability bundle 的 canonical loading 顺序：
    - budget / stop boundary
 4. worker 返回：
    - concise summary
-   - artifact path
+   - artifact path / locator
    - 或结构化结果
+
+默认不要让多级 coordinator
+通过 transcript 做
+“口耳相传” copy chain；
+大输出应外置到 artifact，
+主线程之间只传轻量 handle。
 
 默认不应传给 worker：
 

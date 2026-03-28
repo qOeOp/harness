@@ -113,6 +113,13 @@ MCP 安装方式或 config 格式。
    默认应视为显式 boundary /
    transition，
    而不是静默漂移
+5. active run 默认应绑定其启动时的
+   runtime code revision、tool contract、
+   prompt bundle / policy snapshot
+6. 跨部署允许 old / new revision
+   并存直到 run 完成、迁移
+   或 fail closed，
+   不做静默 hot-swap
 
 ## Skill Trust Boundary
 
@@ -256,6 +263,17 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 1. full parent session transcript
 2. full system prompt
 3. 未经筛选的临时 scratch context
+
+若 worker / subagent
+会产出大体积、高保真
+或结构化结果，
+默认先写 task-local artifact，
+再只回传 artifact path、
+locator、content hash
+或 concise summary；
+不要让多级 coordinator
+用 transcript 做
+“口耳相传” copy chain。
 
 只有当下一步明确被同一段上下文直接阻塞时，才升级为更厚的上下文传递，并显式说明原因。
 
@@ -492,6 +510,17 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 2. 再看 trace grading 或 LLM-graded eval
 
 后者主要服务 diagnosis、回归趋势与轨迹质量判断，不替代 deterministic gate、approval gate 与 human review。
+
+对 tool-using agent，
+尽量把评估拆成至少三项：
+
+1. end-state 是否正确
+2. tool choice 是否合理
+3. argument correctness /
+   schema fit 是否正确
+
+不要把这些失败模式
+全压成一个 holistic 分数。
 
 如果 grader 结论与 deterministic gate 冲突，以显式 contract 与可重复 gate 为准。
 
