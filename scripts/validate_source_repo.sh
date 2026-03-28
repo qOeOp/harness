@@ -69,6 +69,13 @@ require_file "skills/research/templates/research-brief.md"
 require_file "skills/research/templates/research-memo.md"
 require_file "skills/research/templates/source-note.md"
 require_file "skills/research/templates/evidence-ledger.md"
+require_file "scripts/research/browser_extract.py"
+require_file "scripts/research/crawl4ai_extract.py"
+require_file "scripts/research/lib_extract.py"
+require_file "scripts/research/lib_local_browser.py"
+require_file "scripts/research/lib_search.py"
+require_file "scripts/research/local_browser_profiles.py"
+require_file "scripts/research/search_auto.py"
 require_file "docs/workflows/agent-operator-contract.md"
 require_file "docs/workflows/consumer-runtime-routing.md"
 require_file "docs/workflows/task-artifact-routing.md"
@@ -167,6 +174,8 @@ require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attac
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
+require_contains "skills/research/refs/runtime-contract.md" 'configured SearXNG instance'
+require_contains "skills/research/refs/runtime-contract.md" 'optional heavy-duty headless crawler'
 require_contains "roles/README.md" '本仓库不再维护 provider-owned generated role mirrors'
 require_contains "roles/README.md" '.harness/workspace/roles/'
 require_contains "roles/README.md" '`runtime-role-manager`'
@@ -185,6 +194,12 @@ require_contains "docs/workflows/governance-surface-audit.md" '# Surface Audit'
 require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: scripts/runtime_role_manager.sh'
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
+
+if command -v markdownlint >/dev/null 2>&1; then
+  markdownlint README.md >/dev/null 2>&1 || fail "README.md failed markdownlint"
+else
+  fail "missing command: markdownlint (required subtractive-governance control)"
+fi
 
 if rg -n '/Users/[^/]+/.+/(\\.agents/skills/harness|\\.harness)/|/Users/[^/]+/.+/AGENTS\\.md|/Users/[^/]+/.+/CLAUDE\\.md|/Users/[^/]+/.+/GEMINI\\.md|/Users/[^/]+/.+/(\\.codex|\\.gemini)/' \
   --glob '!references/archive/**' \

@@ -39,11 +39,13 @@ It supports five primary operation modes:
 3. Use `brief` when the collection plan is non-trivial or the topic spans many sources.
 4. Use `collect` with the cheapest reliable route:
    - `search` for discovery
+     - prefer self-hostable or open backends when they meet freshness and source-quality needs
    - `extract-url` for known URLs
      - prefer public feeds, RSS, oEmbed, or simpler text/json surfaces when the site exposes them
    - `crawl` for bounded same-host coverage
    - `browser` for JS-rendered or interaction-gated pages
      - reuse auth via storage state, dedicated profile, or temporary local browser snapshot when needed
+   - `crawl4ai` for heavier browser-native extraction or dynamic crawling when the lighter browser route is not enough
    - `ingest-local` for repo-local or local documents
 5. Convert durable evidence into `source-note` artifacts before formal recommendations.
 6. Use `evidence ledger` only when the run is long, multi-source, or likely to be resumed by another operator.

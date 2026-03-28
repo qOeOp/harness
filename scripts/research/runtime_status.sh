@@ -24,14 +24,17 @@ echo "- http_cache_dir: $(env_var_state HARNESS_RESEARCH_HTTP_CACHE_DIR)"
 echo "- disable_http_cache: $(env_var_state HARNESS_RESEARCH_DISABLE_HTTP_CACHE)"
 echo "- http_retries: $(env_var_state HARNESS_RESEARCH_HTTP_RETRIES)"
 echo "- http_max_retry_after: $(env_var_state HARNESS_RESEARCH_HTTP_MAX_RETRY_AFTER)"
+echo "- searxng_url: $(env_var_state HARNESS_RESEARCH_SEARXNG_URL)"
 
 echo
 echo "## Suggested routes"
 
 if [ "$(env_var_state TAVILY_API_KEY)" = "set" ]; then
-  echo "- search: tavily"
+  echo "- search: tavily via auto-dispatch"
+elif [ "$(env_var_state HARNESS_RESEARCH_SEARXNG_URL)" = "set" ]; then
+  echo "- search: searxng via auto-dispatch"
 else
-  echo "- search: unavailable until TAVILY_API_KEY is set"
+  echo "- search: unavailable until TAVILY_API_KEY or HARNESS_RESEARCH_SEARXNG_URL is set"
 fi
 
 echo "- extract-url: stdlib fetcher with conditional requests, retry/backoff, and local cache validators"
@@ -43,6 +46,14 @@ if have_python_module playwright; then
   echo "  local browser copy: HARNESS_RESEARCH_BROWSER_LOCAL_BROWSER + HARNESS_RESEARCH_BROWSER_PROFILE_DIRECTORY"
 else
   echo "- browser: unavailable until Python Playwright is installed"
+fi
+
+if have_python_module crawl4ai; then
+  echo "- crawl4ai: optional heavy-duty headless crawler for dynamic pages and richer browser extraction"
+  echo "  auth reuse: HARNESS_RESEARCH_BROWSER_USER_DATA_DIR"
+  echo "  local browser copy: HARNESS_RESEARCH_BROWSER_LOCAL_BROWSER + HARNESS_RESEARCH_BROWSER_PROFILE_DIRECTORY"
+else
+  echo "- crawl4ai: unavailable until Python crawl4ai is installed"
 fi
 
 if have_cmd markitdown || have_python_module markitdown; then

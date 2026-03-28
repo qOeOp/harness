@@ -9,7 +9,8 @@ The research runtime exposes one primary control surface:
 1. `status`
    - show which optional providers are currently available
 2. `search`
-   - use Tavily search when `TAVILY_API_KEY` is present
+   - default to auto-dispatch across available search backends
+   - prefer Tavily when `TAVILY_API_KEY` is present, otherwise use a configured SearXNG instance when `HARNESS_RESEARCH_SEARXNG_URL` is present
 3. `extract-url`
    - fetch one URL and convert it into markdown-ish text
    - reuse conditional requests and a small local cache when validators such as `ETag` or `Last-Modified` are available
@@ -20,7 +21,10 @@ The research runtime exposes one primary control surface:
    - render one page with headless Playwright when simpler fetch routes miss JS-dependent content
    - may reuse auth via storage state or a configured browser profile directory
    - may snapshot a local Chrome / Edge / Chromium profile into a temporary headless copy
-6. `ingest-local`
+6. `crawl4ai`
+   - optional heavy-duty headless crawler for dynamic pages, richer extraction, and browser-native crawling features
+   - may reuse a configured browser profile directory or a temporary local Chrome / Edge / Chromium profile copy
+7. `ingest-local`
    - ingest repo-local or local filesystem documents
 
 ## Design Rules
