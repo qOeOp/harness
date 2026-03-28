@@ -83,6 +83,7 @@ repo-local runtime 只在需要持久化时出现：
    - 再读 `.harness/entrypoint.md`
    - 再通过 `./scripts/query_work_items.sh` 定位 task
    - 若当前状态为 `in-progress` 或 `paused`，继续读该 task 的 `## Recovery`
+   - 真正续跑前，先做一个 cheap baseline check，确认环境没有 undocumented drift
 4. 若当前事项处于 `paused`：
    - 先读 `Interrupt marker` 与 `Resume target`
    - 再决定是否恢复，不要靠聊天记忆猜
@@ -94,6 +95,7 @@ repo-local runtime 只在需要持久化时出现：
    - `attachments/`
    - `history/transitions/`
    - 显式 promote 的 shared writeback
+   - 若 feature / acceptance progress 需要跨 session 累计，优先使用 task-local `Acceptance Ledger`
 
 ## Current Implementation Note
 

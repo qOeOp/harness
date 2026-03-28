@@ -97,7 +97,7 @@
 
 说明：
 
-1. decision / research / source / checkpoint 默认进入 `attachments/`。
+1. research brief / evidence ledger / acceptance ledger / decision / research / source / checkpoint 默认进入 `attachments/`。
 2. transition ledger 是 append-only trace，不应用 narrative 文本替代。
 3. accepted task 的 `Role Change Proposal` 默认属于 `closure/`。
 

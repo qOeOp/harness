@@ -328,6 +328,20 @@ validate_file() {
       validate_referenced_source_notes "$file" || ok=1
       validate_referenced_dispatches "$file" || ok=1
       ;;
+    "# Acceptance Ledger")
+      require_field "$file" "Date" || ok=1
+      require_field "$file" "Scope" || ok=1
+      require_field "$file" "Acceptance criteria source" || ok=1
+      require_field "$file" "Current acceptance status" || ok=1
+      require_field "$file" "Verification date" || ok=1
+      require_field "$file" "Verification mode" || ok=1
+      require_field "$file" "Sources reviewed" || ok=1
+      require_field "$file" "What remains unverified" || ok=1
+      validate_verification_mode "$file" || ok=1
+      require_external_reference_if_needed "$file" || ok=1
+      validate_referenced_source_notes "$file" || ok=1
+      validate_referenced_dispatches "$file" || ok=1
+      ;;
     "# Vision Meeting Brief"|"# Requirements Meeting Brief")
       require_field "$file" "Verification date" || ok=1
       require_field "$file" "Verification mode" || ok=1

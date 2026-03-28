@@ -132,6 +132,29 @@
 例如 `max turns / iterations`、timebox、tool / write budget、
 pause / cancel / kill semantics。
 
+## Bootstrap vs Steady-State
+
+frontier 长任务默认把 bootstrap 与 steady-state 分开建模。
+
+规则：
+
+1. bootstrap session 负责 materialize 最小运行面：
+   - `task.md`
+   - 必要的 `## Recovery`
+   - baseline smoke / baseline check 入口
+   - 若 feature / acceptance progress 会跨 session 累计，则补 task-local `Acceptance Ledger`
+2. steady-state session 默认消费同一份 task truth：
+   - 先读 `task.md`
+   - 再读 `## Recovery`
+   - 再看最近 transition / progress / 必要附件
+   - 先跑一个 cheap baseline check，再执行 `Next command`
+3. 若进度需要跨回合累计，优先写 task-local、结构化、可机读 ledger，
+   不要只写 narrative prose、provider transcript 或聊天结论
+4. 每次长回合结束时，应至少留下：
+   - next command
+   - validated completion boundary
+   - checkpoint、acceptance status 或其他 reviewable artifact 之一
+
 ### Claim / Lease Fields
 
 `Claimed at`、`Claim expires at` 与 `Lease version`
@@ -213,16 +236,26 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 
 1. `Research Dispatch`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md`
-2. `Source Note`
+2. `Research Brief`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-brief.md`
+3. `Source Note`
    - `.harness/tasks/<task-id>/attachments/sources/<date>-<slug>.md`
-3. `Research Memo`
+4. `Research Memo`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-memo.md`
-4. `Decision Pack`
+5. Optional `Evidence Ledger`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-evidence-ledger.md`
+6. `Decision Pack`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-decision-pack.md`
-5. `Checkpoint`
+7. Optional `Acceptance Ledger`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-acceptance-ledger.md`
+8. `Checkpoint`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-checkpoint.md`
-6. `Role Change Proposal`
+9. `Role Change Proposal`
    - `.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
+
+长任务若需要跨 session 维护 feature / acceptance checklist，
+优先使用 `Acceptance Ledger` 这类结构化、可机读附件，
+不要把“已完成 / 已验证”只留在 prose 或 provider transcript。
 
 ## Query Surface
 
@@ -246,6 +279,18 @@ materialized runtime：
 2. [audit_document_system.sh](/Users/vx/WebstormProjects/harness/scripts/audit_document_system.sh)
 3. [audit_state_system.sh](/Users/vx/WebstormProjects/harness/scripts/audit_state_system.sh)
 4. [run_state_validation_slice.sh](/Users/vx/WebstormProjects/harness/scripts/run_state_validation_slice.sh)
+
+## Observability Capture Boundary
+
+observability / replay 的默认职责是解释执行过程、支持 trace correlation，
+而不是把高敏感文本再复制成第二份账本。
+
+默认规则：
+
+1. 完整 prompt、instruction、tool payload 与 model output 默认不做全量采集
+2. 内容捕获必须显式 opt-in
+3. 优先记录 artifact path、evidence reference、object handle 或 content hash
+4. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
 
 ## Non-Goals
 

@@ -4,7 +4,7 @@
 
 ## 目的
 
-把 `research dispatch / research brief / source note / research memo / decision pack / checkpoint / role change proposal` 这类正式 artifact 的默认落点收敛到一套单一规则，避免 task truth 和共享写回同时冒充默认真相。
+把 `research dispatch / research brief / source note / research memo / evidence ledger / decision pack / acceptance ledger / checkpoint / role change proposal` 这类正式 artifact 的默认落点收敛到一套单一规则，避免 task truth 和共享写回同时冒充默认真相。
 
 ## Canonical Rule
 
@@ -63,9 +63,11 @@
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-evidence-ledger.md`
 6. `Decision Pack`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-decision-pack.md`
-7. `Checkpoint`
+7. Optional `Acceptance Ledger`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-acceptance-ledger.md`
+8. `Checkpoint`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-checkpoint.md`
-8. `Role Change Proposal`
+9. `Role Change Proposal`
    - `.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
 
 说明：
@@ -73,6 +75,7 @@
 1. `Research Brief` 是 collection 复杂时的前置 artifact，不要求每次都写。
 2. `Evidence Ledger` 是长流程、多来源、可中断研究时的可选台账，不应变成强制 paperwork。
 3. `Source Note` 仍是默认正式证据 artifact。
+4. `Acceptance Ledger` 用于跨 session 维护 feature / acceptance checklist、验证进度与未完成边界；最终 closeout 仍可进入 `closure/`。
 
 ### 3. Shared Writeback Promotion
 
@@ -88,12 +91,12 @@ promotion 是显式升级动作，不再通过“缺少 task context 就退回 w
 
 任何 freshness / evidence 校验都必须理解：
 
-1. task-local `dispatch / source / research / decision / checkpoint`
+1. task-local `dispatch / source / research / decision / acceptance-ledger / checkpoint`
 2. promoted shared `dispatch / source / decision / briefs`
 
 ### 5. Pointer Neutrality
 
-research / source / decision / checkpoint / dispatch 这类 artifact writeback 默认不应改变执行焦点。
+research / source / decision / acceptance-ledger / checkpoint / dispatch 这类 artifact writeback 默认不应改变执行焦点。
 
 在 v2 core 里，这条规则等价于：
 

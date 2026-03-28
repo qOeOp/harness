@@ -79,6 +79,19 @@ MCP 安装方式或 config 格式。
 
 不要因为某个 provider 支持 subagent、automation、MCP，就默认把这些能力全部打满。
 
+## Observability Capture Rule
+
+observability / replay 默认服务的是解释执行、关联证据与调试，
+不是把 prompt、工具输入输出和模型内容
+再复制成第二套高敏感语料库。
+
+默认要求：
+
+1. 完整 prompt、instruction、tool payload 与 model output 默认不采集
+2. 内容级捕获必须显式 opt-in，而不是静默默认开启
+3. 优先记录 artifact path、evidence reference、object handle 或 content hash
+4. tracing backend 不应承担第二份 canonical task memory 的职责
+
 ## Default Operating Loop
 
 所有 coding agent 的默认执行顺序是：

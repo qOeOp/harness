@@ -52,15 +52,18 @@
 
 复利 review 至少要检查：
 
-1. Acceptance artifact
-   - `Acceptance Review Brief` 或等价 task-local acceptance 记录
-2. 必要时的 `Process Audit`
-3. 若发现角色边界问题，则创建 `Role Change Proposal`
+1. 若验收标准跨多个 session 或 slice 演进：
+   - `Acceptance Ledger`
+2. Final acceptance artifact
+   - `Acceptance Review Brief` 或等价 final acceptance closeout note
+3. 必要时的 `Process Audit`
+4. 若发现角色边界问题，则创建 `Role Change Proposal`
 
 默认 task-local 路径：
 
-1. acceptance / closeout 相关材料：`.harness/tasks/<task-id>/closure/`
-2. `Role Change Proposal`：`.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
+1. `Acceptance Ledger`：`.harness/tasks/<task-id>/attachments/<date>-<slug>-acceptance-ledger.md`
+2. acceptance / closeout 相关材料：`.harness/tasks/<task-id>/closure/`
+3. `Role Change Proposal`：`.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
 
 ## Review Questions
 
@@ -109,3 +112,4 @@
 2. 不要让 `Runtime Role Manager` 自己决定是否需要新增 role。
 3. 不要把 provider-specific agent 文件当作 role mutation 的 canonical 输出。
 4. 不要把 source repo 的 `roles/` 当成 consumer runtime 组织演化的落点。
+5. 不要把跨 session 的 acceptance progress 只留在聊天里而不落成结构化 artifact。

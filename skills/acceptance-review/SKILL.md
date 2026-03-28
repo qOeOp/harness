@@ -6,7 +6,13 @@ description: Use when the founder needs to review a runnable slice and decide ac
 Read [./manifest.toml](./manifest.toml).
 Read [./refs/README.md](./refs/README.md).
 
-Prepare an acceptance review brief using [./templates/acceptance-review-brief.md](./templates/acceptance-review-brief.md).
+Prepare the final founder or user review using [./templates/acceptance-review-brief.md](./templates/acceptance-review-brief.md).
+
+If acceptance progress spans sessions, slices, or parallel verification work, first create a task-local `Acceptance Ledger` using [./templates/acceptance-ledger.md](./templates/acceptance-ledger.md).
+
+Canonical script surface:
+
+- [./scripts/new_acceptance_ledger.sh](./scripts/new_acceptance_ledger.sh) `--work-item <WI-xxxx> <scope>`
 
 If acceptance criteria depend on volatile external facts, require the `research` bundle `dispatch` mode plus fresh source-note support or mark those claims as needing freshness check.
 

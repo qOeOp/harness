@@ -27,6 +27,7 @@
 输入：
 
 - postmortem
+- acceptance ledger
 - acceptance / closeout 记录
 - checkpoint
 - freshness failures

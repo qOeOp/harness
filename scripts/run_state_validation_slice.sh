@@ -199,6 +199,7 @@ trap cleanup EXIT HUP INT TERM
     "\"$script_dir/new_research_dispatch.sh\" \"Dispatch Without Task Context\"" \
     "\"$script_dir/new_research.sh\" \"Research Without Task Context\"" \
     "\"$script_dir/new_decision.sh\" \"Decision Without Task Context\"" \
+    "\"$script_dir/new_acceptance_ledger.sh\" \"Acceptance Without Task Context\"" \
     "\"$script_dir/new_source_note.sh\" \"Source Without Task Context\"" \
     "\"$script_dir/new_checkpoint.sh\" \"Checkpoint Without Task Context\"" \
     "\"$script_dir/new_role_change_proposal.sh\" \"Role Change Without Task Context\""
@@ -338,6 +339,15 @@ trap cleanup EXIT HUP INT TERM
     ".harness/tasks/$validation_id/attachments/"*-decision-pack.md) ;;
     *)
       echo "validation slice failed: decision pack did not stay in task-local attachments" >&2
+      exit 1
+      ;;
+  esac
+
+  validation_acceptance_ledger=$("$script_dir/new_acceptance_ledger.sh" --work-item "$validation_id" "Runtime Smoke Acceptance")
+  case "$validation_acceptance_ledger" in
+    ".harness/tasks/$validation_id/attachments/"*-acceptance-ledger.md) ;;
+    *)
+      echo "validation slice failed: acceptance ledger did not stay in task-local attachments" >&2
       exit 1
       ;;
   esac

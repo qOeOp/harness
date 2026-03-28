@@ -27,6 +27,8 @@
    不把 bounded autonomy 只留在聊天里
 7. 等待 human approval / review / feedback 跨 session 时，
    先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
+8. steady-state 恢复时，先读 task truth，再做 cheap baseline check，
+   不要跳过环境校验直接续跑旧命令
 
 ## 存储规则
 
@@ -54,6 +56,16 @@ Recovery 至少记录：
 3. tool / write budget
 4. pause / cancel / kill semantics
 
+## Steady-State Resume Sequence
+
+稳定推进阶段的默认恢复顺序：
+
+1. 先读 `.harness/tasks/<task-id>/task.md`
+2. 再读同文件里的 `## Recovery`
+3. 再看最近的 transition / progress / 必要附件
+4. 先跑一个 cheap baseline check，确认环境没有 undocumented drift
+5. 然后才继续执行 `Next command`
+
 ## 何时必须创建或刷新
 
 1. task 进入 `in-progress` 后，如果不会在同一轮自然收口，应写 Recovery
@@ -63,6 +75,10 @@ Recovery 至少记录：
 5. 任务因 Founder / manual / risk review 进入 `paused` 后，应把 resume 命令和恢复条件刷进 `## Recovery`
 6. 任务 budget、timebox 或 stop boundary 发生变化时，
    应同步刷新 Recovery
+7. 长回合准备结束时，应至少留下：
+   - 可执行的 next command
+   - 已验证的完成边界
+   - checkpoint、acceptance status 或等价 reviewable artifact 之一
 
 ## 推荐操作
 

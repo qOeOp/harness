@@ -2,7 +2,7 @@ schema_version = 1
 bundle_slug = "acceptance-review"
 bundle_version = 1
 bundle_kind = "review-skill"
-summary = "Review a runnable slice with explicit acceptance criteria, boundaries, and verification honesty."
+summary = "Review a runnable slice with explicit acceptance criteria, session-spanning acceptance tracking, and verification honesty."
 
 owner_role = "risk-quality-lead"
 scope = "source-baseline"
@@ -10,7 +10,7 @@ maturity = "candidate"
 
 context_strategy = "artifact-first"
 delegation_mode = "manager-optional"
-entrypoints = ["chat", "review", "work-item"]
+entrypoints = ["chat", "review", "work-item", "script"]
 activation_modes = ["explicit", "router"]
 output_modes = ["summary", "artifact-path"]
 
@@ -21,4 +21,12 @@ forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 
 default_artifact_type = "acceptance-review-brief"
 default_artifact_path = ".harness/tasks/<task-id>/attachments/"
-lazy_load_paths = ["refs/", "templates/"]
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+
+supported_artifact_types = [
+  "acceptance-review-brief",
+  "acceptance-ledger",
+]
+
+preferred_scripts = ["skills/acceptance-review/scripts/new_acceptance_ledger.sh"]
+backing_global_scripts = ["scripts/new_acceptance_ledger.sh"]

@@ -77,6 +77,7 @@ require_file "skills/research/templates/research-brief.md"
 require_file "skills/research/templates/research-memo.md"
 require_file "skills/research/templates/source-note.md"
 require_file "skills/research/templates/evidence-ledger.md"
+require_file "skills/acceptance-review/templates/acceptance-ledger.md"
 require_file "scripts/research/browser_extract.py"
 require_file "scripts/research/crawl4ai_extract.py"
 require_file "scripts/research/lib_extract.py"
@@ -113,6 +114,8 @@ require_exec "skills/research/scripts/new_source_note.sh"
 require_exec "skills/research/scripts/new_ledger.sh"
 require_exec "skills/decision-pack/scripts/new_decision.sh"
 require_exec "skills/memory-checkpoint/scripts/new_checkpoint.sh"
+require_exec "skills/acceptance-review/scripts/new_acceptance_ledger.sh"
+require_exec "scripts/new_acceptance_ledger.sh"
 
 forbidden_path ".harness"
 forbidden_path ".agents/skills/harness"
@@ -173,15 +176,19 @@ require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
 require_contains "skills/research/manifest.toml" 'operation_modes = ['
 require_contains "skills/decision-pack/manifest.toml" 'bundle_slug = "decision-pack"'
 require_contains "skills/memory-checkpoint/manifest.toml" 'bundle_slug = "memory-checkpoint"'
+require_contains "skills/acceptance-review/manifest.toml" 'bundle_slug = "acceptance-review"'
+require_contains "skills/acceptance-review/manifest.toml" 'acceptance-ledger'
 require_contains "scripts/new_research.sh" 'skills/research/templates/research-memo.md'
 require_contains "scripts/new_research_dispatch.sh" 'skills/research/templates/research-dispatch.md'
 require_contains "scripts/new_research_brief.sh" 'skills/research/templates/research-brief.md'
 require_contains "scripts/new_source_note.sh" 'skills/research/templates/source-note.md'
 require_contains "scripts/new_decision.sh" 'skills/decision-pack/templates/decision-pack.md'
 require_contains "scripts/new_checkpoint.sh" 'skills/memory-checkpoint/templates/checkpoint.md'
+require_contains "scripts/new_acceptance_ledger.sh" 'skills/acceptance-review/templates/acceptance-ledger.md'
 require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mode'
 require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
+require_contains "skills/acceptance-review/SKILL.md" 'Acceptance Ledger'
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
@@ -211,6 +218,7 @@ require_contains "docs/workflows/consumer-runtime-routing.md" '$HOME/.harness/co
 require_contains "docs/workflows/consumer-runtime-routing.md" '`--consumer-runtime <name>`'
 require_contains "docs/workflows/post-acceptance-compounding-loop.md" 'completion candidate -> acceptance -> compounding review -> role change proposal -> runtime-role-manager execution'
 require_contains "docs/workflows/task-artifact-routing.md" 'role-change-proposal.md'
+require_contains "docs/workflows/task-artifact-routing.md" 'Acceptance Ledger'
 require_contains "docs/workflows/agent-operator-contract.md" 'scripts/runtime_role_manager.sh'
 require_contains "docs/workflows/agent-operator-contract.md" '`policy_*`'
 require_contains "docs/workflows/agent-operator-contract.md" 'paused + interrupt metadata + formal resume transition'
@@ -221,6 +229,7 @@ require_contains "docs/workflows/agent-operator-contract.md" '`max turns / itera
 require_contains "docs/workflows/agent-operator-contract.md" 'deterministic / code-graded gate'
 require_contains "docs/workflows/agent-operator-contract.md" 'versioned control surface'
 require_contains "docs/workflows/agent-operator-contract.md" '`MCP roots`、OAuth audience / scope、tool allowlist、permission mode'
+require_contains "docs/workflows/agent-operator-contract.md" 'content hash'
 require_contains "docs/workflows/provider-deltas/codex.md" 'full-context fork'
 require_contains "docs/workflows/provider-deltas/codex.md" 'budget / stop boundary'
 require_contains "docs/organization/decision-rights.md" '`Role Change Proposal`'
@@ -231,7 +240,9 @@ require_contains "docs/workflows/founder-meeting-taxonomy.md" '这些 `meeting` 
 require_contains "docs/workflows/founder-intake-evolution-loop.md" '`general-manager`'
 require_contains "docs/workflows/governance-surface-audit.md" '# Surface Audit'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" '慢速 human review / approval / feedback'
+require_contains "docs/workflows/document-routing-and-lifecycle.md" 'cheap baseline check'
 require_contains "docs/workflows/work-item-recovery-protocol.md" '等待 human approval / review / feedback 跨 session 时'
+require_contains "docs/workflows/work-item-recovery-protocol.md" 'cheap baseline check'
 require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: scripts/runtime_role_manager.sh'
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'schema / format version'
@@ -239,6 +250,9 @@ require_contains "references/specs/2026-03-27-harness-task-record-runtime-contra
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'budget / stop boundary'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'lock dir 元数据默认应带 `owner`'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" '`Claimed at`、`Claim expires at` 与 `Lease version`'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'Acceptance Ledger'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'cheap baseline check'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'content hash'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'budget / stop boundary'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'full parent transcript'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
@@ -252,6 +266,7 @@ require_contains "scripts/materialize_runtime_fixture.sh" 'schema / format versi
 require_contains "scripts/materialize_runtime_fixture.sh" 'pause the task and resume later'
 require_contains "scripts/materialize_runtime_fixture.sh" 'budget / stop boundary'
 require_contains "scripts/materialize_runtime_fixture.sh" 'renewable claim-expiry metadata'
+require_contains "scripts/materialize_runtime_fixture.sh" 'cheap baseline check'
 require_contains "scripts/lib_consumer_runtime_routes.sh" 'Shared writeback runtime'
 require_contains "scripts/new_work_item.sh" 'owner="${3:-General Manager}"'
 require_contains "scripts/new_work_item.sh" 'sponsor="${5:-general-manager}"'
