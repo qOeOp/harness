@@ -138,7 +138,7 @@ framework source repo：
 ```bash
 ./scripts/validate_source_repo.sh
 ./scripts/audit_role_schema.sh
-./scripts/run_governance_surface_diagnostic.sh --mode source
+./scripts/run_surface_diagnostic.sh --mode source
 ```
 
 materialized runtime：
@@ -153,12 +153,16 @@ materialized runtime：
 
 shared-writeback runtime：
 
+这里的 `--mode governance`
+仍是共享写回 runtime 的兼容模式名，
+不是新的默认产品层命名。
+
 ```bash
 ./scripts/validate_workspace.sh --mode governance
 ./scripts/audit_state_system.sh --mode governance
 ./scripts/audit_document_system.sh
 ./scripts/validate_freshness_gate.sh --staged
-./scripts/run_governance_surface_diagnostic.sh --mode consumer
+./scripts/run_surface_diagnostic.sh --mode consumer
 ```
 
 ## 禁止事项

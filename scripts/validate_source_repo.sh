@@ -39,6 +39,13 @@ require_redirect_stub() {
   require_contains "$file" 'skill-owned template'
 }
 
+require_legacy_redirect_stub() {
+  file="$1"
+  target="$2"
+  require_contains "$file" 'Legacy redirect only.'
+  require_contains "$file" "$target"
+}
+
 forbid_contains() {
   file="$1"
   pattern="$2"
@@ -66,6 +73,7 @@ for skill_dir in skills/*; do
 done
 
 require_file "docs/project-structure.md"
+require_file "docs/charter/harness-charter.md"
 require_file "docs/memory/memory-architecture.md"
 require_file "references/layering.md"
 require_file "references/runtime-workspace.md"
@@ -99,12 +107,16 @@ require_file "docs/workflows/agent-operator-contract.md"
 require_file "docs/workflows/consumer-runtime-routing.md"
 require_file "docs/workflows/task-artifact-routing.md"
 require_file "docs/workflows/post-acceptance-compounding-loop.md"
+require_file "docs/workflows/surface-audit.md"
 require_file "docs/workflows/provider-deltas/gemini.md"
 require_file "docs/workflows/tool-adapter-capability-map.md"
 require_file "roles/README.md"
 require_file "docs/templates/role-change-proposal.md"
+require_file "skills/os-audit/templates/surface-audit.md"
 
 require_exec "scripts/materialize_runtime_fixture.sh"
+require_exec "scripts/run_surface_diagnostic.sh"
+require_exec "scripts/run_governance_surface_diagnostic.sh"
 require_exec "scripts/run_state_validation_slice.sh"
 require_exec "scripts/audit_role_schema.sh"
 require_exec "scripts/new_role.sh"
@@ -155,6 +167,7 @@ forbidden_path "scripts/new_daily_report.sh"
 forbidden_path "scripts/new_retro.sh"
 forbidden_path "docs/workflows/founder-governance-meeting-loop.md"
 forbidden_path "docs/workflows/company-bootstrap-loop.md"
+forbidden_path "docs/charter/company-charter.md"
 forbidden_path "docs/organization/org-chart.md"
 forbidden_path "docs/organization/workstream-map.md"
 forbidden_path "docs/organization/governance-capability-map.md"
@@ -268,9 +281,11 @@ require_contains "docs/workflows/agile-runnable-demo-policy.md" 'post-acceptance
 require_contains "docs/workflows/founder-meeting-taxonomy.md" 'Founder-facing 正式会议当前只保留 4 类'
 require_contains "docs/workflows/founder-meeting-taxonomy.md" '这些 `meeting` 名字是 routing label 和 output contract，不是周期性治理仪式，也不是组织结构投影。'
 require_contains "docs/workflows/founder-intake-evolution-loop.md" '`general-manager`'
-require_contains "docs/workflows/governance-surface-audit.md" '# Surface Audit'
+require_contains "docs/workflows/surface-audit.md" '# Surface Audit'
+require_contains "docs/workflows/surface-audit.md" 'run_surface_diagnostic.sh'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" '慢速 human review / approval / feedback'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" 'cheap baseline check'
+require_contains "docs/workflows/document-routing-and-lifecycle.md" '兼容模式名'
 require_contains "docs/workflows/work-item-recovery-protocol.md" '等待 human approval / review / feedback 跨 session 时'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'cheap baseline check'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'checkpoint-relative re-entry'
@@ -312,12 +327,12 @@ require_contains "docs/workflows/decision-workflow.md" 'skills/decision-pack/tem
 require_contains "docs/workflows/volatile-research-default.md" 'skills/research/templates/research-dispatch.md'
 require_contains "docs/workflows/internal-research-routing.md" 'skills/research/templates/research-dispatch.md'
 require_contains "docs/workflows/process-compounding-cadence.md" 'skills/process-audit/templates/process-audit.md'
-require_contains "docs/workflows/process-compounding-cadence.md" 'skills/os-audit/templates/governance-surface-audit.md'
+require_contains "docs/workflows/process-compounding-cadence.md" 'skills/os-audit/templates/surface-audit.md'
 require_redirect_stub "docs/templates/acceptance-review-brief.md" 'skills/acceptance-review/templates/acceptance-review-brief.md'
 require_redirect_stub "docs/templates/brainstorming-notes.md" 'skills/brainstorming-session/templates/brainstorming-notes.md'
 require_redirect_stub "docs/templates/decision-pack.md" 'skills/decision-pack/templates/decision-pack.md'
 require_redirect_stub "docs/templates/founder-brief.md" 'skills/founder-brief/templates/founder-brief.md'
-require_redirect_stub "docs/templates/governance-surface-audit.md" 'skills/os-audit/templates/governance-surface-audit.md'
+require_redirect_stub "docs/templates/governance-surface-audit.md" 'skills/os-audit/templates/surface-audit.md'
 require_redirect_stub "docs/templates/process-audit.md" 'skills/process-audit/templates/process-audit.md'
 require_redirect_stub "docs/templates/requirements-meeting-brief.md" 'skills/requirements-meeting/templates/requirements-meeting-brief.md'
 require_redirect_stub "docs/templates/research-dispatch.md" 'skills/research/templates/research-dispatch.md'
@@ -363,6 +378,9 @@ if command -v markdownlint >/dev/null 2>&1; then
 else
   fail "missing command: markdownlint (required subtractive-governance control)"
 fi
+
+require_legacy_redirect_stub "docs/workflows/governance-surface-audit.md" 'docs/workflows/surface-audit.md'
+require_legacy_redirect_stub "skills/os-audit/templates/governance-surface-audit.md" 'surface-audit.md'
 
 if rg -n '/Users/[^/]+/.+/(\\.agents/skills/harness|\\.harness)/|/Users/[^/]+/.+/AGENTS\\.md|/Users/[^/]+/.+/CLAUDE\\.md|/Users/[^/]+/.+/GEMINI\\.md|/Users/[^/]+/.+/(\\.codex|\\.gemini)/' \
   --glob '!references/archive/**' \

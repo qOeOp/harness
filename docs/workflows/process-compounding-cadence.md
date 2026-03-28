@@ -1,6 +1,6 @@
 # Process Compounding Cadence
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -53,14 +53,14 @@
 默认先运行：
 
 - source repo:
-  - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+  - `./scripts/run_surface_diagnostic.sh --mode source`
 - consumer / dogfood repo:
-  - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
+  - `./scripts/run_surface_diagnostic.sh --mode consumer`
 
 详细规则见：
 
-- [docs/workflows/governance-surface-audit.md](./governance-surface-audit.md)
-- [skills/os-audit/templates/governance-surface-audit.md](../../skills/os-audit/templates/governance-surface-audit.md)
+- [docs/workflows/surface-audit.md](./surface-audit.md)
+- [skills/os-audit/templates/surface-audit.md](../../skills/os-audit/templates/surface-audit.md)
 
 ### Escalation Rule
 
@@ -111,12 +111,12 @@
 1. source repo：
    - `./scripts/validate_source_repo.sh`
    - `./scripts/audit_role_schema.sh`
-   - `./scripts/run_governance_surface_diagnostic.sh --mode source`
+   - `./scripts/run_surface_diagnostic.sh --mode source`
 2. consumer / dogfood repo：
    - `./scripts/audit_document_system.sh`
    - `./scripts/audit_doc_style.sh`
    - `./scripts/validate_workspace.sh`
-   - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
+   - `./scripts/run_surface_diagnostic.sh --mode consumer`
 
 输出：
 

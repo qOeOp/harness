@@ -575,7 +575,7 @@ framework source repo：
 ```bash
 ./scripts/validate_source_repo.sh
 ./scripts/audit_role_schema.sh
-./scripts/run_governance_surface_diagnostic.sh --mode source
+./scripts/run_surface_diagnostic.sh --mode source
 ```
 
 补充约束：

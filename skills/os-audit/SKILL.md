@@ -17,4 +17,4 @@ Audit:
 - rules
 - scripts
 
-Use [./templates/governance-surface-audit.md](./templates/governance-surface-audit.md).
+Use [./templates/surface-audit.md](./templates/surface-audit.md).

@@ -1,0 +1,16 @@
+# Surface Audit
+
+- Date:
+- Owner:
+- Scope:
+- Surfaces reviewed:
+- Diagnostic command:
+- Keep:
+- Compress or merge:
+- Archive or delete:
+- Promote to skill or command:
+- Promote to hook or rule:
+- Freshness failures:
+- Script coverage gaps:
+- Audit-the-auditors actions:
+- Recommendations:

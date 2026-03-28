@@ -319,7 +319,7 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 source repo：
 
 1. [validate_source_repo.sh](/Users/vx/WebstormProjects/harness/scripts/validate_source_repo.sh)
-2. [run_governance_surface_diagnostic.sh](/Users/vx/WebstormProjects/harness/scripts/run_governance_surface_diagnostic.sh)
+2. [run_surface_diagnostic.sh](/Users/vx/WebstormProjects/harness/scripts/run_surface_diagnostic.sh)
 
 materialized runtime：
 
