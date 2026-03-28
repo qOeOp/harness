@@ -23,6 +23,27 @@
 
 而不是回写到本仓库。
 
+## Roles Are Not Skills
+
+`roles/*` 定义责任主体，不定义能力 bundle。
+
+一个 baseline role 通常会组合多个 `skills/*`：
+
+1. `General Manager / Chief of Staff`
+   - 常用 `founder-brief`, `meeting-router`, `decision-pack`, `research`
+2. `Product Thesis Lead`
+   - 常用 `vision-meeting`, `requirements-meeting`, `brainstorming-session`, `research`
+3. `Knowledge & Memory Lead`
+   - 常用 `research`, `memory-checkpoint`, `daily-digest`, `decision-pack`
+4. `Workflow & Automation Lead`
+   - 常用 `capability-scout`, `research`, `os-audit`, `process-audit`
+5. `Risk & Quality Lead`
+   - 常用 `acceptance-review`, `decision-pack`, `research`
+6. `Compounding Engineering Lead`
+   - 常用 `retro`, `process-audit`, `governance-meeting`, `capability-scout`, `os-audit`
+
+这是一组默认 affinity，不是硬权限。
+
 ## 文件格式
 
 每个 role 文件使用统一 `frontmatter v1`：
@@ -53,6 +74,17 @@
 2. `claude_*` 和 `codex_*` 当前仅作为兼容期 metadata 保留
 3. source repo 内置角色正文使用 `## Canonical Instructions`
 4. consumer runtime 新建角色沿用同一 schema，但正文标题使用 `## Runtime Instructions`
+
+可选 skill affinity keys：
+
+- `default_skills`
+- `secondary_skills`
+
+说明：
+
+1. 这两个字段表达默认路由 affinity，不表达硬权限
+2. 当前为了兼容 shell-native 审计与编辑脚本，值使用逗号分隔的 skill slug，而不是 YAML 数组
+3. 若值不存在，统一写 `none`
 
 可选 policy 扩展 keys：
 

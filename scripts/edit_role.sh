@@ -20,6 +20,8 @@ optional updates:
   --codex-reasoning-effort <level>
   --codex-sandbox-mode <mode>
   --codex-nicknames <csv>
+  --default-skills <csv>
+  --secondary-skills <csv>
   --policy-allowed-entrypoints <csv>
   --policy-allowed-actions <csv>
   --policy-mutation-actions <csv>
@@ -61,6 +63,8 @@ codex_model=""
 codex_reasoning_effort=""
 codex_sandbox_mode=""
 codex_nicknames=""
+default_skills=""
+secondary_skills=""
 policy_allowed_entrypoints=""
 policy_allowed_actions=""
 policy_mutation_actions=""
@@ -91,6 +95,8 @@ while [ "$#" -gt 0 ]; do
     --codex-reasoning-effort) codex_reasoning_effort="${2:-}"; shift 2 ;;
     --codex-sandbox-mode) codex_sandbox_mode="${2:-}"; shift 2 ;;
     --codex-nicknames) codex_nicknames="${2:-}"; shift 2 ;;
+    --default-skills) default_skills="${2:-}"; shift 2 ;;
+    --secondary-skills) secondary_skills="${2:-}"; shift 2 ;;
     --policy-allowed-entrypoints) policy_allowed_entrypoints="${2:-}"; shift 2 ;;
     --policy-allowed-actions) policy_allowed_actions="${2:-}"; shift 2 ;;
     --policy-mutation-actions) policy_mutation_actions="${2:-}"; shift 2 ;;
@@ -176,6 +182,8 @@ fi
 [ -n "$codex_reasoning_effort" ] || codex_reasoning_effort=$(frontmatter_value "$role_file" "codex_reasoning_effort")
 [ -n "$codex_sandbox_mode" ] || codex_sandbox_mode=$(frontmatter_value "$role_file" "codex_sandbox_mode")
 [ -n "$codex_nicknames" ] || codex_nicknames=$(frontmatter_value "$role_file" "codex_nicknames")
+[ -n "$default_skills" ] || default_skills=$(frontmatter_value "$role_file" "default_skills")
+[ -n "$secondary_skills" ] || secondary_skills=$(frontmatter_value "$role_file" "secondary_skills")
 current_policy_allowed_entrypoints=$(frontmatter_value "$role_file" "policy_allowed_entrypoints")
 current_policy_allowed_actions=$(frontmatter_value "$role_file" "policy_allowed_actions")
 current_policy_mutation_actions=$(frontmatter_value "$role_file" "policy_mutation_actions")
@@ -262,6 +270,8 @@ codex_model: $codex_model
 codex_reasoning_effort: $codex_reasoning_effort
 codex_sandbox_mode: $codex_sandbox_mode
 codex_nicknames: $codex_nicknames
+default_skills: ${default_skills:-none}
+secondary_skills: ${secondary_skills:-none}
 $policy_block
 ---
 

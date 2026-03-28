@@ -5,16 +5,17 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
 
-template_path="$repo_root/skills/research/templates/source-note.md"
-artifact_label="source note"
-artifact_suffix="source-note"
-workspace_dir=".harness/workspace/research/sources"
-artifact_type="source-note"
+template_path="$repo_root/skills/capability-scout/templates/skill-absorption-plan.md"
+artifact_label="skill absorption plan"
+artifact_suffix="skill-absorption-plan"
+workspace_dir=".harness/workspace/capabilities/scouting"
+artifact_type="skill-absorption-plan"
 
 render_template() {
   linked_work_items="$1"
   artifact_date="$2"
   artifact_title="$3"
+  artifact_slug="$4"
 
   [ -f "$template_path" ] || {
     echo "missing template: $template_path" >&2
@@ -25,12 +26,12 @@ render_template() {
     -v linked_work_items="$linked_work_items" \
     -v artifact_date="$artifact_date" \
     -v artifact_title="$artifact_title" \
+    -v artifact_slug="$artifact_slug" \
     '
-      /^- Date:$/ { $0 = "- Date: " artifact_date }
-      /^- Source:$/ { $0 = "- Source: " artifact_title }
-      /^- Accessed date:$/ { $0 = "- Accessed date: " artifact_date }
       /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
-      /^- Topic:$/ { $0 = "- Topic: " artifact_title }
+      /^- Date:$/ { $0 = "- Date: " artifact_date }
+      /^- Capability target:$/ { $0 = "- Capability target: " artifact_title }
+      /^- Local bundle slug:$/ { $0 = "- Local bundle slug: " artifact_slug }
       { print }
     ' \
     "$template_path"
@@ -43,7 +44,7 @@ export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
   cat <<EOF >&2
-usage: $0 [--work-item <WI-xxxx>] [--promote-governance] <topic>
+usage: $0 [--work-item <WI-xxxx>] [--promote-governance] <capability-target>
 EOF
   exit 1
 }
@@ -68,7 +69,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-title="${1:-untitled-source}"
+title="${1:-untitled-capability}"
 slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)
 resolved_work_item_id=""
@@ -78,7 +79,7 @@ if [ "$promote_governance" -eq 1 ]; then
     require_work_item "$work_item_id" >/dev/null
   fi
   require_governance_mode_for_workspace_artifact "$artifact_label" || exit 1
-  target="$workspace_dir/${date}-${slug}.md"
+  target="$workspace_dir/${date}-${slug}-${artifact_suffix}.md"
 else
   if [ -z "$work_item_id" ]; then
     require_explicit_promotion_for_workspace_artifact "$artifact_label" || exit 1
@@ -90,7 +91,7 @@ if [ -n "$resolved_work_item_id" ]; then
   work_item_id="$resolved_work_item_id"
   require_work_item "$work_item_id" >/dev/null
   ensure_task_directory_skeleton "$work_item_id"
-  target="$(canonical_work_item_attachment_sources_dir "$work_item_id")/${date}-${slug}.md"
+  target="$(canonical_work_item_attachments_dir "$work_item_id")/${date}-${slug}-${artifact_suffix}.md"
 elif [ "$promote_governance" -ne 1 ]; then
   require_explicit_promotion_for_workspace_artifact "$artifact_label" || exit 1
 fi
@@ -102,7 +103,7 @@ if [ -e "$target" ]; then
   exit 1
 fi
 
-render_template "${work_item_id:-n/a}" "$date" "$title" >"$target"
+render_template "${work_item_id:-n/a}" "$date" "$title" "$slug" >"$target"
 
 if [ -n "$work_item_id" ]; then
   require_explicit_state_actor "$actor" "$0"

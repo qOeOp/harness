@@ -1,0 +1,55 @@
+schema_version = 1
+bundle_slug = "capability-scout"
+bundle_version = 1
+bundle_kind = "task-skill"
+summary = "Scout external capabilities and convert the best patterns into bounded local harness skills."
+
+owner_role = "capability-architect"
+scope = "source-baseline"
+maturity = "candidate"
+
+context_strategy = "artifact-first"
+delegation_mode = "manager-optional"
+entrypoints = ["chat", "work-item", "review", "script"]
+activation_modes = ["explicit", "router"]
+output_modes = ["summary", "artifact-path"]
+
+allowed_tools = ["read", "write", "shell", "web"]
+read_roots = [
+  "skills/capability-scout/",
+  "skills/",
+  "docs/research/",
+  "references/",
+]
+write_roots = [
+  ".harness/tasks/<task-id>/attachments/",
+  ".harness/workspace/capabilities/scouting/",
+]
+forbidden_roots = [
+  "roles/",
+  ".harness/workspace/roles/",
+]
+
+default_artifact_type = "capability-scout-report"
+default_artifact_path = ".harness/tasks/<task-id>/attachments/"
+lazy_load_paths = ["refs/", "templates/", "scripts/"]
+
+supported_artifact_types = [
+  "capability-scout-report",
+  "skill-absorption-plan",
+]
+
+operation_modes = [
+  "scout",
+  "absorb",
+]
+
+governance_promotion_required = true
+preferred_scripts = [
+  "skills/capability-scout/scripts/new_scout_report.sh",
+  "skills/capability-scout/scripts/new_absorption_plan.sh",
+]
+backing_global_scripts = [
+  "scripts/new_capability_scout_report.sh",
+  "scripts/new_skill_absorption_plan.sh",
+]

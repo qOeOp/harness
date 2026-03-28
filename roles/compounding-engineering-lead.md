@@ -13,6 +13,8 @@ codex_model: gpt-5.4
 codex_reasoning_effort: high
 codex_sandbox_mode: read-only
 codex_nicknames: Helix, Loom, Quill
+default_skills: retro, process-audit, governance-meeting, capability-scout, os-audit
+secondary_skills: research, daily-digest
 ---
 
 ## Canonical Instructions

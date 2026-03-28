@@ -13,6 +13,8 @@ codex_model: gpt-5.4
 codex_reasoning_effort: high
 codex_sandbox_mode: workspace-write
 codex_nicknames: Steward, Forge, Ledger
+default_skills: none
+secondary_skills: none
 policy_allowed_entrypoints: scripts/runtime_role_manager.sh
 policy_allowed_actions: create, edit, audit
 policy_mutation_actions: create, edit

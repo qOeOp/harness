@@ -68,6 +68,10 @@ csv_contains() {
   '
 }
 
+trim() {
+  printf '%s\n' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'
+}
+
 frontmatter_value() {
   file="$1"
   key="$2"
@@ -88,6 +92,37 @@ require_key() {
   if [ -z "$value" ]; then
     fail "missing frontmatter key '$key' in $file"
   fi
+}
+
+validate_skill_csv() {
+  role_file="$1"
+  key="$2"
+  csv=$(frontmatter_value "$role_file" "$key")
+
+  [ -n "$csv" ] || return 0
+  [ "$csv" != "none" ] || return 0
+
+  old_ifs=${IFS- }
+  IFS=','
+  set -- $csv
+  IFS=$old_ifs
+
+  for skill_slug in "$@"; do
+    skill_slug=$(trim "$skill_slug")
+    [ -n "$skill_slug" ] || continue
+    case "$skill_slug" in
+      *[!a-z0-9-]*)
+        fail "invalid skill slug '$skill_slug' in $key of $role_file"
+        continue
+        ;;
+    esac
+
+    if [ -d "skills/$skill_slug" ]; then
+      continue
+    fi
+
+    fail "unknown skill slug '$skill_slug' in $key of $role_file"
+  done
 }
 
 for role_file in "$canonical_root"/*.md; do
@@ -124,6 +159,9 @@ for role_file in "$canonical_root"/*.md; do
   do
     require_key "$role_file" "$key"
   done
+
+  validate_skill_csv "$role_file" "default_skills"
+  validate_skill_csv "$role_file" "secondary_skills"
 
   schema_version=$(frontmatter_value "$role_file" "schema_version")
   slug=$(frontmatter_value "$role_file" "slug")

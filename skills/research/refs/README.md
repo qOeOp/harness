@@ -7,6 +7,10 @@ Recommended order:
 1. [volatile-research-default.md](./volatile-research-default.md)
 2. [internal-research-routing.md](./internal-research-routing.md)
 3. [task-artifact-routing.md](./task-artifact-routing.md)
+4. [collection-operating-model.md](./collection-operating-model.md)
+5. [tool-routing.md](./tool-routing.md)
+6. [source-evaluation.md](./source-evaluation.md)
+7. [runtime-contract.md](./runtime-contract.md)
 
 Canonical global sources remain in:
 

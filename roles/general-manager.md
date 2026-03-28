@@ -13,6 +13,8 @@ codex_model: gpt-5.4
 codex_reasoning_effort: high
 codex_sandbox_mode: read-only
 codex_nicknames: Atlas, Vega, Iris
+default_skills: founder-brief, meeting-router, decision-pack, research
+secondary_skills: acceptance-review, memory-checkpoint
 ---
 
 ## Canonical Instructions

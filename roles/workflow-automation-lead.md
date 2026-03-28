@@ -13,6 +13,8 @@ codex_model: gpt-5.4
 codex_reasoning_effort: medium
 codex_sandbox_mode: workspace-write
 codex_nicknames: Pulse, Orbit, Juno
+default_skills: capability-scout, research, os-audit, process-audit
+secondary_skills: governance-meeting, retro
 ---
 
 ## Canonical Instructions

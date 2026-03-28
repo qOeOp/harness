@@ -2,7 +2,7 @@ schema_version = 1
 bundle_slug = "research"
 bundle_version = 1
 bundle_kind = "task-skill"
-summary = "Route volatile research work into dispatch and memo outputs with task-local-first writeback."
+summary = "Route volatile research work and execute evidence collection with task-local-first writeback."
 
 owner_role = "knowledge-memory-lead"
 scope = "source-baseline"
@@ -38,21 +38,33 @@ lazy_load_paths = ["refs/", "templates/", "scripts/"]
 
 supported_artifact_types = [
   "research-dispatch",
+  "research-brief",
   "research-memo",
   "source-note",
+  "evidence-ledger",
 ]
 
 operation_modes = [
   "dispatch",
+  "brief",
+  "collect",
+  "source-note",
   "memo",
 ]
 
 governance_promotion_required = true
 preferred_scripts = [
   "skills/research/scripts/new_dispatch.sh",
+  "skills/research/scripts/new_brief.sh",
+  "skills/research/scripts/new_source_note.sh",
   "skills/research/scripts/new_memo.sh",
+  "skills/research/scripts/new_ledger.sh",
 ]
 backing_global_scripts = [
   "scripts/new_research_dispatch.sh",
+  "scripts/new_research_brief.sh",
+  "scripts/new_source_note.sh",
   "scripts/new_research.sh",
+  "scripts/new_evidence_ledger.sh",
+  "scripts/research_ctl.sh",
 ]

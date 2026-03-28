@@ -13,6 +13,8 @@ codex_model: gpt-5.4-mini
 codex_reasoning_effort: high
 codex_sandbox_mode: read-only
 codex_nicknames: Sigma, Nova, Rune
+default_skills: vision-meeting, requirements-meeting, brainstorming-session, research
+secondary_skills: founder-brief, decision-pack
 ---
 
 ## Canonical Instructions

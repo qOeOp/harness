@@ -5,11 +5,11 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 . "$script_dir/lib_state.sh"
 
-template_path="$repo_root/skills/research/templates/source-note.md"
-artifact_label="source note"
-artifact_suffix="source-note"
-workspace_dir=".harness/workspace/research/sources"
-artifact_type="source-note"
+template_path="$repo_root/skills/research/templates/evidence-ledger.md"
+artifact_label="evidence ledger"
+artifact_suffix="evidence-ledger"
+workspace_dir=".harness/workspace/research/runs"
+artifact_type="evidence-ledger"
 
 render_template() {
   linked_work_items="$1"
@@ -26,10 +26,8 @@ render_template() {
     -v artifact_date="$artifact_date" \
     -v artifact_title="$artifact_title" \
     '
-      /^- Date:$/ { $0 = "- Date: " artifact_date }
-      /^- Source:$/ { $0 = "- Source: " artifact_title }
-      /^- Accessed date:$/ { $0 = "- Accessed date: " artifact_date }
       /^- Linked work items:$/ { $0 = "- Linked work items: " linked_work_items }
+      /^- Date:$/ { $0 = "- Date: " artifact_date }
       /^- Topic:$/ { $0 = "- Topic: " artifact_title }
       { print }
     ' \
@@ -68,7 +66,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-title="${1:-untitled-source}"
+title="${1:-untitled-research}"
 slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)
 resolved_work_item_id=""
@@ -78,7 +76,7 @@ if [ "$promote_governance" -eq 1 ]; then
     require_work_item "$work_item_id" >/dev/null
   fi
   require_governance_mode_for_workspace_artifact "$artifact_label" || exit 1
-  target="$workspace_dir/${date}-${slug}.md"
+  target="$workspace_dir/${date}-${slug}-${artifact_suffix}.md"
 else
   if [ -z "$work_item_id" ]; then
     require_explicit_promotion_for_workspace_artifact "$artifact_label" || exit 1
@@ -90,7 +88,7 @@ if [ -n "$resolved_work_item_id" ]; then
   work_item_id="$resolved_work_item_id"
   require_work_item "$work_item_id" >/dev/null
   ensure_task_directory_skeleton "$work_item_id"
-  target="$(canonical_work_item_attachment_sources_dir "$work_item_id")/${date}-${slug}.md"
+  target="$(canonical_work_item_attachments_dir "$work_item_id")/${date}-${slug}-${artifact_suffix}.md"
 elif [ "$promote_governance" -ne 1 ]; then
   require_explicit_promotion_for_workspace_artifact "$artifact_label" || exit 1
 fi

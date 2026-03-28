@@ -13,6 +13,8 @@ codex_model: gpt-5.4-mini
 codex_reasoning_effort: medium
 codex_sandbox_mode: workspace-write
 codex_nicknames: Ledger, Tess, Mora
+default_skills: research, memory-checkpoint, daily-digest, decision-pack
+secondary_skills: process-audit, governance-meeting
 ---
 
 ## Canonical Instructions

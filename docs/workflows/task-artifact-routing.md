@@ -4,7 +4,7 @@
 
 ## 目的
 
-把 `research dispatch / source note / research memo / decision pack / checkpoint / role change proposal` 这类正式 artifact 的默认落点收敛到一套单一规则，避免 task truth 和治理投影同时冒充默认真相。
+把 `research dispatch / research brief / source note / research memo / decision pack / checkpoint / role change proposal` 这类正式 artifact 的默认落点收敛到一套单一规则，避免 task truth 和治理投影同时冒充默认真相。
 
 ## Divergent Hypotheses
 
@@ -44,16 +44,26 @@
 
 1. `Research Dispatch`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md`
-2. `Source Note`
+2. `Research Brief`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-brief.md`
+3. `Source Note`
    - `.harness/tasks/<task-id>/attachments/sources/<date>-<slug>.md`
-3. `Research Memo`
+4. `Research Memo`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-research-memo.md`
-4. `Decision Pack`
+5. Optional `Evidence Ledger`
+   - `.harness/tasks/<task-id>/attachments/<date>-<slug>-evidence-ledger.md`
+6. `Decision Pack`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-decision-pack.md`
-5. `Checkpoint`
+7. `Checkpoint`
    - `.harness/tasks/<task-id>/attachments/<date>-<slug>-checkpoint.md`
-6. `Role Change Proposal`
+8. `Role Change Proposal`
    - `.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
+
+说明：
+
+1. `Research Brief` 是 collection 复杂时的前置 artifact，不要求每次都写。
+2. `Evidence Ledger` 是长流程、多来源、可中断研究时的可选台账，不应变成强制 paperwork。
+3. `Source Note` 仍是默认正式证据 artifact。
 
 ### 3. Governance Promotion
 

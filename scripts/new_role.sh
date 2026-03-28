@@ -24,6 +24,8 @@ optional:
   --codex-reasoning-effort <level>    default: medium
   --codex-sandbox-mode <mode>         default: read-only
   --codex-nicknames <csv>             default: auto-generated from slug
+  --default-skills <csv>              optional default skill affinity list
+  --secondary-skills <csv>            optional secondary skill affinity list
   --policy-allowed-entrypoints <csv>  optional role policy extension
   --policy-allowed-actions <csv>      optional role policy extension
   --policy-mutation-actions <csv>     optional role policy extension
@@ -47,6 +49,8 @@ codex_model="gpt-5.4-mini"
 codex_reasoning_effort="medium"
 codex_sandbox_mode="read-only"
 codex_nicknames=""
+default_skills=""
+secondary_skills=""
 policy_allowed_entrypoints=""
 policy_allowed_actions=""
 policy_mutation_actions=""
@@ -83,6 +87,8 @@ while [ "$#" -gt 0 ]; do
     --codex-reasoning-effort) codex_reasoning_effort="${2:-}"; shift 2 ;;
     --codex-sandbox-mode) codex_sandbox_mode="${2:-}"; shift 2 ;;
     --codex-nicknames) codex_nicknames="${2:-}"; shift 2 ;;
+    --default-skills) default_skills="${2:-}"; shift 2 ;;
+    --secondary-skills) secondary_skills="${2:-}"; shift 2 ;;
     --policy-allowed-entrypoints) policy_allowed_entrypoints="${2:-}"; shift 2 ;;
     --policy-allowed-actions) policy_allowed_actions="${2:-}"; shift 2 ;;
     --policy-mutation-actions) policy_mutation_actions="${2:-}"; shift 2 ;;
@@ -244,6 +250,8 @@ codex_model: $codex_model
 codex_reasoning_effort: $codex_reasoning_effort
 codex_sandbox_mode: $codex_sandbox_mode
 codex_nicknames: $codex_nicknames
+default_skills: ${default_skills:-none}
+secondary_skills: ${secondary_skills:-none}
 $policy_block
 ---
 
