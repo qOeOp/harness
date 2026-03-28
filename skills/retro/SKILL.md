@@ -1,12 +1,14 @@
 ---
 name: retro
-description: Use when generating a company-level retro / process audit from recent reports and retros.
+description: Use when generating advanced-governance retros or process audits from governance runtime artifacts.
 ---
 
 Read [./manifest.toml](./manifest.toml).
 Read [./refs/README.md](./refs/README.md).
 
-Create a company process audit from:
+Only use this skill when `advanced governance mode` is explicitly enabled.
+
+Create a company process audit or department retro from:
 
 - department retros
 - daily digests
@@ -14,5 +16,7 @@ Create a company process audit from:
 - postmortems
 
 Use [./templates/process-audit.md](./templates/process-audit.md).
-Write the result into `.harness/workspace/status/process-audits/`.
+Write company process audits into `.harness/workspace/status/process-audits/`.
+Write department retros into `.harness/workspace/departments/<department>/workspace/reports/retros/`.
+If the runtime has not materialized the required `.harness/workspace/` governance surfaces, do not invent them from a source-repo sweep; report that the retro is blocked on governance-mode runtime artifacts.
 Preferred script: [./scripts/new_retro.sh](./scripts/new_retro.sh)

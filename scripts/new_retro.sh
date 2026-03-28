@@ -2,6 +2,7 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+. "$script_dir/lib_state.sh"
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 company_retro_template_path="$repo_root/skills/retro/templates/process-audit.md"
 department_retro_template_path="$repo_root/skills/retro/templates/department-retro.md"
@@ -48,6 +49,8 @@ if [ -z "$scope" ]; then
   echo "usage: $0 <company|department> [label]" >&2
   exit 1
 fi
+
+require_advanced_governance_runtime_artifact "retro output" || exit 1
 
 slug=$(printf '%s' "$label" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
 date=$(date +%F)

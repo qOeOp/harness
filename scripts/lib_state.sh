@@ -838,6 +838,20 @@ EOF
   return 1
 }
 
+require_advanced_governance_runtime_artifact() {
+  artifact_kind="$1"
+
+  if runtime_governance_enabled; then
+    return 0
+  fi
+
+  cat >&2 <<EOF
+$artifact_kind belongs to advanced governance mode.
+Enable advanced governance mode before writing workspace-scoped cadence artifacts.
+EOF
+  return 1
+}
+
 require_explicit_promotion_for_workspace_artifact() {
   artifact_kind="$1"
 

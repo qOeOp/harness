@@ -6,6 +6,8 @@
 
 把流程治理、文档治理、审计脚本维护和前沿扫描放进固定节奏。
 
+本节奏只适用于已显式启用 `advanced governance mode` 的 consumer runtime，不回定义默认 `core task runtime`。
+
 ## 节奏总览
 
 | 节奏 | Owner | 核心输入 | 核心输出 |

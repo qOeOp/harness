@@ -103,6 +103,9 @@ forbidden_path ".agents/skills/harness"
 forbidden_path "AGENTS.md"
 forbidden_path "CLAUDE.md"
 forbidden_path "GEMINI.md"
+forbidden_path "README_CLAUDE.md"
+forbidden_path "README_CODEX.md"
+forbidden_path "README_GEMINI.md"
 forbidden_path ".claude"
 forbidden_path ".codex"
 forbidden_path ".gemini"
@@ -147,6 +150,8 @@ require_contains "scripts/new_retro.sh" 'skills/retro/templates/department-retro
 require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mode'
 require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
+require_contains "skills/retro/SKILL.md" 'Only use this skill when `advanced governance mode` is explicitly enabled.'
+require_contains "skills/governance-meeting/SKILL.md" 'Only use this skill when `advanced governance mode` is explicitly enabled.'
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
@@ -166,6 +171,9 @@ require_contains "docs/workflows/agile-runnable-demo-policy.md" 'post-acceptance
 require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: scripts/runtime_role_manager.sh'
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
+require_contains "scripts/new_company_digest.sh" 'require_advanced_governance_runtime_artifact "company daily digest"'
+require_contains "scripts/new_daily_report.sh" 'require_advanced_governance_runtime_artifact "department daily report"'
+require_contains "scripts/new_retro.sh" 'require_advanced_governance_runtime_artifact "retro output"'
 
 if rg -n '/Users/[^/]+/.+/(\\.agents/skills/harness|\\.harness)/|/Users/[^/]+/.+/AGENTS\\.md|/Users/[^/]+/.+/CLAUDE\\.md|/Users/[^/]+/.+/GEMINI\\.md|/Users/[^/]+/.+/(\\.codex|\\.gemini)/' \
   --glob '!references/archive/**' \

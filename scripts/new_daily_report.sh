@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 
+script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+. "$script_dir/lib_state.sh"
+
 department="${1:-}"
 title="${2:-daily-report}"
 
@@ -8,6 +11,8 @@ if [ -z "$department" ]; then
   echo "usage: $0 <department> [title]" >&2
   exit 1
 fi
+
+require_advanced_governance_runtime_artifact "department daily report" || exit 1
 
 base=".harness/workspace/departments/${department}/workspace/reports/daily"
 if [ ! -d "$base" ]; then

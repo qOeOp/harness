@@ -2,11 +2,14 @@
 set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+. "$script_dir/lib_state.sh"
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 digest_template_path="$repo_root/skills/daily-digest/templates/company-daily-digest.md"
 
 date="${1:-$(date +%F)}"
 target=".harness/workspace/status/digests/${date}-company-digest.md"
+
+require_advanced_governance_runtime_artifact "company daily digest" || exit 1
 
 render_company_digest_template() {
   report_summary="$1"
