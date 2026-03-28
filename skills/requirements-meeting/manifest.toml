@@ -1,7 +1,7 @@
 schema_version = 1
 bundle_slug = "requirements-meeting"
 bundle_version = 1
-bundle_kind = "governance-skill"
+bundle_kind = "task-skill"
 summary = "Translate approved vision into iteration scope, acceptance criteria, dependencies, and demo boundary."
 
 owner_role = "general-manager"

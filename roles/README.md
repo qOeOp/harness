@@ -34,13 +34,13 @@
 2. `Product Thesis Lead`
    - 常用 `vision-meeting`, `requirements-meeting`, `brainstorming-session`, `research`
 3. `Knowledge & Memory Lead`
-   - 常用 `research`, `memory-checkpoint`, `daily-digest`, `decision-pack`
+   - 常用 `research`, `memory-checkpoint`, `decision-pack`
 4. `Workflow & Automation Lead`
    - 常用 `capability-scout`, `research`, `os-audit`, `process-audit`
 5. `Risk & Quality Lead`
    - 常用 `acceptance-review`, `decision-pack`, `research`
 6. `Compounding Engineering Lead`
-   - 常用 `retro`, `process-audit`, `governance-meeting`, `capability-scout`, `os-audit`
+   - 常用 `process-audit`, `capability-scout`, `os-audit`, `research`
 
 这是一组默认 affinity，不是硬权限。
 

@@ -1,6 +1,6 @@
 ---
 name: os-audit
-description: Use when auditing the governance surface to prevent markdown bloat and recommend stronger control mechanisms.
+description: Use when auditing the active surface to prevent markdown bloat and recommend stronger control mechanisms.
 ---
 
 Read [./manifest.toml](./manifest.toml).

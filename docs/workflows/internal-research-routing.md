@@ -14,7 +14,7 @@
 2. 部门间 handoff
 3. 风险审查
 4. brainstorming 后的候选想法收敛
-5. 工具链和治理流程优化
+5. 工具链和流程控制面优化
 
 因此 research 必须是内部路由，不是 Founder 入口。
 
@@ -45,7 +45,7 @@ dispatch 必须回答：
 dispatch 不是聊天记录，而是一个单独 artifact：
 
 - 默认路径：`.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md`
-- 只有显式升级到 `advanced governance mode` 后，才允许 promote 到 `.harness/workspace/research/dispatches/<date>-<slug>.md`
+- 只有显式启用共享写回后，才允许 promote 到 `.harness/workspace/research/dispatches/<date>-<slug>.md`
 - 模板： [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
 
 默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。

@@ -207,20 +207,20 @@ Owner：`Compounding Engineering Lead`
 
 Owner：`Knowledge & Memory Lead`
 
-默认闭环不是直接写 company-level workspace，而是先把决策和证据收回当前 task：
+默认闭环不是直接写共享 workspace，而是先把决策和证据收回当前 task：
 
 - `.harness/tasks/<task-id>/attachments/`
 - `.harness/tasks/<task-id>/closure/`
 - 必要时刷新 `task.md` 里的 `## Recovery`
 
-只有当 runtime 已显式升级到 `advanced governance mode`，且该结论确实需要跨任务沉淀时，才 promote 到：
+只有当 runtime 已显式启用共享写回，且该结论确实需要跨任务沉淀时，才 promote 到：
 
 - `.harness/workspace/decisions/log`
 - `.harness/workspace/status/snapshots`
 
 默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。
 
-没有完成 task-local writeback，本轮工作视为未闭环；需要治理提升时，再追加 promotion。
+没有完成 task-local writeback，本轮工作视为未闭环；需要共享沉淀时，再追加 promotion。
 
 ## 常驻运营回路
 

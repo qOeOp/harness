@@ -1,42 +1,42 @@
 # Worktree-First Parallelism
 
-更新日期：`2026-03-22`
+更新日期：`2026-03-28`
 
 ## 收敛结论
 
 本仓库采用：
 
-`company-level monorepo + workstream bounded contexts + one-thread-one-worktree`
+`task-owned worktrees + one-thread-one-worktree`
 
 而不是：
 
 - 多线程共享同一个工作目录
-- 多个部门直接互改对方文件
+- 用组织投影子树表达 ownership
 - 用一个共享日志文件承接所有并行写入
 
 ## 基本规则
 
-1. 一个 thread 对应一个 `git worktree`。
-2. 一个 workstream 线程主写一个 workstream 子树。
-3. 公司级 `workspace/` 只允许 append-only 写入。
-4. 跨 workstream 协作通过 artifact handoff，不通过直接修改对方目录。
+1. 一个 thread 对应一个 `git worktree`
+2. 一个活跃任务主写一个 worktree
+3. canonical docs 和 shared records 需要显式 owner
+4. 跨任务协作通过 artifact handoff，不通过随意互改目录
 
 ## Branch 命名
 
 推荐：
 
-`codex/<workstream>-<task>`
+`codex/<task>-<slug>`
 
 例如：
 
-- `codex/market-intelligence-source-registry-v1`
-- `codex/strategy-research-thesis-loop-v1`
+- `codex/WI-0421-research-routing`
+- `codex/WI-0428-runtime-audit`
 
 ## Worktree 路径
 
 推荐放在仓库外层：
 
-`../harness-worktrees/<workstream>-<task>`
+`../harness-worktrees/<task>-<slug>`
 
 原因：
 
@@ -44,46 +44,41 @@
 2. 并行线程更容易隔离
 3. 便于清理
 
-前提：
-
-- 仓库必须已经有首个 commit，否则 `git worktree` 无法建立新工作树。
-
 ## Owned Paths
 
-### 公司级
+### Canonical source
 
 - `docs/`
 - `SKILL.md`
 - `roles/`
 - `references/contracts/`
 
-这些只能由治理层或被明确授权的线程修改。
+这些只能由被明确授权的线程修改。
 
-### Workstream 级
+### Task-local runtime
 
-- `.harness/workspace/workstreams/<workstream>/`
+- `.harness/tasks/<task-id>/`
 
-workstream 线程默认只写自己的目录。
+任务线程默认只写自己的 task record、attachments、closure 与 transitions。
 
-### 共享 append-only
+### Shared append-only
 
-- `.harness/workspace/intake/inbox/`
-- `.harness/workspace/intake/triage/`
 - `.harness/workspace/research/sources/`
+- `.harness/workspace/research/dispatches/`
 - `.harness/workspace/decisions/log/`
 - `.harness/workspace/status/snapshots/`
 
 这些目录允许多个线程同时新增文件，但不鼓励频繁改同一个已有文件。
 
-## 跨 Workstream 流程
+## 跨任务流程
 
-1. 在自己 workstream 目录完成研究或产出。
-2. 输出写成 memo / proposal / handoff note。
-3. 如需进入公司级 memory，则新增一条 append-only entry。
-4. 如需对方 workstream 响应，则在对方 workstream 的 intake 或 handoff 文档中以新文件形式提交。
+1. 在自己的 task-local 目录完成研究或产出
+2. 输出写成 memo / proposal / handoff note
+3. 如需进入共享记录面，则新增一条 append-only entry
+4. 如需他人响应，则在目标 task 或明确的 shared intake surface 中留痕
 
 ## 禁止事项
 
-1. 不要多个 thread 共享同一 worktree。
-2. 不要 workstream 线程直接重写公司级规范文件。
-3. 不要让多个线程并行编辑同一份总表。
+1. 不要多个 thread 共享同一 worktree
+2. 不要让临时执行线程直接重写 canonical docs
+3. 不要让多个线程并行编辑同一份总表

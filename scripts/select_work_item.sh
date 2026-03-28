@@ -381,6 +381,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$scope"),
+  "group": null,
   "workstream": null,
   "board": $(json_escape "$board_path"),
   "result": $(json_escape "$result"),

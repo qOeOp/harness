@@ -20,10 +20,11 @@
 1. 任意 consumer repo 的 live task runtime truth
 2. root `AGENTS.md / CLAUDE.md / GEMINI.md` 的默认产品入口语义
 3. 任何 provider-owned surface 的默认接管逻辑
+4. 任何公司 / workstream / board 类型的默认产品组织图
 
 ## Product Layers
 
-当前产品叙事优先保留四层：
+当前产品叙事只保留三层：
 
 1. `repo map`
    - 默认 `/harness` 进入后优先理解的 source surface
@@ -31,12 +32,9 @@
 2. `task-record runtime`
    - materialized `.harness/` 任务执行层
    - 关注 scoping、state、resume、attachments、closure
-3. `verification / observability`
-   - tests、audit、freshness、review、replay、trace correlation
+3. `verification / observability / control`
+   - tests、audit、freshness、review、trace correlation、approval、policy、permission boundary
    - 属于 substrate 的默认部分，不是事后附加
-4. `optional cross-task mode`
-   - 用户显式升级后才出现的派生视图层
-   - 关注 decision logs、digests、founder queues 与 cross-task coordination
 
 ## Source Repo Layout
 
@@ -51,7 +49,7 @@
 - `scripts/`
   - runtime、audit、source maintenance 脚本
 - `docs/`
-  - workflow、charter、organization 与 templates
+  - workflow、charter、memory 与 templates
 - `references/`
   - active references、runtime contracts、implementation-adjacent specs 与历史资料
 
@@ -89,25 +87,23 @@ source repo 只保留：
 - 若确需恢复 in-flight execution，可在 `task.md` 的 `## Recovery` 或 `history/` 里记录 `response_id`、`thread id`、`stream cursor`、`trace id`
 - 这些 execution handles 只服务 reconnect / resume / trace correlation，可替换、可过期
 
-迁移期说明：
+共享写回说明：
 
-- `task`、`recovery` 与 transition history 的 canonical source of truth 已收敛到 task 目录
-- `.harness/workspace/state/transitions/` 只保留给 legacy fallback 读取，不再是默认写入面
+- `.harness/workspace/*` 只用于显式 promote 的共享记录面
+- 它可以承载 `research/dispatches`、`research/sources`、`decisions/log`、`status/snapshots` 这类共享记录
+- 它不是默认 runtime 主骨架，更不是公司 / workstream 组织树
 
-只有在用户显式升级到 cross-task mode 时，才值得扩到更重的跨任务视图。
-
-此时如果某个 consumer repo 需要新增 repo-local role，应写到：
+如果某个 consumer repo 需要新增 repo-local role，应写到：
 
 - `.harness/workspace/roles/`
   - consumer-local runtime role definitions
   - 优先通过 `./scripts/new_role.sh --consumer-runtime <name>` 创建
-  - 裸路径只作为低级逃生口：`--consumer-runtime-root <consumer-repo>`
   - 不回写到 framework source repo 的 `roles/`
 
 ## Design Rule
 
 所有文件都要先回答一个问题：
 
-它属于 `core task runtime`、`optional cross-task mode`、`internal plumbing`，还是根本不该存在。
+它属于 `core task runtime`、`verification/control surface`、`internal plumbing`，还是根本不该存在。
 
 如果三边都不属于，就不该存在于 canonical surface。

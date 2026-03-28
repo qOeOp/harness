@@ -8,7 +8,6 @@ Read [./refs/README.md](./refs/README.md).
 
 Route the current request to exactly one of:
 
-- `governance-meeting`
 - `vision-meeting`
 - `acceptance-review`
 - `requirements-meeting`

@@ -1,7 +1,7 @@
 schema_version = 1
 bundle_slug = "brainstorming-session"
 bundle_version = 1
-bundle_kind = "governance-skill"
+bundle_kind = "task-skill"
 summary = "Facilitate exploratory ideation without letting candidate ideas masquerade as settled decisions."
 
 owner_role = "general-manager"

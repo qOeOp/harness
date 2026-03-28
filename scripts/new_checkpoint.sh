@@ -42,7 +42,7 @@ usage: $0 [--work-item <WI-xxxx>] [--promote-governance] <label>
 Pass --work-item explicitly for task-local routing.
 Checkpoints default to task-local attachments.
 
-Use --promote-governance only for cross-task snapshots in advanced governance mode.
+Use --promote-governance only for cross-task snapshots in shared writeback mode.
 EOF
   exit 1
 }

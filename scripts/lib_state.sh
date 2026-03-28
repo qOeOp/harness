@@ -831,7 +831,7 @@ require_governance_mode_for_workspace_artifact() {
   cat >&2 <<EOF
 $artifact_kind requires a work-item context in minimum-core runtime.
 Pass --work-item <WI-xxxx> explicitly.
-Workspace-scoped governance artifacts are only allowed when advanced governance mode is enabled.
+Workspace-scoped shared artifacts are only allowed when shared writeback is enabled.
 EOF
   return 1
 }
@@ -843,9 +843,9 @@ require_advanced_governance_runtime_artifact() {
     return 0
   fi
 
-  cat >&2 <<EOF
-$artifact_kind belongs to advanced governance mode.
-Enable advanced governance mode before writing workspace-scoped cadence artifacts.
+cat >&2 <<EOF
+$artifact_kind belongs to shared writeback mode.
+Enable shared writeback mode before writing workspace-scoped cadence artifacts.
 EOF
   return 1
 }
@@ -853,10 +853,10 @@ EOF
 require_explicit_promotion_for_workspace_artifact() {
   artifact_kind="$1"
 
-  cat >&2 <<EOF
+cat >&2 <<EOF
 $artifact_kind defaults to task-local routing.
 Pass --work-item <WI-xxxx> explicitly.
-Use --promote-governance only when this artifact truly needs cross-task visibility in advanced governance mode.
+Use --promote-governance only when this artifact truly needs cross-task visibility in shared writeback mode.
 EOF
   return 1
 }
@@ -1138,13 +1138,6 @@ list_work_items() {
   if [ -d "$task_runtime_dir" ]; then
     find "$task_runtime_dir" -mindepth 2 -maxdepth 2 -type f -name 'task.md' | sort
   fi
-}
-
-list_workstreams() {
-  if [ ! -d ".harness/workspace/workstreams" ]; then
-    return 0
-  fi
-  find .harness/workspace/workstreams -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
 }
 
 slug_to_title() {

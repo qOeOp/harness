@@ -71,7 +71,7 @@ detect_mode() {
     return 0
   fi
 
-  echo "unable to auto-detect governance diagnostic mode; use --mode source or --mode consumer" >&2
+  echo "unable to auto-detect surface diagnostic mode; use --mode source or --mode consumer" >&2
   exit 1
 }
 
@@ -91,9 +91,13 @@ if [ "$mode" = "source" ]; then
   source_scripts=$(find scripts -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
   source_docs=$(find docs -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
   source_references=$(find references -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  source_workflows=$(find docs/workflows -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  source_skill_refs=$(find skills -path '*/refs/*' -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  source_archive_refs=$(find references/archive -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  shared_workspace_refs=$(rg -l '\.harness/workspace/(current|briefs|state)/' README.md docs scripts roles skills references --glob '!references/archive/**' 2>/dev/null | wc -l | tr -d ' ')
 
   cat >"$report_file" <<EOF
-# Governance Surface Diagnostic
+# Surface Diagnostic
 
 - Date: $(date +%F)
 - Mode: source
@@ -112,11 +116,19 @@ $(cat "$check_file")
 - Source docs: $source_docs
 - Source references: $source_references
 
+## Surface Entropy Snapshot
+
+- Workflow docs: $source_workflows
+- Skill-local ref docs: $source_skill_refs
+- Archive markdown snapshots: $source_archive_refs
+- Active files still mentioning shared workspace surfaces: $shared_workspace_refs
+
 ## Usage Notes
 
 1. source 模式只评估 framework source repo，不读取 consumer runtime 或用户自管的安装副本。
 2. 若要诊断真实安装态，请在 dogfood / consumer repo 运行同一脚本的 consumer 模式。
-3. 若 OS 结构发生变化，应先更新本脚本，再更新 cadence 或 audit 模板。
+3. \`Surface Entropy Snapshot\` 只做暴露，不直接判定好坏；重点看 active surface 是否在增长时同步发生 compress / merge / archive。
+4. 若 OS 结构发生变化，应先更新本脚本，再更新 cadence 或 audit 模板。
 EOF
 else
   run_check "validate_workspace" "$script_dir/validate_workspace.sh"
@@ -142,7 +154,7 @@ EOF
   else
     cat >"$brief_file" <<'EOF'
 - Brief registry status: not materialized
-- Reason: minimum-core runtime does not include the advanced governance brief workspace by default
+- Reason: minimum-core runtime does not include the shared brief workspace by default
 EOF
   fi
 
@@ -154,11 +166,11 @@ EOF
   governance_dirs=$(find .harness/workspace -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
 
   cat >"$report_file" <<EOF
-# Governance Surface Diagnostic
+# Surface Diagnostic
 
 - Date: $(date +%F)
 - Mode: consumer
-- Scope: harness-owned runtime docs, workspace baseline, state system, brief layer
+- Scope: harness-owned runtime docs, workspace baseline, state system, optional brief layer
 - Canonical capability surface: \`.harness/\`
 
 ## Baseline Checks
@@ -171,7 +183,7 @@ $(cat "$check_file")
 - Archived-status tasks: $archived_tasks
 - Task records with Recovery: $recovery_backed_tasks
 - Transition events: $transition_events
-- Governance workspace directories: $governance_dirs
+- Shared workspace directories: $governance_dirs
 
 ## Brief Layer Snapshot
 
@@ -180,8 +192,8 @@ $(cat "$brief_file")
 ## Usage Notes
 
 1. consumer 模式只评估 harness-owned runtime surface，不评估 provider adapters 或 skill install location。
-2. 若要把结果沉淀成周期性治理产物，可运行：
-   \`./scripts/run_governance_surface_diagnostic.sh --mode consumer --write .harness/workspace/status/process-audits/\$(date +%F)-governance-surface-diagnostic.md\`
+2. 若要把结果沉淀成周期性 surface audit，可运行：
+   \`./scripts/run_governance_surface_diagnostic.sh --mode consumer --write .harness/workspace/status/process-audits/\$(date +%F)-surface-diagnostic.md\`
 3. 若要审计 framework source repo，请在 source repo 运行：
    \`./scripts/run_governance_surface_diagnostic.sh --mode source\`
 EOF
@@ -190,7 +202,7 @@ fi
 if [ -n "$output_path" ]; then
   mkdir -p "$(dirname "$output_path")"
   cp "$report_file" "$output_path"
-  echo "wrote governance surface diagnostic: $output_path"
+  echo "wrote surface diagnostic: $output_path"
 else
   cat "$report_file"
 fi

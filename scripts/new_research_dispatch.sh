@@ -41,7 +41,7 @@ usage: $0 [--work-item <WI-xxxx>] [--promote-governance] <title>
 
 Research dispatches default to task-local routing.
 Pass --work-item explicitly for task-local routing.
-Use --promote-governance only for cross-task dispatches in advanced governance mode.
+Use --promote-governance only for cross-task dispatches in shared writeback mode.
 EOF
   exit 1
 }

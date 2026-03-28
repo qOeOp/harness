@@ -14,7 +14,7 @@ codex_reasoning_effort: high
 codex_sandbox_mode: read-only
 codex_nicknames: Cato, Nyx, Flint
 default_skills: acceptance-review, decision-pack, research
-secondary_skills: process-audit, governance-meeting
+secondary_skills: process-audit
 ---
 
 ## Canonical Instructions

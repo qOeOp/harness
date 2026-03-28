@@ -35,7 +35,7 @@ for brief_file in $(find "$briefs_dir" -maxdepth 1 -type f -name '*.md' ! -name 
   [ "$status" = "archived-redirect" ] || continue
 
   brief_rel=".harness/workspace/briefs/$(basename "$brief_file")"
-  repo_refs=$(rg -l -F "$brief_rel" README.md docs .harness/workspace/workstreams 2>/dev/null || true)
+  repo_refs=$(rg -l -F "$brief_rel" README.md docs 2>/dev/null || true)
   retained_repo_refs=""
 
   if [ -n "$repo_refs" ]; then

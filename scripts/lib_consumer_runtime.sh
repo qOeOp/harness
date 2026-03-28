@@ -85,7 +85,7 @@ require_advanced_governance_consumer_runtime_root() {
   require_materialized_consumer_runtime_root "$runtime_root" "$caller_name" "$source_repo_root"
 
   consumer_runtime_governance_enabled "$runtime_root" || {
-    echo "$caller_name requires a consumer runtime with advanced governance enabled: $runtime_root" >&2
+    echo "$caller_name requires a consumer runtime with shared writeback enabled: $runtime_root" >&2
     exit 1
   }
 

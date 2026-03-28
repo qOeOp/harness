@@ -174,6 +174,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$selected_scope"),
+  "group": $(json_string_or_null "$selected_department"),
   "workstream": $(json_string_or_null "$selected_department"),
   "board": $(json_escape "$board_path"),
   "result": $(json_escape "$result"),

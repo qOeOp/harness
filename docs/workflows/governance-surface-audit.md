@@ -1,10 +1,10 @@
-# Governance Surface Audit
+# Surface Audit
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-28`
 
 ## 目的
 
-审计公司的治理表面，控制文档膨胀、重复规则和错误的控制面升级。
+审计 active surface，控制文档膨胀、重复规则和错误的控制面升级。
 
 默认周期性入口按仓库模式区分：
 
@@ -13,27 +13,28 @@
 - consumer / dogfood repo:
   - `./scripts/run_governance_surface_diagnostic.sh --mode consumer`
 
-## 治理表面
+## 审计对象
 
-本公司把以下对象统称为 `governance surface`：
+本仓库把以下对象统称为 `active surface`：
 
 1. `md` 文档
 2. `templates`
 3. `skills`
-4. `agents`
-5. `commands`
-6. `hooks`
-7. `rules`
-8. `scripts`
+4. `commands`
+5. `hooks`
+6. `rules`
+7. `scripts`
 
 ## 核心原则
 
-1. 不是所有规则都应该写成 md。
-2. 只有 `agents + skills` 属于 canonical capability surface。
-3. 不是所有规则都值得升级成 hooks 或 rules。
-4. 规则越重要、越高频、越机械，越应该向更硬的控制面迁移。
-5. 任何长期不触发、不被引用、不被执行的 md，都是裁剪候选。
-6. 审计脚本本身也属于治理表面，不能默认永远正确。
+1. 不是所有规则都应该写成 md
+2. 只有 `skills + scripts + contracts` 属于默认 capability / control surface
+3. 不是所有规则都值得升级成 hooks 或 rules
+4. 规则越重要、越高频、越机械，越应该向更硬的控制面迁移
+5. 任何长期不触发、不被引用、不被执行的 md，都是裁剪候选
+6. 审计脚本本身也属于 active surface，不能默认永远正确
+7. active surface 是 working set，不是 evidence dump
+8. 同一主题默认只应有一个 active canonical entry
 
 ## Promotion Matrix
 
@@ -50,7 +51,6 @@
 适用：
 
 - 高频、结构化、可复用的工作流
-- 例如：`meeting`、`daily-digest`、`retro`
 
 ### 降级为 command alias
 
@@ -65,12 +65,6 @@
 
 - 必须每次执行的底层约束
 - 例如：危险命令拦截、禁止破坏性 git 操作、必须落盘的格式校验
-
-### 升级为 agent
-
-适用：
-
-- 长期稳定、职责清晰、需要持续存在的角色
 
 ## 文档瘦身规则
 
@@ -89,6 +83,20 @@
    - delete
    - promote
 
+额外必须过一轮 `survivor test`：
+
+1. 这个文件当前到底承什么重
+2. 如果删除它，默认读取顺序会失去哪个唯一入口
+3. 它是否只是 archive lineage 的重复转述
+4. 它是否可以被更小的 survivor doc 吸收
+5. 它是否已经失去默认读者，只剩历史保存价值
+
+若不能证明它在 active surface 上承重，默认进入：
+
+1. `compress / merge`
+2. `archive`
+3. 或 `delete`
+
 建议先跑一次聚合诊断，再进入人工判断：
 
 - source repo:
@@ -103,23 +111,15 @@
 1. 当前审计脚本是否覆盖最新的目录结构和文档类型
 2. 哪些检查仍然是静态枚举，应该升级为模式发现
 3. 哪些检查只验证“文件存在”，却没有覆盖语义漂移
-4. 新增部门、工具适配层、current truth 或 canonical docs 后，脚本是否同步更新
+4. 新增 canonical doc 类型或控制面后，脚本是否同步更新
 5. 哪些脚本已经失真，应修改或删除
-
-当发生以下任一事件时，必须提前触发一次 `audit-the-auditors`：
-
-1. 新增部门
-2. 新增工具适配层
-3. 新增 canonical doc 类型
-4. 最近两次 audit 重复报出同类漏检
-5. Founder 或治理层明确认为文档系统开始变脏
 
 ## Freshness Audit
 
 对以下主题，默认视为 `volatile`：
 
 1. 外部快变事实
-2. 规则/工具最新能力
+2. 规则 / 工具最新能力
 3. 社区 best practice
 4. 最新新闻和时间敏感判断
 
@@ -145,7 +145,7 @@ hooks 不能完美证明 agent 做了足够的 web search。
 
 ## Audit 输出
 
-每次 governance surface audit 至少产出：
+每次 surface audit 至少产出：
 
 1. keep list
 2. compress / merge list
@@ -156,3 +156,5 @@ hooks 不能完美证明 agent 做了足够的 web search。
 7. freshness failures
 8. script coverage gaps
 9. next experiments
+10. survivor failures
+11. active-surface budget hotspots

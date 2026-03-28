@@ -1,7 +1,7 @@
 schema_version = 1
 bundle_slug = "meeting-router"
 bundle_version = 1
-bundle_kind = "governance-skill"
+bundle_kind = "task-skill"
 summary = "Route founder-facing meeting requests to one canonical meeting bundle."
 
 owner_role = "general-manager"

@@ -19,4 +19,4 @@ Research-specific routing summary:
 
 Default rule:
 
-`task-local first, governance by explicit promotion`
+`task-local first, shared writeback by explicit promotion`

@@ -328,7 +328,7 @@ validate_file() {
       validate_referenced_source_notes "$file" || ok=1
       validate_referenced_dispatches "$file" || ok=1
       ;;
-    "# Vision Meeting Brief"|"# Requirements Meeting Brief"|"# Governance Meeting Brief")
+    "# Vision Meeting Brief"|"# Requirements Meeting Brief")
       require_field "$file" "Verification date" || ok=1
       require_field "$file" "Verification mode" || ok=1
       require_field "$file" "Sources reviewed" || ok=1

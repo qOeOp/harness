@@ -1,8 +1,8 @@
 schema_version = 1
 bundle_slug = "os-audit"
 bundle_version = 1
-bundle_kind = "governance-skill"
-summary = "Audit governance surfaces and recommend keep, compress, archive, or stronger control mechanisms."
+bundle_kind = "review-skill"
+summary = "Audit active surfaces and recommend keep, compress, archive, or stronger control mechanisms."
 
 owner_role = "compounding-engineering-lead"
 scope = "source-baseline"
@@ -19,6 +19,6 @@ read_roots = ["skills/os-audit/", "docs/workflows/", "references/", "scripts/"]
 write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/workspace/status/process-audits/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 
-default_artifact_type = "governance-surface-audit"
+default_artifact_type = "surface-audit"
 default_artifact_path = ".harness/tasks/<task-id>/attachments/"
 lazy_load_paths = ["refs/", "templates/"]

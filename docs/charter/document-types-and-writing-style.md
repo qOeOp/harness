@@ -13,12 +13,10 @@
 适用：
 
 - `docs/charter/`
-- `docs/organization/`
 - `docs/workflows/`
 - `docs/memory/`
 - 根 `README.md`
 - 根 `SKILL.md`
-- 部门级 `README.md` / `charter.md` / `interfaces.md`
 
 作用：
 
@@ -58,12 +56,11 @@
 - `.harness/workspace/briefs/`
 - `.harness/workspace/decisions/log/`
 - `.harness/workspace/status/snapshots/`
-- Founder-facing meeting briefs
 
 作用：
 
 - 保留推导、取舍、上下文、拍板结果和阶段状态
-- 默认先贴着 task 写；只有明确需要跨任务可见性时才 promote 到 governance surface
+- 默认先贴着 task 写；只有明确需要共享可见性时才 promote 到共享记录面
 
 写法要求：
 

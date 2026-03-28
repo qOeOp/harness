@@ -1,10 +1,10 @@
 # Document Routing And Lifecycle
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-为 `/harness` 提供稳定入口，并把 task truth、恢复信息、task-local 附件与治理投影明确分层。
+为 `/harness` 提供稳定入口，并把 task truth、恢复信息、task-local 附件与共享写回明确分层。
 
 ## Current Placement
 
@@ -23,8 +23,40 @@ repo-local runtime 只在需要持久化时出现：
 1. 一个任务只有一个 canonical truth：`.harness/tasks/<task-id>/task.md`
 2. 恢复信息写入 `task.md` 的 `## Recovery`
 3. `archived` 通过状态字段表达
-4. board 和 governance workspace 只属于 projection，不属于默认 core routing
+4. board 和 company / workstream projection 不属于默认 core routing
 5. 一个线程一个 worktree，不共享同一工作目录并行编辑
+6. 不允许没有 disposition 的 durable write 进入 active surface
+
+## Write Disposition Rule
+
+任何新增写回在落盘前，都必须先回答它属于哪一层：
+
+1. `ephemeral`
+   - 只服务当前 session 推理
+   - 不落盘
+2. `canonical task truth`
+   - 直接更新 `.harness/tasks/<task-id>/task.md`
+3. `task-local durable artifact`
+   - 进入 `attachments/`、`closure/` 或 `history/transitions/`
+4. `shared writeback`
+   - 只有显式 promote 时，才进入 `.harness/workspace/*`
+5. `cold archive`
+   - 已退出默认 working set，只为 lineage / replay / audit 保留
+
+没有第六种默认落点。
+
+如果一个拟写文件只是：
+
+1. 重复转述已有结论
+2. 临时思考痕迹
+3. 旧版本的平行重写
+4. 未来没有明确默认读者
+
+则默认不应新建 durable 文件，而应：
+
+1. 更新现有 canonical surface
+2. 压缩进现有 survivor doc
+3. 或直接丢弃
 
 ## Routing Order
 
@@ -51,7 +83,7 @@ repo-local runtime 只在需要持久化时出现：
 5. 只在需要时读取：
    - `attachments/`
    - `history/transitions/`
-   - 显式 promote 的 governance projection
+   - 显式 promote 的 shared writeback
 
 ## Current Implementation Note
 
@@ -85,6 +117,7 @@ repo-local runtime 只在需要持久化时出现：
 5. `close and compact`
    - 任务完成后可转为 `archived`
    - 用 `Archived at` 表达离开默认 active surface 的时间
+   - 关闭前应确认 active reading order 已收敛到更小的 survivor set，而不是保留并行摘要链
 
 ## Validation
 
@@ -106,7 +139,7 @@ materialized runtime：
 ./scripts/run_state_validation_slice.sh
 ```
 
-advanced governance runtime：
+shared-writeback runtime：
 
 ```bash
 ./scripts/validate_workspace.sh --mode governance
@@ -119,6 +152,6 @@ advanced governance runtime：
 ## 禁止事项
 
 1. 不要让 agent 默认扫描全仓库 markdown 才理解当前任务
-2. 不要让 governance tree 反向定义默认 runtime
+2. 不要让 company / workstream 投影反向定义默认 runtime
 3. 不要把 query 结果或 board projection 当成 source of truth
 4. 不要把额外文件或目录再次变成任务真相的并行平面

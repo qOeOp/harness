@@ -37,11 +37,11 @@ export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
   cat <<EOF >&2
-usage: $0 [--work-item <WI-xxxx>] [--promote-governance] [company|<workstream>] <title>
+usage: $0 [--work-item <WI-xxxx>] [--promote-governance] [shared|company] <title>
 
 Research memos default to task-local routing.
 Pass --work-item explicitly for task-local routing.
-Use --promote-governance only for cross-task memos in advanced governance mode.
+Use --promote-governance only for shared cross-task memos in shared writeback mode.
 EOF
   exit 1
 }
@@ -81,13 +81,16 @@ if [ "$promote_governance" -eq 1 ]; then
   if [ -n "$work_item_id" ]; then
     require_work_item "$work_item_id" >/dev/null
   fi
-  if [ "$scope" = "company" ]; then
-    require_governance_mode_for_workspace_artifact "research memo" || exit 1
-    target=".harness/workspace/briefs/${slug}.md"
-  else
-    require_governance_mode_for_workspace_artifact "workstream research memo" || exit 1
-    target=".harness/workspace/workstreams/${scope}/workspace/memos/${date}-${slug}.md"
-  fi
+  case "$scope" in
+    company|shared)
+      require_governance_mode_for_workspace_artifact "research memo" || exit 1
+      target=".harness/workspace/briefs/${slug}.md"
+      ;;
+    *)
+      echo "workstream-specific research memos are no longer part of the canonical runtime: $scope" >&2
+      exit 1
+      ;;
+  esac
 else
   if [ -z "$work_item_id" ]; then
     require_explicit_promotion_for_workspace_artifact "research memo" || exit 1

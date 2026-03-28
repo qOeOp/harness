@@ -5,7 +5,7 @@
 - Scope:
 - Signals reviewed:
 - Repeated frictions:
-- Cross-workstream failures:
+- Cross-task handoff failures:
 - Candidate root causes:
 - Proposed experiments:
 - Risks of change:

@@ -1,7 +1,7 @@
 schema_version = 1
 bundle_slug = "vision-meeting"
 bundle_version = 1
-bundle_kind = "governance-skill"
+bundle_kind = "task-skill"
 summary = "Prepare a vision meeting brief around product direction, boundaries, value proposition, and strategic tensions."
 
 owner_role = "product-thesis-lead"

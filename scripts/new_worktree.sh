@@ -1,11 +1,11 @@
 #!/bin/sh
 set -eu
 
-workstream="${1:-}"
+tag="${1:-}"
 task="${2:-}"
 
-if [ -z "$workstream" ] || [ -z "$task" ]; then
-  echo "usage: $0 <workstream> <task>" >&2
+if [ -z "$tag" ] || [ -z "$task" ]; then
+  echo "usage: $0 <tag> <task>" >&2
   exit 1
 fi
 
@@ -15,9 +15,9 @@ if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
 fi
 
 slug=$(printf '%s' "$task" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
-branch="codex/${workstream}-${slug}"
+branch="codex/${tag}-${slug}"
 base_dir="../harness-worktrees"
-target="${base_dir}/${workstream}-${slug}"
+target="${base_dir}/${tag}-${slug}"
 
 mkdir -p "$base_dir"
 git worktree add -b "$branch" "$target" HEAD

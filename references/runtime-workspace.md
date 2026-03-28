@@ -32,7 +32,7 @@ Out of scope for the default runtime contract:
 1. skill installation path
 2. consumer `AGENTS.md / CLAUDE.md / GEMINI.md`
 3. consumer `.claude/ / .codex/ / .gemini/`
-4. optional cross-task coordination surfaces such as `.harness/workspace/roles/`
+4. company / workstream trees, boards, digests, or founder queues
 
 ## Canonical task-record tree
 
@@ -57,7 +57,7 @@ Out of scope for the default runtime contract:
 2. `## Recovery` 在 `task.md` 内
 3. task-local decision / research / review / source-note 默认进入 `attachments/`
 4. `archived` 通过状态字段表达，不再默认要求物理 `archive/`
-5. board 不是默认 runtime tree 的一部分
+5. board、digest、org chart 不属于默认 runtime tree
 
 Machine-readable contract:
 
@@ -73,4 +73,4 @@ Generation and verification:
 This source repository does not own a live `.harness/` tree.
 It only defines the runtime contract that consumer repos may materialize on demand.
 
-Heavier structures such as decision logs, digests, status snapshots, or other cross-task views belong to the optional cross-task layer, not to the default task runtime.
+Shared writeback surfaces such as `research/dispatches/`, `research/sources/`, `decisions/log/`, or `status/snapshots/` are secondary surfaces, not the default task runtime.

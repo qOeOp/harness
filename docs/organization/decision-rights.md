@@ -56,7 +56,7 @@
 
 ## Compounding Engineering Lead 可自主决定的事项
 
-1. 日报、retro、checkpoint 的标准格式与节奏。
+1. checkpoint、postmortem、process audit 的标准格式与节奏。
 2. 哪些流程问题值得进入 process audit。
 3. 哪些社区实践值得进入观察、研究或试点。
 4. 哪些 playbook、skill、script、ritual 需要提出优化建议。
@@ -71,7 +71,7 @@
 
 ## Optional Runtime Role Owners 可自主决定的事项
 
-仅当 `advanced governance mode` 已启用且该角色已经 materialize 时：
+仅当该角色已经在 consumer runtime 中 materialize 时：
 
 1. 在既有 charter 内如何完成本角色职责。
 2. 需要向哪个相邻角色发起 handoff。
@@ -99,11 +99,11 @@
 
 1. 角色间争议先由 `General Manager / Chief of Staff` 裁决。
 2. 如果争议触及使命、风险豁免、预算或高权限自动化，升级给 Founder。
-3. 任何未经 writeback 到 task-local artifacts 或显式 governance memory 的决定无效。
+3. 任何未经 writeback 到 task-local artifacts 或显式 shared writeback 的决定无效。
 
 ## Owned Paths Policy
 
 1. runtime-local role 定义文件路径是 `.harness/workspace/roles/<slug>.md`。
-2. 公司级 `.harness/workspace/` 只允许 append-only 写入。
-3. `SKILL.md`、`docs/`、`roles/`、`references/contracts/` 只允许治理基线角色修改。
+2. 共享 `.harness/workspace/` 只允许 append-only 写入。
+3. `SKILL.md`、`docs/`、`roles/`、`references/contracts/` 只允许默认基线角色修改。
 4. runtime role mutation 必须先有 `Role Change Proposal`，再通过 `scripts/runtime_role_manager.sh` 执行。
