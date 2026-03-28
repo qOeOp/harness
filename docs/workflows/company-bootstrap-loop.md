@@ -1,10 +1,10 @@
 # Company Bootstrap Loop
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-定义 `harness` 从默认 PM / governance baseline，到按需启用 consumer runtime workstream 的启动顺序。
+定义 `harness` 从默认责任 / 路由基线，到按需启用 consumer runtime workstream 的启动顺序。
 
 ## 当前状态
 
@@ -20,11 +20,11 @@
 2. Founder 明确自身参与边界。
 3. Founder 明确当前阶段的非目标。
 
-### Phase 1: Governance Baseline Bring-up
+### Phase 1: Responsibility And Routing Baseline Bring-up
 
 目标：
 
-1. 建立默认 PM / governance 团队。
+1. 建立默认 baseline roles、decision rights 与 routing boundary。
 2. 建立 decision rights、memory writeback 和 acceptance gate。
 3. 建立最低限度的 skills / scripts / contracts。
 
@@ -98,6 +98,6 @@
 当前最合理的顺序不是先长一套行业组织，而是：
 
 1. 稳定默认 `/harness` 入口和 task runtime。
-2. 用 baseline 团队完成若干真实回合。
+2. 用默认责任 / 路由基线完成若干真实回合。
 3. 在复利 review 中确认是否存在反复出现的专门职责。
 4. 只有证据充分时，再在 `.harness/workspace/roles/` 创建 runtime-local role。

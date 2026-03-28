@@ -1,6 +1,6 @@
 # Gemini Delta
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-28`
 
 ## 目的
 
@@ -83,6 +83,6 @@ Gemini 侧当前只有：
 本文件不定义：
 
 1. 仓库级 operator contract
-2. 公司 OS 的 canonical semantics
+2. `harness` 的 canonical semantics
 3. Claude / Codex delta
 4. Gemini skills 正文

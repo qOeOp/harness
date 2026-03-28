@@ -1,6 +1,6 @@
 # Memory Architecture
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
@@ -13,6 +13,7 @@
 3. `task.md` 既负责任务真相，也负责恢复协议。
 4. task-local evidence 默认进入 `attachments/`，不是先落 governance workspace。
 5. `archived` 是状态语义，不是默认物理目录。
+6. provider conversation / response / thread state 是 transport handle，不是 canonical task truth。
 
 ## Layer 0: Source Repo Constitution
 
@@ -81,6 +82,7 @@
 
 1. `./scripts/upsert_work_item_recovery.sh` 写的是 `task.md` 的 `## Recovery`。
 2. Recovery 只负责恢复协议，不承载决策正文或第二套状态。
+3. 若任务仍绑定 in-flight provider execution，可记录 `response_id`、`thread id`、`stream cursor`、`trace id` 这类 execution handle，但它们只服务 reconnect / resume / trace correlation。
 
 ## Layer 4: Task-Scoped Evidence And Trace
 
@@ -128,3 +130,4 @@
 1. 不要把 `.harness/workspace/*` 当成默认任务真相。
 2. 不要把 query 结果或 board projection 当成 canonical ledger。
 3. 不要把聊天上下文当成长期恢复机制。
+4. 不要把 provider transport state 直接晋升为 canonical task state。

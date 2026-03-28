@@ -1,15 +1,15 @@
 # Department Map
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-说明 `advanced governance mode` 下何时应该创建 runtime-local workstream / role，以及它们与 source repo 默认团队的关系。
+说明 `advanced governance mode` 下何时应该创建 runtime-local workstream / role，以及它们与 source repo 默认责任 / 路由基线的关系。
 
 ## 默认结论
 
 1. source repo 不内置固定行业部门。
-2. 默认只有项目管理 / 治理团队。
+2. 默认只有 source repo baseline roles。
 3. 只有在某类工作反复出现、输入输出稳定、handoff 成本持续存在时，才值得创建 runtime-local role。
 
 ## 创建门槛
@@ -18,7 +18,7 @@
 
 1. 已有多个回合的实际工作证明它不是一次性任务。
 2. 已存在清晰的输入、输出、owner 和 upgrade 规则。
-3. 继续让默认 PM / governance 团队兼任，已经造成明显摩擦。
+3. 继续让默认 baseline roles 兼任，已经造成明显摩擦。
 4. 复利 review 明确建议把该职责实体化。
 5. 由 `Runtime Role Manager` 执行实际 role file mutation。
 

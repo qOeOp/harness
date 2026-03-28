@@ -1,12 +1,12 @@
 # Company Charter
 
-更新日期：`2026-03-26`
+更新日期：`2026-03-28`
 
 ## 定位
 
 本仓库当前定义为：
 
-> 一个以 `/harness` 触发的、按需长出 repo-local runtime 的 AI-native task operating system。
+> 一个以 `/harness` 触发的 agent execution substrate：提供 agent-readable repo map、minimal resumable task runtime、deterministic validation/evals、observability/replay，以及按需启用的 governance projections。
 
 ## 当前阶段目标
 
@@ -67,7 +67,7 @@ Founder 当前不参与：
 
 1. 任何 stage 没做到极致，不进入下一 stage。
 2. AI 的文档和代码产出速度极快，因此速度不是进度指标，稳定度才是。
-3. 默认先把 task protocol 做锋利，再谈 company OS 扩展。
+3. 默认先把 task protocol 做锋利，再谈 governance projection 扩展。
 4. 执行本身通常只占很小一部分时间；前置问题定义、state hygiene 与 writeback 如果草率，后面只会把错误更快放大。
 5. 任何“先让 repo 接入，再证明使用价值”的提议，默认视为高风险提议。
 6. 如果发现当前层基础不稳，必须 `stop-the-line`，回到当前层补强，而不是继续叠下一层。

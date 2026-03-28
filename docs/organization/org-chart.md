@@ -1,14 +1,14 @@
 # Org Chart
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-定义 `harness` 当前默认内置的项目管理 / 治理团队，以及它与 consumer runtime 的边界。
+定义 `harness` 当前默认内置的 baseline roles，以及它与 consumer runtime 的边界。
 
 ## 默认组织结构
 
-当前 source repo 只内置一层治理团队：
+当前 source repo 只内置一层 baseline roles：
 
 ```text
 Founder / Principal

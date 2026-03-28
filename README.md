@@ -111,6 +111,17 @@ root 只保留：
 4. baseline role 定义
 5. 总导航与审计入口
 
+## Skills Need Progressive Disclosure
+
+`skills/*` 不只是“自包含”，还应当满足“窄触发、晚展开”。
+
+一个好的 skill bundle，默认应做到：
+
+1. `SKILL.md` 先回答触发条件、目标产出、读取顺序
+2. 详细说明、模板、脚本放在 `refs/`、`templates/`、`scripts/`，只在命中 skill 后按需读取
+3. skill 描述负责路由，skill 内部材料负责深度，不把所有上下文常驻在 root 入口
+4. skill 的目标是压缩默认上下文，而不是重新制造一个巨型总提示词
+
 ## Frontier Priority
 
 如果按 2025-2026 社区里更稳的 harness 经验排序，优先级应是：
@@ -193,6 +204,18 @@ v2 的最小 runtime 已经收敛到 flat task-record：
 3. `archived` 用状态字段表达
 4. board 不是默认 runtime contract；默认改为 shell query
 
+## Transport State 不是 Task Truth
+
+2026 的 agent runtime 已普遍提供 server-side conversation state、background jobs、compaction、stream resume 和 provider-owned threads。
+
+这些能力非常有用，但必须和 task truth 分层：
+
+1. provider conversation / response / thread state 是 transport memory，不是任务真相
+2. opaque compaction item、raw transcript、provider thread history 不应直接晋升为 canonical task state
+3. 若需要恢复仍在执行的 provider run，可在 `task.md` 的 recovery 或 `history/` 中记录临时 execution handles，例如 `response_id`、`thread id`、`stream cursor`、`trace id`、`request id`
+4. 这些 handles 只服务 reconnect / resume / cancel / trace correlation，过期可替换，不应驱动业务状态机
+5. 真正跨 provider、跨 session 稳定的恢复入口，仍应回到 `task.md`、`attachments/` 与 `history/transitions/`
+
 ## `task.md` 是什么
 
 `.harness/tasks/WI-xxxx/task.md` 是唯一任务执行真相，也是 human + agent 的主读取入口。
@@ -204,7 +227,8 @@ v2 的最小 runtime 已经收敛到 flat task-record：
 3. 它不是测试真相，测试真相仍在 tests / audit outputs
 4. 它不是需求全文真相，正式材料仍在 `attachments/` 与相关 spec
 5. 它不是第二套 workflow engine；真正状态迁移仍受脚本、锁与验证面约束
-6. 它的职责是把“当前任务为什么在这里、现在该做什么、下一步怎么恢复”压缩成单一入口
+6. 它不是 provider transport state；conversation state、background response、opaque compaction item 只应作为可替换的执行句柄
+7. 它的职责是把“当前任务为什么在这里、现在该做什么、下一步怎么恢复”压缩成单一入口
 
 同时要注意：
 
@@ -322,7 +346,8 @@ materialized runtime 下，正确读取顺序是：
 2. `.harness/entrypoint.md`
 3. `./scripts/query_work_items.sh` 的结果，或明确的 `.harness/tasks/<task-id>/task.md`
 4. 若状态为 `in-progress` / `paused`，再读该 task 的 `## Recovery`
-5. 只在需要时读取 `attachments/` 和 `history/transitions/`
+5. 若该 task 仍绑定 in-flight provider execution，再读必要的 `response_id / thread id / stream cursor / trace id`
+6. 只在需要时读取 `attachments/` 和 `history/transitions/`
 
 ## 验证、审计与可回放性
 
@@ -348,12 +373,34 @@ materialized runtime：
 ./scripts/run_state_validation_slice.sh
 ```
 
+对 frontier harness，`tests pass` 仍然不够。验证至少应分三层：
+
+1. result-level
+   - tests、audit、freshness gate、review loop 是否通过
+2. trace-level
+   - decision、tool calls、handoff、retry、interrupt 是否符合预期，可进入 trace grading / trajectory review
+3. state-level
+   - transitions、locks、writeback、derived views 是否满足 runtime contract
+
 当前 runtime 的可回放入口主要来自：
 
 1. `task.md` 的 `## Recovery`
 2. `history/transitions/`
 3. query 输出
 4. audit / validation 输出
+5. 可关联的 trace / run identifiers
+
+## Enforcement Boundary
+
+README、roles、skills 负责表达 intent；真正“必须发生”的约束，应尽量下沉到工具与权限边界。
+
+默认原则：
+
+1. rules / hooks / managed settings 负责机械约束，而不是只靠叙事提醒
+2. MCP / external tools 默认最小授权、最小暴露面
+3. subagent / skill / command 默认窄范围 allowlist，而不是全量继承
+4. 非可信外部输入先作为 evidence 进入 `attachments/` / `Source Note`，再决定是否 promote 为状态或结论
+5. approvals / human gates 属于 trust-boundary control，不属于 organization chart 本体
 
 ## 设计纪律
 
@@ -366,3 +413,6 @@ materialized runtime：
 7. Recovery 只回答恢复执行所需的最小问题
 8. task-local first，governance by explicit promotion
 9. source repo 不保存 consumer runtime 的 live state
+10. transport memory 可丢弃，但 task truth 必须稳定
+11. 低层约束优先落在 tool / permission boundary，而不是组织叙事
+12. 验证既看最终结果，也看 trace 与状态迁移

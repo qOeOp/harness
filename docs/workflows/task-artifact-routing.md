@@ -1,29 +1,23 @@
 # Task Artifact Routing
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
 把 `research dispatch / research brief / source note / research memo / decision pack / checkpoint / role change proposal` 这类正式 artifact 的默认落点收敛到一套单一规则，避免 task truth 和治理投影同时冒充默认真相。
 
-## Divergent Hypotheses
+## Canonical Rule
 
-1. 继续把 `.harness/workspace/*` 当默认正式 artifact 面。
-2. 所有 artifact 永久只留 task 目录，完全禁止 promotion。
-3. 默认 `task-local first`，只有显式 `--promote-governance` 时才升级到治理面。
+当前生效规则是：
 
-## First Principles Deconstruction
+`task-local first, governance by explicit promotion`
+
+解释：
 
 1. agent 恢复当前工作时，第一问题是“哪个 task 在推进”，不是“公司级总目录在哪”。
 2. 与某个 task 强绑定的证据和决策，默认应该贴着该 task 存放。
-3. 跨任务沉淀是升级动作，应该由 operator 显式表达。
+3. 跨任务沉淀是升级动作，必须由 operator 显式表达。
 4. minimum-core runtime 必须在没有 governance tree 的情况下也能完整执行、暂停、恢复、校验。
-
-## Convergence To Excellence
-
-采纳第 3 条：
-
-`task-local first, governance by explicit promotion`
 
 ## Canonical Rules
 

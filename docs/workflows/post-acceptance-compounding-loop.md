@@ -1,36 +1,24 @@
 # Post-Acceptance Compounding Loop
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
 把 `任务完成候选 -> 用户验收 -> 复利 review -> runtime role mutation` 收敛成一条正式闭环，避免 role 增长继续靠口头直觉或临时聊天决定。
 
-## Divergent Hypotheses
+## Canonical Flow
 
-1. 任务一结束就允许执行 owner 直接创建新 role。
-2. `Compounding Engineering Lead` 同时负责判断问题和直接改 role 文件。
-3. 主控 agent 只提交 completion candidate；用户认可后进入 post-acceptance compounding；`Compounding Engineering Lead` 决定是否需要 role 变更；`Runtime Role Manager` 负责执行变更。
-
-## First Principles Deconstruction
-
-1. “我觉得做完了”不是组织变更的充分条件。
-2. role file 是跨 provider 的 canonical truth；provider-specific agent 文件只是 user-owned adapter surface。
-3. 新增或改写 role 属于高信任写操作，必须有 reviewable artifact。
-4. 复利 review 应该发生在交付被用户认可之后，而不是交付尚未成立时。
-5. 决策与执行要拆开：发现流程缺口的人，不应该同时无条件拥有角色结构写权限。
-
-## Convergence To Excellence
-
-采纳第 3 条路径：
+当前生效的闭环是：
 
 `completion candidate -> acceptance -> compounding review -> role change proposal -> runtime-role-manager execution`
 
-原因：
+生效规则：
 
-1. 它把“是否长角色”和“如何落角色”拆成两个责任面。
-2. 它保留了 canonical role source 的统一 truth，同时不把 provider 语法拉回 source of truth。
-3. 它让 role 变更先以 artifact 形式接受 review，再进入写入面。
+1. “我觉得做完了”不是组织变更的充分条件。
+2. role 变更必须先经过用户认可后的 post-acceptance compounding。
+3. role file 是跨 provider 的 canonical truth；provider-specific agent 文件只是 user-owned adapter surface。
+4. 新增或改写 role 属于高信任写操作，必须先有 reviewable artifact。
+5. 决策与执行必须拆开：`Compounding Engineering Lead` 判断是否需要变更，`Runtime Role Manager` 执行实际 role mutation。
 
 ## Trigger
 

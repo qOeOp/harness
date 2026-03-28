@@ -1,16 +1,16 @@
-# Company OS / Product Runtime / Data Map
+# Execution Substrate / Consumer Runtime / Data Map
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-区分 `Company OS`、`consumer runtime` 和 `data layer`，避免把 source repo 的默认治理团队误写成某个行业的固定组织结构。
+区分 `execution substrate`、`consumer runtime` 和 `data layer`，避免把 source repo 的 baseline roles 误写成某个行业的固定组织结构。
 
 ## 三层定义
 
-1. `Company OS`
-   - `harness` 默认内置的项目管理 / 治理团队
-   - 负责 problem definition、decision、writeback、workflow、quality gate 和 compounding
+1. `Execution Substrate`
+   - `harness` 默认内置的 baseline roles、capability bundles、contracts 与 control surfaces
+   - 负责 repo map、problem definition、decision、writeback、workflow、quality gate 和 compounding
 2. `Consumer Runtime`
    - 某个 repo 为自身运行需要按需 materialize 的角色、workstream 和 artifact
    - 可以创建 runtime-local role，但不反向定义 framework baseline
@@ -19,14 +19,14 @@
 
 ## 核心原则
 
-1. 默认 baseline 是 PM / governance team，而不是行业组织图。
+1. 默认 baseline 是 source repo baseline roles，而不是行业组织图。
 2. 不是每个 consumer runtime role 都值得升级成 source repo 的 built-in role。
 3. data objects 是第一公民，角色只是围绕这些对象运转。
 4. 同一个职责可以先由 baseline 角色兼任，只有反复出现摩擦时才 promotion 成 runtime-local role。
 
 ## 三层映射表
 
-| Company OS Owner | Consumer Runtime Role | Primary Data Objects | Notes |
+| Execution Substrate Owner | Consumer Runtime Role | Primary Data Objects | Notes |
 | --- | --- | --- | --- |
 | `General Manager / Chief of Staff` | dispatcher / execution coordinator | founder briefs, task plans, decision packs, escalation notes | 默认协调入口，不等于必须长期存在的 runtime agent |
 | `Product Thesis Lead` | problem framer | scoped requirements, acceptance criteria, non-goals | 负责把问题定义锋利化 |

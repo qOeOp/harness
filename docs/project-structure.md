@@ -1,16 +1,19 @@
 # Project Structure
 
-更新日期：`2026-03-26`
+更新日期：`2026-03-28`
 
 ## Repo Identity
 
-这个仓库是 `harness` 的 implementation source repo。
+这个仓库是 `harness` 的 implementation source repo，也是 `agent execution substrate` 的 canonical source。
 
-它只负责三类东西：
+它负责六类东西：
 
-1. `core task runtime` 的 canonical logic
-2. 可选的 `advanced governance mode` 设计与材料
-3. source-maintainer 侧的 contracts、references、scripts 与 audits
+1. `/harness` 入口与 root repo map
+2. `skills/` 能力包
+3. `roles/` 与 workflow docs 提供的责任 / 路由基线
+4. `references/` 下的 runtime contract
+5. `scripts/` 下的执行器、验证器与审计入口
+6. 可恢复、可验证、可追踪的读取与写回边界
 
 它不直接承载：
 
@@ -20,22 +23,20 @@
 
 ## Product Layers
 
-当前产品叙事只保留两层：
+当前产品叙事优先保留四层：
 
-1. `core task runtime`
-   - 默认 `/harness` 进入的任务执行层
+1. `repo map`
+   - 默认 `/harness` 进入后优先理解的 source surface
+   - 由 `SKILL.md`、`skills/`、`roles/`、`docs/`、`references/`、`scripts/` 组成
+2. `task-record runtime`
+   - materialized `.harness/` 任务执行层
    - 关注 scoping、state、resume、attachments、closure
-2. `advanced governance mode`
-   - 用户显式升级后才出现的组织治理层
+3. `verification / observability`
+   - tests、audit、freshness、review、replay、trace correlation
+   - 属于 substrate 的默认部分，不是事后附加
+4. `advanced governance mode`
+   - 用户显式升级后才出现的治理投影层
    - 关注 cadence、roles、escalation、cross-task coordination
-
-另有一层内部面：
-
-1. `internal plumbing`
-   - source repo 维护、archive hygiene、audit、diagnostic、runtime scaffold verification
-   - 对用户来说不是主入口
-   - 包括 runtime scaffold 与 smoke-chain verification
-   - 以及 user-owned consumer runtime route table 的解析脚本
 
 ## Source Repo Layout
 
@@ -46,7 +47,7 @@
 - `skills/`
   - 可复用 skill 包
 - `roles/`
-  - `harness` 内置 PM / governance baseline role source
+  - `harness` 内置责任主体与默认路由基线
 - `scripts/`
   - runtime、audit、source maintenance 脚本
 - `docs/`
@@ -81,6 +82,12 @@ source repo 只保留：
 
 - `scripts/materialize_runtime_fixture.sh`
 - `scripts/run_state_validation_slice.sh`
+
+补充边界：
+
+- provider conversation / response / thread state 属于 transport state，不属于默认 runtime truth
+- 若确需恢复 in-flight execution，可在 `task.md` 的 `## Recovery` 或 `history/` 里记录 `response_id`、`thread id`、`stream cursor`、`trace id`
+- 这些 execution handles 只服务 reconnect / resume / trace correlation，可替换、可过期
 
 迁移期说明：
 

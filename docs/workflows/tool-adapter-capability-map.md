@@ -1,6 +1,6 @@
 # Tool Adapter Capability Map
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-28`
 
 ## 目的
 
@@ -8,7 +8,7 @@
 
 ## Canonical Capability Surface
 
-只有以下两类对象属于公司 OS 的一等能力层：
+只有以下两类对象属于 `harness` execution substrate 的 canonical capability layer：
 
 1. `agents`
    - 表示稳定角色、职责边界与可并行执行单元
@@ -56,7 +56,7 @@
 | Agents | role / execution units | provider-owned | provider-owned | provider-owned | `roles/` 为 canonical source；不维护 repo-local provider mirrors |
 | Commands | UX alias only | 可选 | 可选 | 可选 | 不再视为一等层 |
 | Hooks | event automation only | 可选，能力最强 | 当前公开面未见同级 project-local hooks | 可选 | 不再视为一等层 |
-| Scripts / audits | deterministic enforcement | 通用 | 通用 | 通用 | 公司 OS 真正硬控制面 |
+| Scripts / audits | deterministic enforcement | 通用 | 通用 | 通用 | execution substrate 真正硬控制面 |
 
 ## Current Repository Read
 
@@ -86,4 +86,4 @@
 1. 不要把 `commands` 写成第二套 workflow 真相
 2. 不要把 `hooks` 写成唯一规则来源
 3. 不要为了追求三家表面对称而复制无意义配置
-4. 不要把 provider-specific 原语误写成公司 OS 的基础概念
+4. 不要把 provider-specific 原语误写成 `harness` 的基础概念

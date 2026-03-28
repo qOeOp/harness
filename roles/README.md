@@ -1,10 +1,10 @@
 # Canonical Roles
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-本目录只保存 `harness` 自身的默认项目管理 / 治理团队基线。
+本目录只保存 `harness` 自身的默认责任主体与路由基线。
 
 当前内置角色：
 
@@ -43,6 +43,17 @@
    - 常用 `retro`, `process-audit`, `governance-meeting`, `capability-scout`, `os-audit`
 
 这是一组默认 affinity，不是硬权限。
+
+## Enforcement Boundary
+
+`roles/*` 负责表达职责、路由与默认策略意图，但不应单独承担机械约束。
+
+真正“必须发生”的控制，应尽量下沉到：
+
+1. `scripts/`
+2. audit / validation
+3. wrapper 对 `policy_*` frontmatter 的机械检查
+4. tool / permission boundary
 
 ## 文件格式
 
@@ -104,7 +115,7 @@
 
 ## Current Rule
 
-1. `roles/` 只保存 `harness` 默认 PM / governance baseline
+1. `roles/` 只保存 `harness` 默认责任主体与路由基线
 2. 本仓库不再维护 provider-owned generated role mirrors
 3. consumer repo 的领域角色属于 runtime-local surface，路径是 `.harness/workspace/roles/`
 4. role 变更后只跑 schema audit，不再同步任何 provider mirror
@@ -193,7 +204,7 @@ cat docs/templates/role-design-brief.md
 
 ## 边界
 
-1. source repo 的 canonical role source 只定义 `harness` 默认 PM / governance 团队
+1. source repo 的 canonical role source 只定义 `harness` 默认责任主体与路由基线
 2. consumer runtime role 解决的是某个 repo 的局部运行需要，而不是 framework baseline
 3. provider-specific delta 继续放在 `docs/workflows/provider-deltas/`
 4. 若未来想把某个 runtime role 升级为 source baseline，必须先证明它是跨项目、跨用户域、跨多轮复利都稳定成立的通用角色

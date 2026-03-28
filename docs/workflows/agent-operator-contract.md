@@ -1,6 +1,6 @@
 # Agent Operator Contract
 
-更新日期：`2026-03-24`
+更新日期：`2026-03-28`
 
 ## 目的
 
@@ -194,7 +194,7 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 涉及正式 write 时，必须区分：
 
 1. `canonical docs`
-   - 允许修改，但应谨慎，避免把 adapter 规则写成公司 OS 真相
+   - 允许修改，但应谨慎，避免把 adapter 规则写成 `harness` 真相
 2. `state items / transitions / recovery`
    - 必须优先走正式脚本与协议，不手工伪造状态
 3. `append-only memory`
@@ -212,6 +212,7 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 2. `start / pause / resume / complete` 相关脚本
 3. `upsert_work_item_recovery.sh`
 4. `update_work_item_fields.sh`
+5. provider execution handle 只作为 recovery / trace correlation 的辅助字段，不作为状态机真相
 
 不要：
 
@@ -233,6 +234,15 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 1. 能跑 tests/checks 就跑
 2. 不能跑时必须明确说明原因
 3. review 应遵守 [code_review.md](./code_review.md)
+
+默认至少区分三层验证：
+
+1. `result-level`
+   - tests、checks、freshness gate、review 是否通过
+2. `trace-level`
+   - decision、tool calls、handoff、retry、interrupt 是否可解释、可回放
+3. `state-level`
+   - transitions、locks、writeback、derived views 是否满足 runtime contract
 
 对 volatile external conclusion：
 
