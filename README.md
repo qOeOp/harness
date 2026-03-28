@@ -148,27 +148,26 @@ root 只保留：
    skill 运行中产出的决定、证据与恢复信息，
    若会影响任务执行，
    必须回落到 `task.md` / `attachments/` / `history/`
-7. 常驻 `rules / policy / project memory` 与按需 skill 展开必须分层；前者定义默认行为基线，后者提供窄任务能力，不互相替代
-8. skill / subagent 的默认 handoff
-   应是最小必要、结构化、可审计的 capability packet，
-   不把 parent session transcript、
+7. 常驻 `rules / policy / project memory` 与按需 skill 展开必须分层；
+   前者定义默认行为基线，后者提供窄任务能力，不互相替代
+8. skill / subagent 的默认 handoff 应是最小必要、结构化、
+   可审计的 capability packet，不把 parent session transcript、
    全量 system prompt 或临时上下文整包继承
-   - 若某个 runtime 在未显式声明
-     tool scope / permission scope 时，
-     会让 subagent 继承 parent 的
-     全量工具或权限，
-     就必须把“省略配置”本身
-     视为 capability grant；
-     默认仍显式写 allowlist /
-     denylist，不把 inherited-by-default
-     误当成安全默认值
-   - 若 subagent 会产生大体积、
-     高保真或结构化结果，
-     优先直写 task-local artifact /
-     attachment，再回传轻量 handle、
+   - subagent 默认首先是 context-isolation / scoped-capability primitive，
+     不自动等于 sustained parallelism；
+     若任务会跨 session、超出主会话窗口，或需要长时间独立推进，
+     就升级为 task-local artifact + separate session / worktree claim，
+     不在单一 transcript 里无限 fan-out
+   - 若某个 runtime 在未显式声明 tool scope /
+     permission scope 时，
+     会让 subagent 继承 parent 的全量工具或权限，
+     就必须把“省略配置”本身视为 capability grant；
+     默认仍显式写 allowlist / denylist，
+     不把 inherited-by-default 误当成安全默认值
+   - 若 subagent 会产生大体积、高保真或结构化结果，
+     优先直写 task-local artifact / attachment，再回传轻量 handle、
      locator 或摘要；
-     不让多级 coordinator
-     用 transcript 做
+     不让多级 coordinator 用 transcript 做
      “口耳相传” copy chain
 9. skill 默认属于 versioned instruction surface，
    不是自动获得高优先级的 enforced policy
@@ -497,8 +496,7 @@ workflow checkpoints 与 provider-owned threads。
    - 它决定默认行为基线，但不承载某个 work item 的生命周期
 2. `session memory`
    - SDK session、provider conversation continuation、
-     server-managed thread history、compaction continuation
-     等多轮上下文
+     server-managed thread history、compaction continuation 等多轮上下文
    - 它能提升连续性，但仍不是 canonical task record
 3. `skills`
    - 只在命中时展开的 capability bundles
@@ -506,20 +504,22 @@ workflow checkpoints 与 provider-owned threads。
 4. 同一条恢复链不要无脑叠加多个 continuation mechanism
    - 默认只选一条 provider / SDK 侧会话延续路径，把其他机制当可替换实现细节
    - client-side session memory
-     与 server-side conversation /
-     thread continuation
-     默认二选一；
+     与 server-side conversation / thread continuation 默认二选一；
      不把 session、`conversation_id`、
-     `previous_response_id`、
-     provider thread history
+     `previous_response_id`、provider thread history
      这类机制层层叠加
+   - session history 的 edit / pop / merge / compaction policy
+     也属于 steerability surface，不是“纯存储细节”；
+     一旦 durable、shared，或会跨 run 影响行为，
+     就要显式记录 owner、version、trigger 与 rollback / audit path，
+     不让临时历史裁剪、merge helper 或 server-side compaction
+     静默改写 canonical rationale
 5. provider / SDK continuation handle
    - 只表示 transport / session continuity
    - 不等于 instruction surface 自动延续；
      `system / developer / policy /
      prompt object / managed settings`
-     默认要显式重放、重绑版本
-     或重新注入
+     默认要显式重放、重绑版本或重新注入
 6. provider-native reasoning / compaction artifact
    - `thinking` blocks、encrypted reasoning、
      opaque compaction items、server summaries
@@ -681,7 +681,7 @@ feature / acceptance checklist，
 
 ```bash
 ./scripts/work_item_ctl.sh status --json --all
-./scripts/work_item_ctl.sh start --json company
+./scripts/work_item_ctl.sh start --json shared
 ./scripts/work_item_ctl.sh pause \
   --expected-from-status in-progress \
   --expected-version <v> \
@@ -692,7 +692,7 @@ feature / acceptance checklist，
   --json \
   --target-status review \
   --work-item <WI-xxxx> \
-  company
+  shared
 ./scripts/query_work_items.sh --status in-progress --assignee codex
 ```
 
@@ -700,7 +700,7 @@ feature / acceptance checklist，
 
 1. `status` 现在是 `query` 别名，不再是“open 当前焦点”
 2. task-local artifact 写回一律要求显式 `--work-item`
-3. `./scripts/upsert_work_item_recovery.sh` 写入 `task.md` 的 `## Recovery`
+3. Recovery 写回用 `upsert_work_item_recovery.sh`；共享写回统一用 `shared`，`company` 仅作兼容别名
 
 ## 运行时读取顺序
 

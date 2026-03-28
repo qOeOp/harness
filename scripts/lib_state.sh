@@ -982,14 +982,29 @@ EOF
   return 1
 }
 
+normalize_work_item_scope() {
+  case "${1:-shared}" in
+    ""|shared|company) printf '%s\n' "shared" ;;
+    founder) printf '%s\n' "founder" ;;
+    *) return 1 ;;
+  esac
+}
+
+board_path_for_scope() {
+  case "$(normalize_work_item_scope "${1:-shared}")" in
+    shared) printf '%s\n' "$state_boards_dir/company.md" ;;
+    founder) printf '%s\n' "$state_boards_dir/founder.md" ;;
+  esac
+}
+
 work_item_matches_scope() {
   file="$1"
-  scope="$2"
+  scope=$(normalize_work_item_scope "$2") || return 1
   founder_escalation=$(field_value "$file" "Founder escalation")
   interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
 
   case "$scope" in
-    company)
+    shared)
       return 0
       ;;
     founder)

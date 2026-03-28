@@ -6,25 +6,18 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  printf 'usage: %s [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [company|founder]\n' "$(default_harness_command "complete_work_item.sh")" >&2
+  printf 'usage: %s [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [shared|founder]\n' "$(default_harness_command "complete_work_item.sh")" >&2
 }
 
 resolve_board_path() {
-  scope="$1"
+  scope=$(normalize_work_item_scope "$1") || return 1
 
   if ! runtime_governance_enabled; then
     printf '%s\n' "none"
     return 0
   fi
 
-  case "$scope" in
-    company)
-      printf '%s\n' "$state_boards_dir/company.md"
-      ;;
-    founder)
-      printf '%s\n' "$state_boards_dir/founder.md"
-      ;;
-  esac
+  board_path_for_scope "$scope"
 }
 
 json_escape() {
@@ -264,18 +257,10 @@ case "$target_status" in
     ;;
 esac
 
-scope="${1:-company}"
+scope=$(normalize_work_item_scope "${1:-shared}") || { usage; exit 1; }
 if [ $# -gt 0 ]; then
   shift
 fi
-
-case "$scope" in
-  company|founder) ;;
-  *)
-    usage
-    exit 1
-    ;;
-esac
 
 if [ "$target_status" = "done" ] || [ "$target_status" = "killed" ]; then
   if [ -z "$explicit_work_item_id" ]; then

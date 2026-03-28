@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--record|--path-only] [company|founder]\n' "$(default_harness_command "open_work_item.sh")" >&2
+  printf 'usage: %s [--json|--record|--path-only] [shared|founder]\n' "$(default_harness_command "open_work_item.sh")" >&2
 }
 
 recommend_action() {
@@ -178,18 +178,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-scope="${1:-company}"
+scope=$(normalize_work_item_scope "${1:-shared}") || { usage; exit 1; }
 if [ $# -gt 0 ]; then
   shift
 fi
-
-case "$scope" in
-  company|founder) ;;
-  *)
-    usage
-    exit 1
-    ;;
-esac
 
 recovery_command_template=$(default_harness_command "upsert_work_item_recovery.sh")
 resume_command_template=$(default_harness_command "resume_work_item.sh")

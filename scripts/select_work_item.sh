@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--record|--id-only|--path-only] [company|founder]\n' "$(default_harness_command "select_work_item.sh")" >&2
+  printf 'usage: %s [--json|--record|--id-only|--path-only] [shared|founder]\n' "$(default_harness_command "select_work_item.sh")" >&2
 }
 
 output_mode="summary"
@@ -38,33 +38,18 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-scope="${1:-company}"
+scope=$(normalize_work_item_scope "${1:-shared}") || { usage; exit 1; }
 if [ $# -gt 0 ]; then
   shift
 fi
 
 board_path=""
 
-case "$scope" in
-  company)
-    if runtime_governance_enabled; then
-      board_path="$state_boards_dir/company.md"
-    else
-      board_path="none"
-    fi
-    ;;
-  founder)
-    if runtime_governance_enabled; then
-      board_path="$state_boards_dir/founder.md"
-    else
-      board_path="none"
-    fi
-    ;;
-  *)
-    usage
-    exit 1
-    ;;
-esac
+if runtime_governance_enabled; then
+  board_path=$(board_path_for_scope "$scope") || { usage; exit 1; }
+else
+  board_path="none"
+fi
 
 is_open_status() {
   is_open_work_item_status "$1"
@@ -160,7 +145,7 @@ selection_reason_for_file() {
   status=$(field_value "$file" "Status")
 
   case "$scope" in
-    company)
+    shared)
       if [ "$founder_escalation" = "pending-founder" ]; then
         reason=$(append_reason "$reason" "awaiting founder decision")
       fi
@@ -210,7 +195,7 @@ for file in $(list_work_items); do
   selected=0
 
   case "$scope" in
-    company)
+    shared)
       selected=1
       if [ "$founder_escalation" = "pending-founder" ]; then
         reason=$(append_reason "$reason" "awaiting founder decision")

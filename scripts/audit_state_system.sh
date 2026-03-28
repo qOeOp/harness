@@ -16,7 +16,7 @@ while [ $# -gt 0 ]; do
     --mode)
       shift
       if [ $# -eq 0 ]; then
-        echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
+        echo "usage: $0 [--quiet] [--mode core|shared]" >&2
         exit 2
       fi
       case "$1" in
@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
       esac
       ;;
     *)
-      echo "usage: $0 [--quiet] [--mode core|shared|governance]" >&2
+      echo "usage: $0 [--quiet] [--mode core|shared]" >&2
       exit 2
       ;;
   esac

@@ -74,7 +74,7 @@ commit_or_check() {
 }
 
 cat >"$company_tmp" <<EOF
-# Company Board
+# Shared Work Item Board
 
 - Generated at: $(date +%F)
 - Derived only: true

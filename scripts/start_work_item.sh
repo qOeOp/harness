@@ -6,7 +6,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder]\n' "$(default_harness_command "start_work_item.sh")" >&2
+  printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [shared|founder]\n' "$(default_harness_command "start_work_item.sh")" >&2
 }
 
 json_escape() {
@@ -224,18 +224,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-scope="${1:-company}"
+scope=$(normalize_work_item_scope "${1:-shared}") || { usage; exit 1; }
 if [ $# -gt 0 ]; then
   shift
 fi
-
-case "$scope" in
-  company|founder) ;;
-  *)
-    usage
-    exit 1
-    ;;
-esac
 
 if [ -z "$start_reason" ]; then
   start_reason="execution started via $(default_harness_command "start_work_item.sh")"

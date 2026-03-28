@@ -33,13 +33,13 @@ subcommands:
   help       show this message
 
 examples:
-  <harness-work-item-ctl> select --json company
+  <harness-work-item-ctl> select --json shared
   <harness-work-item-ctl> status --json --all
-  <harness-work-item-ctl> start --json company
+  <harness-work-item-ctl> start --json shared
   <harness-work-item-ctl> pause --expected-from-status in-progress --expected-version 3 --interrupt-marker risk-review-required WI-0001
   <harness-work-item-ctl> resume --expected-version 4 WI-0001
-  <harness-work-item-ctl> close --json --target-status review company
-  STATE_ACTOR=codex <harness-work-item-ctl> complete --json --target-status killed --work-item WI-0006 company
+  <harness-work-item-ctl> close --json --target-status review shared
+  STATE_ACTOR=codex <harness-work-item-ctl> complete --json --target-status killed --work-item WI-0006 shared
 EOF
 
   printf '\nResolved commands:\n' >&2

@@ -1,6 +1,6 @@
 # Board Refresh Ledger
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -49,7 +49,7 @@
 
 `Targets` 只允许包含：
 
-1. `.harness/workspace/state/boards/company.md`
+1. `.harness/workspace/state/boards/company.md`（legacy filename for the shared work item board projection）
 2. `.harness/workspace/state/boards/founder.md`
 
 ## 与 trace taxonomy 的关系

@@ -31,9 +31,21 @@ const today = localDateValue();
 
 function usage() {
   console.error(
-    `usage: ${scriptCommand("render_founder_review_page.sh")} [--work-item <WI-xxxx> | --scope company|founder] [--output <path>]`
+    `usage: ${scriptCommand("render_founder_review_page.sh")} [--work-item <WI-xxxx> | --scope shared|founder] [--output <path>]`
   );
   process.exit(1);
+}
+
+function normalizeScope(scope) {
+  if (!scope || scope === "shared" || scope === "company") {
+    return "shared";
+  }
+
+  if (scope === "founder") {
+    return "founder";
+  }
+
+  throw new Error(`invalid scope: ${scope}`);
 }
 
 function run(command, args, options = {}) {
@@ -301,6 +313,7 @@ function resolveSelection() {
         if (!scope) {
           usage();
         }
+        scope = normalizeScope(scope);
         break;
       case "--output":
         outputPath = args.shift() || "";
@@ -333,6 +346,7 @@ function resolveSelection() {
     };
   }
 
+  scope = normalizeScope(scope);
   const openArgs = ["--json", scope];
 
   const result = run(scriptCommand("open_work_item.sh"), openArgs);

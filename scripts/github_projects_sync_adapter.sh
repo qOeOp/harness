@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  echo "usage: $0 <company|founder>" >&2
+  echo "usage: $0 <shared|founder>" >&2
   exit 1
 }
 
@@ -19,8 +19,10 @@ if [ -z "$view" ]; then
   usage
 fi
 
+view=$(normalize_work_item_scope "$view") || usage
+
 case "$view" in
-  company)
+  shared)
     printf '%s\n' 'Work Item,Type,Status,Priority,Owner,Current Blocker,Founder Escalation,Last Updated'
     for file in $(list_work_items); do
       csv_escape "$(field_value "$file" "ID"): $(field_value "$file" "Title")"

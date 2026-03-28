@@ -121,8 +121,8 @@ run_node_free_control_loop_regression() {
     ctl_command="$script_dir/work_item_ctl.sh"
 
     PATH="$no_node_path" "$ctl_command" status --json --all >/dev/null
-    PATH="$no_node_path" "$ctl_command" start --json company >/dev/null
-    PATH="$no_node_path" "$ctl_command" close --json --target-status review --work-item "$control_id" company >/dev/null
+    PATH="$no_node_path" "$ctl_command" start --json shared >/dev/null
+    PATH="$no_node_path" "$ctl_command" close --json --target-status review --work-item "$control_id" shared >/dev/null
 
     if [ "$(field_value "$(canonical_work_item_path "$control_id")" "Status")" != "review" ]; then
       echo "validation slice failed: node-free control loop did not reach review" >&2
@@ -269,7 +269,7 @@ trap cleanup EXIT HUP INT TERM
     --path-only \
     --reason "runtime smoke execution" \
     --operation-id "${validation_id}-start" \
-    company >/dev/null
+    shared >/dev/null
 
   if [ "$(field_value "$validation_item" "Status")" != "in-progress" ]; then
     echo "validation slice failed: start_work_item did not move item to in-progress" >&2
@@ -415,7 +415,7 @@ trap cleanup EXIT HUP INT TERM
     --work-item "$validation_id" \
     --reason "runtime smoke review handoff" \
     --operation-id "${validation_id}-review" \
-    company >/dev/null
+    shared >/dev/null
 
   if [ "$(field_value "$validation_item" "Status")" != "review" ]; then
     echo "validation slice failed: complete_work_item did not move item to review" >&2
@@ -432,7 +432,7 @@ trap cleanup EXIT HUP INT TERM
     --work-item "$validation_id" \
     --reason "runtime smoke done" \
     --operation-id "${validation_id}-done" \
-    company >/dev/null
+    shared >/dev/null
 
   if [ "$(field_value "$validation_item" "Status")" != "done" ]; then
     echo "validation slice failed: complete_work_item did not move item to done" >&2
