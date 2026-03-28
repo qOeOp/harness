@@ -94,7 +94,8 @@ if [ "$mode" = "source" ]; then
   source_workflows=$(find docs/workflows -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
   source_skill_refs=$(find skills -path '*/refs/*' -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
   source_archive_refs=$(find references/archive -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
-  shared_workspace_refs=$(rg -l '\.harness/workspace/(current|briefs|state)/' README.md docs scripts roles skills references --glob '!references/archive/**' 2>/dev/null | wc -l | tr -d ' ')
+  legacy_state_item_refs=$(rg -l '\.harness/workspace/state/items/' README.md docs scripts roles skills references --glob '!references/archive/**' --glob '!scripts/run_governance_surface_diagnostic.sh' 2>/dev/null | wc -l | tr -d ' ')
+  shared_workspace_refs=$(rg -l '\.harness/workspace/(current|briefs|state)/' README.md docs scripts roles skills references --glob '!references/archive/**' --glob '!scripts/run_governance_surface_diagnostic.sh' 2>/dev/null | wc -l | tr -d ' ')
 
   cat >"$report_file" <<EOF
 # Surface Diagnostic
@@ -121,6 +122,7 @@ $(cat "$check_file")
 - Workflow docs: $source_workflows
 - Skill-local ref docs: $source_skill_refs
 - Archive markdown snapshots: $source_archive_refs
+- Legacy state-item residue refs: $legacy_state_item_refs
 - Active files still mentioning shared workspace surfaces: $shared_workspace_refs
 
 ## Usage Notes

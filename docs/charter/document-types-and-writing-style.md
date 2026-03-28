@@ -53,9 +53,7 @@
 
 - `.harness/tasks/<task-id>/attachments/`
 - `.harness/tasks/<task-id>/closure/`
-- `.harness/workspace/briefs/`
-- `.harness/workspace/decisions/log/`
-- `.harness/workspace/status/snapshots/`
+- 显式 promote 的 `.harness/workspace/*` 共享记录面
 
 作用：
 

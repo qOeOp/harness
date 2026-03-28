@@ -13,7 +13,7 @@
 
 1. `.harness/tasks/*/task.md` 是默认运行态 source of truth。
 2. `boards/` 仍然是 generated-only 视图。
-3. legacy `.harness/workspace/state/items/*.md` 只作为迁移期 fallback 读取面。
+3. board refresh 只从当前 task record 派生，不再依赖 legacy item surface。
 4. board refresh event 记录的是派生视图写入，不是业务状态迁移。
 5. board refresh event 必须独立于 work item transition ledger。
 6. 只有发生实际 board 文件变化时才写 board refresh event。

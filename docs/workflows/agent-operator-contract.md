@@ -216,7 +216,7 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 
 不要：
 
-1. 手工 patch `.harness/tasks/*/task.md` 或 legacy `.harness/workspace/state/items/*.md` 伪造状态迁移
+1. 手工 patch `.harness/tasks/*/task.md` 或任何 shared projection 文件来伪造状态迁移
 2. 跳过 transition event 直接宣称状态已变更
 3. 在 founder-facing 或 canonical artifact 中包装未验证结论
 

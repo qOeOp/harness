@@ -79,7 +79,6 @@ cat >"$company_tmp" <<EOF
 - Generated at: $(date +%F)
 - Derived only: true
 - Source of truth: .harness/tasks/*/task.md
-- Compatibility read fallback: .harness/workspace/state/items/*.md
 - Runtime mode: $runtime_mode
 - Refresh command: $refresh_command
 
@@ -93,7 +92,6 @@ cat >"$founder_tmp" <<EOF
 - Generated at: $(date +%F)
 - Derived only: true
 - Source of truth: .harness/tasks/*/task.md
-- Compatibility read fallback: .harness/workspace/state/items/*.md
 - Scope: pending founder decisions and acceptance items only
 - Refresh command: $refresh_command
 
