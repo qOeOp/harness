@@ -12,9 +12,11 @@ usage: $0 <command> [args]
 
 commands:
   status
+  browser-profiles [--format markdown|json]
   search <query> [--max-results N] [--topic general|news|finance] [--search-depth basic|advanced]
   extract-url <url> [--format markdown|json] [--max-chars N] [--insecure]
   crawl <seed-url> [--max-pages N] [--max-depth N] [--format markdown|json] [--insecure]
+  browser <url> [--format markdown|json] [--max-chars N] [--wait-until load|domcontentloaded|networkidle] [--storage-state path | --user-data-dir dir | --local-browser chrome|edge|chromium]
   ingest-local <path> [--format markdown|json] [--max-chars N]
 EOF
   exit 1
@@ -29,6 +31,9 @@ case "$command_name" in
   status)
     exec "$runtime_dir/runtime_status.sh" "$@"
     ;;
+  browser-profiles)
+    exec python3 -B "$runtime_dir/local_browser_profiles.py" "$@"
+    ;;
   search)
     exec python3 -B "$runtime_dir/search_tavily.py" "$@"
     ;;
@@ -37,6 +42,9 @@ case "$command_name" in
     ;;
   crawl)
     exec python3 -B "$runtime_dir/crawl_site.py" "$@"
+    ;;
+  browser)
+    exec python3 -B "$runtime_dir/browser_extract.py" "$@"
     ;;
   ingest-local)
     exec python3 -B "$runtime_dir/ingest_local.py" "$@"

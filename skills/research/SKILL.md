@@ -40,7 +40,10 @@ It supports five primary operation modes:
 4. Use `collect` with the cheapest reliable route:
    - `search` for discovery
    - `extract-url` for known URLs
+     - prefer public feeds, RSS, oEmbed, or simpler text/json surfaces when the site exposes them
    - `crawl` for bounded same-host coverage
+   - `browser` for JS-rendered or interaction-gated pages
+     - reuse auth via storage state, dedicated profile, or temporary local browser snapshot when needed
    - `ingest-local` for repo-local or local documents
 5. Convert durable evidence into `source-note` artifacts before formal recommendations.
 6. Use `evidence ledger` only when the run is long, multi-source, or likely to be resumed by another operator.
@@ -51,7 +54,7 @@ It supports five primary operation modes:
    - recommendation
 8. Default all formal outputs to `.harness/tasks/<task-id>/attachments/`.
 
-Only promote to `.harness/workspace/*` when `advanced governance mode` is explicitly enabled and the research truly needs cross-task visibility.
+Only promote to `.harness/workspace/*` when shared writeback is explicitly enabled and the research truly needs cross-task visibility.
 
 ## Artifact Posture
 

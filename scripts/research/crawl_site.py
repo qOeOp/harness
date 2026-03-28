@@ -48,22 +48,30 @@ def crawl(args: argparse.Namespace) -> dict:
                 {
                     "url": current_url,
                     "status": "error",
+                    "origin_status": "error",
                     "content_type": "",
                     "retrieved_at": "",
                     "depth": depth,
                     "title": "",
                     "snippet": str(exc),
+                    "cache_status": "",
+                    "served_from_cache": False,
+                    "attempts": 1,
                 }
             )
             continue
         page = {
             "url": fetched["final_url"],
             "status": fetched["status"],
+            "origin_status": fetched.get("origin_status"),
             "content_type": fetched["content_type"],
             "retrieved_at": fetched["retrieved_at"],
             "depth": depth,
             "title": "",
             "snippet": "",
+            "cache_status": fetched.get("cache_status", ""),
+            "served_from_cache": fetched.get("served_from_cache", False),
+            "attempts": fetched.get("attempts", 1),
         }
 
         links: list[str] = []
@@ -120,8 +128,12 @@ def to_markdown(payload: dict) -> str:
                 f"- URL: {page['url']}",
                 f"- Depth: {page['depth']}",
                 f"- Status: {page['status']}",
+                f"- Origin status: {page['origin_status'] if page['origin_status'] not in {None, ''} else 'n/a'}",
                 f"- Content-Type: {page['content_type']}",
                 f"- Retrieved at: {page['retrieved_at']}",
+                f"- Cache: {page['cache_status'] or 'n/a'}",
+                f"- Served from cache: {'yes' if page['served_from_cache'] else 'no'}",
+                f"- Attempts: {page['attempts']}",
                 "",
                 page["snippet"],
                 "",
