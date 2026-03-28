@@ -1,18 +1,18 @@
 # Decision Workflow
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-用阶段门治理 Founder 输入、内部讨论、正式决策、升级和回写。
+用阶段门治理上游输入、内部讨论、正式决策、升级和回写。
 
 ## 适用范围
 
 适用于：
 
-1. Founder 发起的方向问题
-2. 公司内部的日常需求、实现与流程决策
-3. 需要进入 Founder 验收或重大升级的事项
+1. 用户 / Founder 发起的方向问题
+2. repo 内的日常需求、实现与流程决策
+3. 需要进入验收或重大升级的事项
 
 ## Stage Advancement Rule
 
@@ -31,7 +31,7 @@
 Owner：
 
 - `Founder`
-- 或 `General Manager / Chief of Staff`
+- 或 `general-manager`
 
 输出：
 
@@ -44,7 +44,7 @@ Owner：
   - 已批准 vision 引用
   - 本轮内部目标
   - 约束与非目标
-  - 何种情况必须升级给 Founder
+  - 何种情况必须升级给最终决策人
 
 模板：
 
@@ -54,7 +54,7 @@ Owner：
 
 Owner：
 
-- `General Manager / Chief of Staff`
+- `general-manager`
 - 或被明确指派的 `research owner`
 
 适用：
@@ -78,7 +78,7 @@ Owner：
 
 ## Gate 1: Problem Framing
 
-Owner：`General Manager / Chief of Staff`
+Owner：`general-manager`
 
 输入：Founder brief 或 approved vision / internal trigger
 
@@ -87,7 +87,7 @@ Owner：`General Manager / Chief of Staff`
 - 单一问题陈述
 - 本轮非目标
 - 需要哪些角色参与
-- 何时必须升级给 Founder
+- 何时必须升级给最终决策人
 
 ## Gate 2: Independent Research
 
@@ -96,7 +96,7 @@ Owners：
 - `Product Thesis Lead`
 - `Knowledge & Memory Lead`
 - `Risk & Quality Lead`
-- 必要时由 `General Manager / Chief of Staff` 指派 runtime-local role
+- 必要时由 `general-manager` 指派 runtime-local role
 
 输出：
 
@@ -121,7 +121,7 @@ Owner：`Risk & Quality Lead`
 
 ## Gate 4: Decision Pack
 
-Owner：`General Manager / Chief of Staff`
+Owner：`general-manager`
 
 输出必须包含：
 
@@ -131,7 +131,7 @@ Owner：`General Manager / Chief of Staff`
 4. Dissent
 5. Risks
 6. Tradeoff
-7. Ask from Founder
+7. Ask from user / approver
 8. Next 7 days
 
 模板：
@@ -140,27 +140,27 @@ Owner：`General Manager / Chief of Staff`
 
 ## Gate 5A: Internal Approval
 
-Owner：`General Manager / Chief of Staff`
+Owner：`general-manager`
 
 适用：
 
 - 已批准 vision 内的日常需求、实现、角色协作和内部流程推进
 
-`General Manager / Chief of Staff` 只做：
+`general-manager` 只做：
 
 - 批准进入执行
 - 要求返工
 - 指定 owner 与交付边界
-- 判断是否必须升级给 Founder
+- 判断是否必须升级给最终决策人
 
 额外硬规则：
 
 1. 如果当前事项仍然依赖未封板的愿景、未稳定的制度或未明确的职责边界，不得进入执行。
 2. 内部批准不等于“先做起来”，而是确认当前 stage 已经足够稳定，值得进入下一 stage。
 
-## Gate 5B: Founder Review / Acceptance
+## Gate 5B: Upstream Review / Acceptance
 
-Owner：`Founder`
+Owner：`Founder` 或当前最终决策人
 
 只在以下情况触发：
 
@@ -170,7 +170,7 @@ Owner：`Founder`
 4. 高风险自动化或风险豁免
 5. runnable demo 验收
 
-Founder 只做：
+最终决策人只做：
 
 - 批准
 - 驳回
@@ -224,10 +224,10 @@ Owner：`Knowledge & Memory Lead`
 
 ## 常驻运营回路
 
-除了上面的通用决策 workflow，公司还存在 3 条常驻回路：
+除了上面的通用决策 workflow，当前 repo 还存在 3 条常驻回路：
 
 1. `Research Dispatch Loop`
-   - `General Manager / Chief of Staff` 识别 volatile 议题
+   - `general-manager` 识别 volatile 议题
    - 指派 baseline 角色或已有 runtime-local role 取证
    - `Knowledge & Memory Lead` 负责可追溯写回
 
@@ -235,7 +235,7 @@ Owner：`Knowledge & Memory Lead`
    - `Product Thesis Lead` 收缩问题
    - 相关执行 owner 交付 artifact
    - `Risk & Quality Lead` 审核
-   - `General Manager / Chief of Staff` 决定是否进入 Founder 验收
+   - `general-manager` 决定是否进入最终验收
 
 3. `Founder Input Evolution Loop`
    - Founder 提供物料
@@ -258,5 +258,5 @@ Owner：`Knowledge & Memory Lead`
 1. 当前 source of truth 不清楚
 2. 同一主题出现多个 active 规则
 3. owner、接口或职责边界仍然模糊
-4. Founder-facing 交付还依赖“口头解释”才能成立
+4. 面向最终决策人的交付还依赖“口头解释”才能成立
 5. 关键 dissent 没被处理，只是被时间压力掩盖

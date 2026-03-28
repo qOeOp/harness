@@ -178,7 +178,7 @@
 1. 同一主线程内的只读探索或轻量 sidecar，不必新建 worktree
 2. 存在真实并行写入、长回合实现、或独立实验分支时，才新建 worktree
 3. 多个并行写线程不能共享同一 worktree
-4. 公司级规范文件和 provider adapter 目录默认属于高敏感写入面，应谨慎授权
+4. canonical source docs 与 provider adapter 目录默认属于高敏感写入面，应谨慎授权
 
 以下情况必须考虑独立 worktree：
 

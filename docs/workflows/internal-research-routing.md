@@ -1,22 +1,22 @@
 # Internal Research Routing
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
-把 external research 变成内部路由，而不是 Founder 专属入口。
+把 external research 变成 repo/task 内部路由，而不是某个上游角色的专属入口。
 
 ## 适用背景
 
 内部绝大多数 research 需求来自：
 
-1. 总经理的需求拆解
-2. 部门间 handoff
+1. `general-manager` 的需求拆解
+2. role 之间的 handoff
 3. 风险审查
 4. brainstorming 后的候选想法收敛
 5. 工具链和流程控制面优化
 
-因此 research 必须是内部路由，不是 Founder 入口。
+因此 research 必须是内部路由，不是 Founder 或其他上游输入的直达执行入口。
 
 ## 何时必须先 dispatch
 
@@ -24,12 +24,12 @@
 
 1. 主题属于 `volatile-by-default`
 2. 讨论要从 brainstorming 升级成 requirements / decision
-3. 某个部门需要另一个部门先补最新外部证据
+3. 某个角色需要另一个角色先补最新外部证据
 4. 风险或质量门指出“当前证据过时或不足”
 
 ## 路由规则
 
-`Chief of Staff` 或当前主持部门负责 dispatch。
+`general-manager` 或当前主持角色负责 dispatch。
 
 dispatch 必须回答：
 
@@ -69,7 +69,7 @@ dispatch 不是聊天记录，而是一个单独 artifact：
 2. `Decision Pack`
 3. `Requirements Meeting Brief`
 
-这样 Founder 和审计者能看到：
+这样最终决策人和审计者能看到：
 
 1. 这次外部 research 是谁先派发的
 2. 是不是先 research 再 decision

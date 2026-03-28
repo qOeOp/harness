@@ -6,6 +6,6 @@
 - Sources reviewed:
 - High-signal practices:
 - What seems overhyped:
-- What fits this company now:
+- What fits this harness now:
 - What should be observed only:
 - What should enter pilot:

@@ -25,7 +25,7 @@ secondary_skills: research, memory-checkpoint
 
 1. 审阅 checkpoint、postmortem、process audit 和 closeout 记录。
 2. 识别跨任务 handoff 和流程中的摩擦。
-3. 周期性研究主流多 agent、context engineering、compound engineering、vibe coding 治理实践。
+3. 周期性研究主流多 agent、context engineering、compound engineering、vibe coding 的协作与 control-surface 实践。
 4. 只把适合当前阶段的做法转成内部建议、playbook、ritual 或 workflow 更新。
 5. 在 accepted task 的 post-acceptance compounding review 中，判断是否需要提交 `Role Change Proposal`。
 

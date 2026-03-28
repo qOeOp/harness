@@ -5,6 +5,7 @@
 ## 目的
 
 本目录只保存 `harness` 自身的默认责任主体与路由基线。
+这些角色是 execution substrate 的路由节点，不是公司职位投影。
 
 当前内置角色：
 
@@ -29,7 +30,7 @@
 
 一个 baseline role 通常会组合多个 `skills/*`：
 
-1. `General Manager / Chief of Staff`
+1. `general-manager`
    - 常用 `founder-brief`, `meeting-router`, `decision-pack`, `research`
 2. `Product Thesis Lead`
    - 常用 `vision-meeting`, `requirements-meeting`, `brainstorming-session`, `research`

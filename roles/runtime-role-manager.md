@@ -3,12 +3,12 @@ schema_version: 1
 slug: runtime-role-manager
 claude_file: runtime-role-manager.md
 claude_name: runtime-role-manager
-claude_description: 在复利 review 决定成立后，负责创建、编辑并审计 consumer runtime canonical role 文件的治理执行角色。
+claude_description: 在复利 review 决定成立后，负责创建、编辑并审计 consumer runtime canonical role 文件的执行角色。
 claude_tools: Read, Glob, Grep, Bash
 claude_model: sonnet
 codex_file: runtime_role_manager.toml
 codex_name: runtime_role_manager
-codex_description: Governance execution role that materializes approved runtime role mutations inside consumer runtime canonical role directories.
+codex_description: Execution role that materializes approved runtime role mutations inside consumer runtime canonical role directories.
 codex_model: gpt-5.4
 codex_reasoning_effort: high
 codex_sandbox_mode: workspace-write

@@ -20,8 +20,8 @@ Founder-facing 正式会议当前只保留 4 类：
 | 会议类型 | 默认主持 | Founder 默认在场 | 触发问题 | Canonical output / workflow |
 | --- | --- | --- | --- | --- |
 | `vision` | `Product Thesis Lead` | 是 | 我们到底在做什么，边界和非目标是否要变 | vision brief、thesis changes、Founder decision |
-| `acceptance` | `Chief of Staff` | 是 | 当前 demo 是否达到 Founder 验收门槛 | acceptance decision、Founder feedback、follow-up directions |
-| `requirements` | `Chief of Staff` | 默认否 | 已批准 vision 在当前阶段该翻译成哪些需求 | scoped requirements brief、acceptance criteria、tasking |
+| `acceptance` | `general-manager` | 是 | 当前 demo 是否达到 Founder 验收门槛 | acceptance decision、Founder feedback、follow-up directions |
+| `requirements` | `general-manager` | 默认否 | 已批准 vision 在当前阶段该翻译成哪些需求 | scoped requirements brief、acceptance criteria、tasking |
 | `brainstorming` | 视主题而定 | 可选 | 还不拍板，只发散候选方向与实验 | candidate ideas、hypotheses、candidate experiments |
 
 ## Routing Boundaries

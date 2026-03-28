@@ -44,7 +44,7 @@
 
 可按需参与：
 
-1. `General Manager / Chief of Staff`
+1. `general-manager`
 2. `Risk & Quality Lead`
 3. `Knowledge & Memory Lead`
 

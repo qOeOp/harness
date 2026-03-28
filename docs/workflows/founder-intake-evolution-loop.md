@@ -1,6 +1,6 @@
 # Founder Intake Evolution Loop
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 问题背景
 
@@ -25,7 +25,7 @@ Founder 输入必须有统一入口。
 
 默认入口是：
 
-`General Manager / Chief of Staff`
+`general-manager`
 
 而不是预设某个行业部门。
 
@@ -43,7 +43,7 @@ Founder 输入进入：
 
 ### Step 2: Triage
 
-Owner: `General Manager / Chief of Staff`
+Owner: `general-manager`
 
 分成 4 类：
 
@@ -61,7 +61,7 @@ Owner: `General Manager / Chief of Staff`
 
 ### Step 3: Translation
 
-如果进入 `Research` 或 `Pilot Candidate`，必须先被翻译成公司语言：
+如果进入 `Research` 或 `Pilot Candidate`，必须先被翻译成当前 task/workflow 语言：
 
 - 它试图改进什么
 - 影响哪个任务或 workflow
@@ -79,7 +79,7 @@ Owner: `General Manager / Chief of Staff`
 
 ### Step 5: Decision
 
-由 `General Manager / Chief of Staff` 汇总成决策包。
+由 `general-manager` 汇总成决策包。
 
 若只是局部流程优化，可在治理层批准后执行。
 若需要跨越已批准产品边界，则升级给 Founder。
@@ -104,6 +104,6 @@ Owner: `General Manager / Chief of Staff`
 ## 关键规则
 
 1. Founder 输入不是命令本身，而是候选思想。
-2. 任何思想要进入公司制度，必须经过 triage、review 和 writeback。
+2. 任何思想要进入当前 substrate contract，必须经过 triage、review 和 writeback。
 3. 默认优先复用 baseline 团队，不预置行业部门。
 4. 采纳的是“被验证后的制度化表达”，不是原始素材本身。

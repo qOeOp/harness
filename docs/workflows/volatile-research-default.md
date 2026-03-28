@@ -1,6 +1,6 @@
 # Volatile Research Default
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
@@ -26,7 +26,7 @@
 以下情况允许 `Verification mode: internal-only`：
 
 1. Founder 明确在做 vision lock
-2. 公司内部治理结构讨论
+2. repo 内部路由、权限、文档组织与 runtime contract 讨论
 3. 本地目录、权限、worktree、文档组织这类纯仓库内问题
 4. 仅对已有内部结论做重写、压缩、归档
 
@@ -36,14 +36,14 @@
 
 `volatile research default` 同时作用于：
 
-1. Founder -> company 的入口
+1. 上游输入 -> task loop 的入口
 2. agent -> agent 的自治讨论
 3. role -> role 的 handoff
 4. decision pack / research memo / meeting brief 这类正式 artifact
 
 ## Internal Route
 
-公司内部默认通过 `research dispatch` 路由 external research，而不是依赖 Founder `/command`。
+默认通过 `research dispatch` 路由 external research，而不是依赖某个上游角色的专属 `/command`。
 
 见：
 
@@ -66,7 +66,7 @@
 1. 只能输出 `exploratory`
 2. 或明确标记 `blocked by freshness`
 3. 不能包装成正式结论
-4. 不能直接升级成流程变更或 Founder-facing 决策包
+4. 不能直接升级成流程变更或需要最终决策人确认的正式决策包
 
 ## Topic Owner Mapping
 
@@ -77,10 +77,10 @@
 2. 社区 best practice、治理方法、compound engineering、多 agent 协作实践
    - 默认 owner：`Compounding Engineering Lead`
 3. 产品范围、用户问题、外部业务事实、竞品或项目依赖事实
-   - 默认 owner：由 `General Manager / Chief of Staff` 指派
+   - 默认 owner：由 `general-manager` 指派
    - 若重复出现，才考虑创建 runtime-local research role
 4. Founder 提供的外部材料、链接、案例或观点
-   - 默认 owner：`General Manager / Chief of Staff`
+   - 默认 owner：`general-manager`
    - 交由 `Product Thesis Lead` 与 `Knowledge & Memory Lead` 协同 triage
 
 ## Freshness Windows

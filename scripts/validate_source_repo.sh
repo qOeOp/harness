@@ -31,6 +31,14 @@ require_contains() {
   grep -Fq "$pattern" "$file" || fail "missing pattern '$pattern' in $file"
 }
 
+forbid_contains() {
+  file="$1"
+  pattern="$2"
+  if grep -Fq "$pattern" "$file"; then
+    fail "found retired pattern '$pattern' in $file"
+  fi
+}
+
 forbidden_path() {
   [ ! -e "$1" ] || fail "source repo must not contain consumer/runtime surface: $1"
 }
@@ -180,6 +188,7 @@ require_contains "roles/README.md" '本仓库不再维护 provider-owned generat
 require_contains "roles/README.md" '.harness/workspace/roles/'
 require_contains "roles/README.md" '`runtime-role-manager`'
 require_contains "roles/README.md" '`policy_allowed_entrypoints`'
+require_contains "roles/README.md" '这些角色是 execution substrate 的路由节点，不是公司职位投影。'
 require_contains "docs/workflows/consumer-runtime-routing.md" 'consumer runtime route table'
 require_contains "docs/workflows/consumer-runtime-routing.md" '$HOME/.harness/consumer-runtime-routes.tsv'
 require_contains "docs/workflows/consumer-runtime-routing.md" '`--consumer-runtime <name>`'
@@ -190,10 +199,25 @@ require_contains "docs/workflows/agent-operator-contract.md" '`policy_*`'
 require_contains "docs/organization/decision-rights.md" '`Role Change Proposal`'
 require_contains "docs/workflows/agile-runnable-demo-policy.md" 'post-acceptance compounding review'
 require_contains "docs/workflows/founder-meeting-taxonomy.md" 'Founder-facing 正式会议当前只保留 4 类'
+require_contains "docs/workflows/founder-intake-evolution-loop.md" '`general-manager`'
 require_contains "docs/workflows/governance-surface-audit.md" '# Surface Audit'
 require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: scripts/runtime_role_manager.sh'
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
+require_contains "roles/general-manager.md" '你是默认任务编排负责人。'
+require_contains "docs/workflows/volatile-research-default.md" '上游输入 -> task loop 的入口'
+require_contains "docs/workflows/internal-research-routing.md" 'repo/task 内部路由'
+require_contains "docs/workflows/agile-runnable-demo-policy.md" '最终决策人（例如 Founder）'
+require_contains "docs/templates/frontier-scan.md" 'What fits this harness now:'
+require_contains "docs/templates/decision-pack.md" 'Ask from user / approver:'
+forbid_contains "roles/general-manager.md" '你是本项目的职业经理人。'
+forbid_contains "docs/workflows/volatile-research-default.md" 'Founder -> company 的入口'
+forbid_contains "docs/workflows/internal-research-routing.md" '`Chief of Staff`'
+forbid_contains "docs/workflows/founder-meeting-taxonomy.md" '`Chief of Staff`'
+forbid_contains "docs/workflows/founder-intake-evolution-loop.md" '`General Manager / Chief of Staff`'
+forbid_contains "docs/workflows/agile-runnable-demo-policy.md" '本公司遵循的 agile 原则'
+forbid_contains "docs/templates/research-memo.md" 'promoted governance dispatch'
+forbid_contains "docs/templates/decision-pack.md" 'promoted governance dispatch'
 
 if command -v markdownlint >/dev/null 2>&1; then
   markdownlint README.md >/dev/null 2>&1 || fail "README.md failed markdownlint"
