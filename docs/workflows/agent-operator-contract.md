@@ -1,6 +1,6 @@
 # Agent Operator Contract
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -123,6 +123,12 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
    应独立于 message / transcript / trace display surface 保留，
    不要在转换视图时把信任来源抹平
 5. tracing backend 不应承担第二份 canonical task memory 的职责
+6. 若 runtime 默认开启内建 tracing
+   或 agent SDK tracing，
+   必须显式声明 capture policy、
+   redaction policy 与 disable path；
+   不要假设 vendor default
+   天然满足 least-data
 
 ## Default Operating Loop
 
@@ -291,6 +297,22 @@ provider / SDK continuation handle
    不应进入 serialized context；
    默认只保留可替换 handle、
    scope 与 expiry
+6. provider background / pollable response
+   若依赖 provider-side stored state
+   才能轮询或恢复，
+   这仍只是 transport state，
+   不是 zero-retention truth；
+   默认要显式看待 retention / privacy /
+   ZDR 边界
+7. subagent memory directory /
+   project memory 若会自动注入上下文，
+   或隐式放宽工具能力，
+   就同时属于 instruction surface、
+   persisted data 与 capability grant；
+   真正影响恢复、acceptance
+   或外部承诺的 durable fact
+   仍必须回落到 task truth
+   或正式 artifact
 
 ## External Context Rules
 
@@ -333,6 +355,26 @@ provider / SDK continuation handle
 1. 自由文本 handoff
 2. task prose
 3. 临时聊天说明
+
+默认要求：
+
+1. 若目标是阻止副作用，
+   默认使用 blocking preflight、
+   tool wrapper 或外层 approval gate；
+   不要把 input / output guardrail
+   或 parallel guardrail
+   当成唯一防线
+2. guardrail coverage
+   必须按具体 pipeline 说明；
+   handoff、hosted tool、
+   built-in execution path
+   可能不走同一 guardrail 链路
+3. `MCP OAuth` 默认按
+   audience-bound token 设计；
+   client 在授权与 token 请求中
+   显式带 `resource`，
+   server 不得把 client token
+   passthrough 给上游 API
 
 ## Worktree Rules
 

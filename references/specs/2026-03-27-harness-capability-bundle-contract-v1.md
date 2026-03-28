@@ -151,6 +151,16 @@ router metadata 与 prompt object
 3. 若某条规则的违规成本高，
    必须继续下沉到 managed policy、tool approval、
    allowlist、typed schema 或 wrapper 检查
+4. 若 bundle-local memory
+   会自动注入 prompt，
+   或因 memory 管理而默认放宽工具能力，
+   就同时属于 instruction surface、
+   persisted data 与 capability grant
+5. 真正影响恢复、acceptance
+   或外部承诺的 durable fact，
+   仍必须回落到 task record
+   或正式 artifact，
+   不得只留在 bundle-local memory
 
 ## Remote Bundle Trust Boundary
 

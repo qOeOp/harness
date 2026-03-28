@@ -35,6 +35,12 @@ Out of scope for the default runtime contract:
 2. consumer `AGENTS.md / CLAUDE.md / GEMINI.md`
 3. consumer `.claude/ / .codex/ / .gemini/`
 4. company / workstream trees, boards, digests, or founder queues
+5. provider background / pollable transport
+   所依赖的 provider-side stored state
+   仍属于 transport state，
+   不是 canonical task truth，
+   也不应被默认当成
+   zero-retention / ZDR-safe 前提
 
 Implementation-owned support state may still live under `.harness/` when needed.
 

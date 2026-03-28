@@ -1,6 +1,6 @@
 # Memory Architecture
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -14,6 +14,10 @@
 4. task-local evidence 默认进入 `attachments/`，不是先落 governance workspace。
 5. `archived` 是状态语义，不是默认物理目录。
 6. provider conversation / response / thread state 是 transport handle，不是 canonical task truth。
+7. auto-injected `project memory / subagent memory`
+   同时属于 instruction surface、
+   persisted data 与 capability grant，
+   不是 canonical task truth。
 
 ## Layer 0: Source Repo Constitution
 
@@ -84,6 +88,18 @@
 2. Recovery 只负责恢复协议，不承载决策正文或第二套状态。
 3. 若任务仍绑定 in-flight provider execution，可记录 `response_id`、`thread id`、`stream cursor`、`trace id` 这类 execution handle，但它们只服务 reconnect / resume / trace correlation。
 
+## Session / Project Memory Boundary
+
+作用：把 transport continuity、persisted context 与 task truth 拆开，避免 memory surface 倒灌成第二本账。
+
+说明：
+
+1. provider background / pollable response 若依赖 provider-side stored state 才能轮询或恢复，这仍只是 transport continuity，不是 canonical task truth，也不应被误当成 zero-retention truth。
+2. 这类 provider-owned stored state 可能带 retention / privacy / ZDR 边界；runtime 默认必须假设它可过期、不可取回，且仍能从 `task.md`、`attachments/` 与 `history/transitions/` 恢复。
+3. serialized app / agent / session context、subagent memory directory、project memory 一旦会持久化或自动注入 prompt，就按 persisted data 治理，并带显式 scope、retention、schema / format version 与审计边界。
+4. 若这些 memory surface 会隐式放宽工具能力或改变默认行为，它们还应同时视为 capability grant 与 instruction surface。
+5. 真正影响 acceptance、恢复入口或外部承诺的 durable fact，仍必须回落到 `task.md`、task-local artifact 或 transition history。
+
 ## Layer 4: Task-Scoped Evidence And Trace
 
 作用：沉淀与某个 task 直接绑定的证据、产出和审计流水。
@@ -123,6 +139,7 @@
 3. Recovery 更新只写 `## Recovery`。
 4. 需要跨任务治理时，再写治理层 projection。
 5. 退出 active surface 时用 `Status: archived` 加 `Archived at` 表达。
+6. observability 或 tracing 若默认开启，必须显式声明 capture / redaction / disable policy，不把 vendor default 当作 least-data 基线。
 
 ## 禁止事项
 

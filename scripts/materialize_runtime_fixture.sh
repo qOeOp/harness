@@ -99,6 +99,9 @@ write_file "$target/.harness/README.md" <<EOF
 - Long-running execution should record explicit budget / stop boundary in task recovery or a linked artifact
 - Interrupt / resume is checkpoint-relative re-entry, not instruction-pointer continuation
 - Async wakeups from webhook / queue / callback should assume at-least-once delivery and carry dedupe / idempotency semantics
+- Provider background / pollable transport may depend on provider-side stored state; treat it as transport state with retention / ZDR boundaries, not canonical task truth
+- Auto-injected project memory or subagent memory is not canonical task truth; durable facts must fall back to task records or task-local artifacts
+- Built-in tracing defaults require explicit capture / redaction / disable policy, not vendor-default trust
 - Tool / approval / external-evidence provenance should stay explicit in recovery artifacts or traces
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF
@@ -122,6 +125,8 @@ Runtime notes:
 - Slow human approval / review should pause the task and resume later, not hide in session wait state
 - Resume is checkpoint-relative re-entry; do not assume exactly-once execution before the boundary
 - Async wakeups should assume at-least-once delivery and use dedupe / idempotency handles
+- Provider-side stored state and auto-injected project memory are continuity aids, not task truth
+- Built-in tracing defaults should be treated as opt-in capture policy, not implicit baseline
 - Harness does not manage consumer root/provider entry files or skill install location
 EOF
 

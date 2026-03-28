@@ -128,12 +128,21 @@ provider_or_sdk_handles_are_transport_state_only = true
 transport_continuity_does_not_imply_instruction_continuity = true
 instruction_surface_must_be_explicitly_rebound_on_resume = true
 provider_native_reasoning_or_compaction_is_continuation_payload_only = true
+provider_background_or_pollable_modes_may_require_provider_stored_state = true
+provider_transport_state_may_carry_retention_or_zdr_constraints = true
+provider_stored_state_is_not_zero_retention_truth = true
 
 [persisted_context]
 serialized_context_requires_explicit_version = true
 serialized_context_cross_version_policy = "migrate-or-fail-closed"
 serialized_context_must_not_store_raw_secrets = true
 serialized_context_should_prefer_handles_scope_and_expiry = true
+
+[subagent_memory]
+auto_injected_memory_is_instruction_surface = true
+auto_injected_memory_is_persisted_data = true
+auto_injected_memory_is_capability_grant = true
+durable_facts_must_fall_back_to_task_truth = true
 
 [observability]
 source_provenance_must_survive_display_projection = true
@@ -143,6 +152,19 @@ provenance_examples = [
   "external-evidence",
   "framework-note",
 ]
+builtin_tracing_defaults_require_explicit_capture_policy = true
+builtin_tracing_defaults_require_explicit_redaction_policy = true
+builtin_tracing_defaults_require_disable_path = true
+
+[guardrails]
+side_effect_prevention_requires_blocking_preflight_or_wrapper = true
+parallel_or_posthoc_guardrail_is_not_sufficient = true
+guardrail_pipeline_coverage_must_be_explicit = true
+
+[capability_grants]
+mcp_oauth_tokens_must_be_audience_bound = true
+mcp_oauth_client_must_send_resource = true
+mcp_oauth_server_must_not_passthrough_client_token = true
 
 [claims]
 active_statuses_require_assignee_worktree_claim = true
@@ -179,3 +201,8 @@ async_wakeup_model = "cross-run wakeups assume at-least-once delivery and requir
 source_provenance = "tool, approval, evidence, and framework-origin metadata should remain explicit across display projections"
 transport_state_boundary = "provider and SDK continuation handles preserve transport continuity, not instruction continuity"
 persisted_context_boundary = "serialized app, agent, or session context is persisted data, must be versioned, and should not store raw secrets"
+provider_stored_state_boundary = "provider-side stored state used by background or pollable transport remains transport state and may carry retention or ZDR limits"
+subagent_memory_boundary = "auto-injected subagent or project memory is instruction surface plus persisted data plus capability grant, not canonical task truth"
+observability_default_boundary = "built-in tracing defaults require explicit capture, redaction, and disable controls rather than vendor-default trust"
+guardrail_boundary = "parallel or posthoc guardrails do not replace blocking preflight, tool wrappers, or approval gates for side-effect prevention"
+mcp_oauth_boundary = "MCP OAuth should use audience-bound tokens with explicit resource and must not passthrough client tokens upstream"

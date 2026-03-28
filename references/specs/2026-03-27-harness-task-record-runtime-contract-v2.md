@@ -239,6 +239,13 @@ wait / wakeup 是 runtime contract，不是活着的线程偶然还在。
 3. provider thread、response、stream cursor
    这类 transport handle 只服务 reconnect / resume /
    correlation，不构成 exactly-once 保证
+4. provider background / pollable response
+   若依赖 provider-side stored state
+   才能轮询或恢复，
+   这仍只是 transport continuity，
+   不是 zero-retention truth；
+   默认要显式考虑 retention / privacy /
+   ZDR 边界
 
 ## Session Continuity Boundary
 
@@ -266,6 +273,16 @@ provider / SDK continuation handle
    高敏感 token
    不应写入 serialized app / agent / session context；
    默认只保留 handle、scope 与 expiry
+6. subagent memory directory /
+   project memory 若会自动注入 prompt，
+   或隐式放宽工具能力，
+   就同时属于 instruction surface、
+   persisted data 与 capability grant
+7. 真正影响恢复、acceptance
+   或外部承诺的 durable fact，
+   仍必须回落到 `task.md`、
+   `attachments/` 或
+   `history/transitions/`
 
 ## Budget / Termination Model
 
@@ -344,6 +361,35 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
    应独立于 message / transcript / trace display surface 保留，
    不要在转换视图时丢失 trust analysis 所需来源
 5. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
+6. 若 runtime 默认开启内建 tracing
+   或 agent SDK tracing，
+   就必须显式声明 capture policy、
+   redaction policy 与 disable path；
+   不要假设 vendor default
+   天然满足 least-data
+
+## Guardrail / Capability Boundary
+
+若目标是阻止副作用，
+默认使用 blocking preflight、
+tool wrapper 或外层 approval gate；
+不要把 input / output guardrail
+或 parallel guardrail
+当成唯一防线。
+
+补充规则：
+
+1. guardrail coverage
+   必须按具体 pipeline 说明；
+   handoff、hosted tool、
+   built-in execution path
+   可能不走同一 guardrail 链路
+2. `MCP OAuth` 默认按
+   audience-bound token 设计；
+   client 在授权与 token 请求中
+   显式带 `resource`
+3. server 不得把 client token
+   passthrough 给上游 API
 
 ## Non-Goals
 
@@ -351,3 +397,6 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
 2. 不把 board 当成账本
 3. 不把聊天上下文当成长期恢复机制
 4. 不把治理投影当成默认 task truth
+5. 不把 provider-side stored state
+   或 auto-injected project memory
+   误当成 canonical task truth
