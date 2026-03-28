@@ -48,7 +48,7 @@ Owner：
 
 模板：
 
-- [docs/templates/founder-brief.md](../templates/founder-brief.md)
+- [skills/founder-brief/templates/founder-brief.md](../../skills/founder-brief/templates/founder-brief.md)
 
 ## Gate 0.5: Volatile Detection & Research Dispatch
 
@@ -107,7 +107,7 @@ Owners：
 
 模板：
 
-- [docs/templates/research-memo.md](../templates/research-memo.md)
+- [skills/research/templates/research-memo.md](../../skills/research/templates/research-memo.md)
 
 ## Gate 3: Cross Review
 
@@ -136,7 +136,7 @@ Owner：`general-manager`
 
 模板：
 
-- [docs/templates/decision-pack.md](../templates/decision-pack.md)
+- [skills/decision-pack/templates/decision-pack.md](../../skills/decision-pack/templates/decision-pack.md)
 
 ## Gate 5A: Internal Approval
 

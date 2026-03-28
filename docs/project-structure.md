@@ -49,7 +49,9 @@
 - `scripts/`
   - runtime、audit、source maintenance 脚本
 - `docs/`
-  - workflow、charter、memory 与 templates
+  - workflow、charter、memory 与跨-skill 共享模板
+  - capability-specific templates 默认放在 `skills/*/templates/`
+  - `docs/templates/` 若保留 skill template 同名文件，应只作为 legacy redirect stub
 - `references/`
   - active references、runtime contracts、implementation-adjacent specs 与历史资料
 

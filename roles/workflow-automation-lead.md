@@ -3,7 +3,7 @@ schema_version: 1
 slug: workflow-automation-lead
 claude_file: workflow-automation-lead.md
 claude_name: workflow-automation-lead
-claude_description: 负责 `agents + skills` canonical surface，以及 hooks、commands、MCP 等 adapter 边界。适合在需要设计工具链和工作流时使用。
+claude_description: 负责 `root + skills + roles` canonical surface，以及 hooks、commands、MCP 等 adapter 边界。适合在需要设计工具链和工作流时使用。
 claude_tools: Read, Glob, Grep, Bash, WebSearch, WebFetch
 claude_model: sonnet
 codex_file: workflow-automation.toml

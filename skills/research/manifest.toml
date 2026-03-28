@@ -18,7 +18,6 @@ allowed_tools = ["read", "write", "shell", "web"]
 read_roots = [
   "skills/research/",
   "docs/workflows/",
-  "docs/templates/",
   "references/",
 ]
 write_roots = [

@@ -1,6 +1,6 @@
 ---
 name: decision-pack
-description: Use when the founder needs a high-density decision package rather than a raw discussion transcript.
+description: Use when the final user or approver needs a high-density decision package rather than a raw discussion transcript.
 ---
 
 Read [./manifest.toml](./manifest.toml).
@@ -16,7 +16,7 @@ Required sections:
 4. Dissent
 5. Risks
 6. Tradeoffs
-7. Ask from Founder
+7. Ask from user / approver
 8. Next 7 days
 
 Use [./templates/decision-pack.md](./templates/decision-pack.md) as the canonical template.

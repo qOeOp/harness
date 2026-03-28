@@ -1,13 +1,7 @@
-# Acceptance Review Brief
+# Acceptance Review Brief Template Redirect
 
-- Date:
-- Host:
-- Demo slice under review:
-- What the Founder can do right now:
-- Acceptance criteria:
-- Known boundaries:
-- Open risks:
-- Verification date:
-- Sources reviewed:
-- What remains unverified:
-- Founder decisions needed:
+Legacy redirect only.
+
+这个根路径只为兼容旧链接保留。
+canonical template 已迁移到 [skills/acceptance-review/templates/acceptance-review-brief.md](../../skills/acceptance-review/templates/acceptance-review-brief.md)。
+新 artifact 与脚本生成应直接使用 skill-owned template，而不是继续维护 root 平行副本。

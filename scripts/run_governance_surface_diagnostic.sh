@@ -102,8 +102,8 @@ if [ "$mode" = "source" ]; then
 
 - Date: $(date +%F)
 - Mode: source
-- Scope: framework source contracts, canonical role/skill surface, source-repo hygiene
-- Canonical capability surface: \`agents + skills\`
+- Scope: framework source contracts, canonical active source surface, source-repo hygiene
+- Canonical active source surface: \`root + skills + roles\`
 
 ## Baseline Checks
 

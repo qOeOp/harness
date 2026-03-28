@@ -46,7 +46,7 @@ dispatch 不是聊天记录，而是一个单独 artifact：
 
 - 默认路径：`.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md`
 - 只有显式启用共享写回后，才允许 promote 到 `.harness/workspace/research/dispatches/<date>-<slug>.md`
-- 模板： [docs/templates/research-dispatch.md](../templates/research-dispatch.md)
+- 模板： [skills/research/templates/research-dispatch.md](../../skills/research/templates/research-dispatch.md)
 
 默认 artifact routing 见 [task-artifact-routing.md](./task-artifact-routing.md)。
 

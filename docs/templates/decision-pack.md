@@ -1,17 +1,7 @@
-# Decision Pack
+# Decision Pack Template Redirect
 
-- Date:
-- Owner:
-- Decision:
-- Why now:
-- Research dispatch: .harness/tasks/<task-id>/attachments/...-research-dispatch.md / promoted shared dispatch / n/a
-- Verification date:
-- Verification mode: internal-only / web-verified / mixed
-- Sources reviewed:
-- Evidence:
-- Dissent:
-- Risks:
-- Freshness caveats:
-- Tradeoffs:
-- Ask from user / approver:
-- Next 7 days:
+Legacy redirect only.
+
+这个根路径只为兼容旧链接保留。
+canonical template 已迁移到 [skills/decision-pack/templates/decision-pack.md](../../skills/decision-pack/templates/decision-pack.md)。
+新 artifact 与脚本生成应直接使用 skill-owned template，而不是继续维护 root 平行副本。

@@ -1,18 +1,7 @@
-# Research Memo
+# Research Memo Template Redirect
 
-- Date:
-- Owner:
-- Question:
-- Scope:
-- Research dispatch: .harness/tasks/<task-id>/attachments/...-research-dispatch.md / promoted shared dispatch / n/a
-- Verification date:
-- Verification mode: internal-only / web-verified / mixed
-- Freshness level: stable / volatile
-- Sources reviewed:
-- Conflicting sources:
-- Earliest-source check:
-- Strongest evidence:
-- Strongest counter-evidence:
-- Unknowns:
-- Risks:
-- Recommendation:
+Legacy redirect only.
+
+这个根路径只为兼容旧链接保留。
+canonical template 已迁移到 [skills/research/templates/research-memo.md](../../skills/research/templates/research-memo.md)。
+新 artifact 与脚本生成应直接使用 skill-owned template，而不是继续维护 root 平行副本。

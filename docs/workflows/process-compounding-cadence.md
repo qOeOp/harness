@@ -41,7 +41,7 @@
 
 模板：
 
-- [docs/templates/process-audit.md](../templates/process-audit.md)
+- [skills/process-audit/templates/process-audit.md](../../skills/process-audit/templates/process-audit.md)
 
 建议默认先写 task-local artifact。
 只有确实需要共享留痕时，才显式 promote 到共享记录面。
@@ -60,7 +60,7 @@
 详细规则见：
 
 - [docs/workflows/governance-surface-audit.md](./governance-surface-audit.md)
-- [docs/templates/governance-surface-audit.md](../templates/governance-surface-audit.md)
+- [skills/os-audit/templates/governance-surface-audit.md](../../skills/os-audit/templates/governance-surface-audit.md)
 
 ### Escalation Rule
 

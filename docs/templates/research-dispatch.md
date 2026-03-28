@@ -1,13 +1,7 @@
-# Research Dispatch
+# Research Dispatch Template Redirect
 
-- Date:
-- Dispatcher:
-- Topic:
-- Volatile status: volatile-by-default / stable / unknown
-- Research owner:
-- Required freshness window:
-- Required source types:
-- Required deliverable:
-- Downstream consumer:
-- Blocking status: open / blocked / satisfied / not-needed
-- Notes:
+Legacy redirect only.
+
+这个根路径只为兼容旧链接保留。
+canonical template 已迁移到 [skills/research/templates/research-dispatch.md](../../skills/research/templates/research-dispatch.md)。
+新 artifact 与脚本生成应直接使用 skill-owned template，而不是继续维护 root 平行副本。

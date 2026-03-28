@@ -31,6 +31,14 @@ require_contains() {
   grep -Fq "$pattern" "$file" || fail "missing pattern '$pattern' in $file"
 }
 
+require_redirect_stub() {
+  file="$1"
+  target="$2"
+  require_contains "$file" 'Legacy redirect only.'
+  require_contains "$file" "$target"
+  require_contains "$file" 'skill-owned template'
+}
+
 forbid_contains() {
   file="$1"
   pattern="$2"
@@ -199,7 +207,9 @@ require_contains "references/runtime-workspace.md" '.harness/runtime/'
 require_contains "references/runtime-workspace.md" 'explicit schema / format version'
 require_contains "references/runtime-workspace.md" 'migrate or fail closed'
 require_contains "docs/project-structure.md" '.harness/runtime/'
+require_contains "docs/project-structure.md" 'capability-specific templates 默认放在 `skills/*/templates/`'
 require_contains "skills/research/manifest.toml" '.harness/runtime/research/'
+forbid_contains "skills/research/manifest.toml" 'docs/templates/'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" '.harness/runtime'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'durable_state_requires_explicit_version = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'slow_human_gates_require_pause_resume = true'
@@ -261,7 +271,26 @@ require_contains "docs/workflows/volatile-research-default.md" '上游输入 -> 
 require_contains "docs/workflows/internal-research-routing.md" 'repo/task 内部路由'
 require_contains "docs/workflows/agile-runnable-demo-policy.md" '最终决策人（例如 Founder）'
 require_contains "docs/templates/frontier-scan.md" 'What fits this harness now:'
-require_contains "docs/templates/decision-pack.md" 'Ask from user / approver:'
+require_contains "skills/decision-pack/templates/decision-pack.md" 'Ask from user / approver:'
+require_contains "skills/decision-pack/SKILL.md" 'Ask from user / approver'
+require_contains "docs/workflows/decision-workflow.md" 'skills/founder-brief/templates/founder-brief.md'
+require_contains "docs/workflows/decision-workflow.md" 'skills/research/templates/research-memo.md'
+require_contains "docs/workflows/decision-workflow.md" 'skills/decision-pack/templates/decision-pack.md'
+require_contains "docs/workflows/volatile-research-default.md" 'skills/research/templates/research-dispatch.md'
+require_contains "docs/workflows/internal-research-routing.md" 'skills/research/templates/research-dispatch.md'
+require_contains "docs/workflows/process-compounding-cadence.md" 'skills/process-audit/templates/process-audit.md'
+require_contains "docs/workflows/process-compounding-cadence.md" 'skills/os-audit/templates/governance-surface-audit.md'
+require_redirect_stub "docs/templates/acceptance-review-brief.md" 'skills/acceptance-review/templates/acceptance-review-brief.md'
+require_redirect_stub "docs/templates/brainstorming-notes.md" 'skills/brainstorming-session/templates/brainstorming-notes.md'
+require_redirect_stub "docs/templates/decision-pack.md" 'skills/decision-pack/templates/decision-pack.md'
+require_redirect_stub "docs/templates/founder-brief.md" 'skills/founder-brief/templates/founder-brief.md'
+require_redirect_stub "docs/templates/governance-surface-audit.md" 'skills/os-audit/templates/governance-surface-audit.md'
+require_redirect_stub "docs/templates/process-audit.md" 'skills/process-audit/templates/process-audit.md'
+require_redirect_stub "docs/templates/requirements-meeting-brief.md" 'skills/requirements-meeting/templates/requirements-meeting-brief.md'
+require_redirect_stub "docs/templates/research-dispatch.md" 'skills/research/templates/research-dispatch.md'
+require_redirect_stub "docs/templates/research-memo.md" 'skills/research/templates/research-memo.md'
+require_redirect_stub "docs/templates/source-note.md" 'skills/research/templates/source-note.md'
+require_redirect_stub "docs/templates/vision-meeting-brief.md" 'skills/vision-meeting/templates/vision-meeting-brief.md'
 require_contains "scripts/materialize_runtime_fixture.sh" 'schema / format version'
 require_contains "scripts/materialize_runtime_fixture.sh" 'pause the task and resume later'
 require_contains "scripts/materialize_runtime_fixture.sh" 'budget / stop boundary'
@@ -284,6 +313,9 @@ forbid_contains "docs/organization/decision-rights.md" '`General Manager / Chief
 forbid_contains "docs/workflows/agile-runnable-demo-policy.md" '本公司遵循的 agile 原则'
 forbid_contains "docs/templates/research-memo.md" 'promoted governance dispatch'
 forbid_contains "docs/templates/decision-pack.md" 'promoted governance dispatch'
+forbid_contains "skills/research/templates/research-memo.md" 'promoted governance dispatch'
+forbid_contains "skills/decision-pack/templates/decision-pack.md" 'promoted governance dispatch'
+forbid_contains "skills/decision-pack/templates/decision-pack.md" 'Ask from Founder:'
 
 if command -v markdownlint >/dev/null 2>&1; then
   markdownlint README.md >/dev/null 2>&1 || fail "README.md failed markdownlint"
