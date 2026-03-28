@@ -73,9 +73,16 @@ Recommended non-canonical support root:
 4. `archived` 通过状态字段表达，不再默认要求物理 `archive/`
 5. board、digest、org chart 不属于默认 runtime tree
 6. slow human approval / review / feedback 默认应 materialize 为 `paused` + resume transition，而不是隐藏的 waiting state
-7. `in-progress` / `paused` task 默认应带显式 claim lease：
+7. `interrupt / resume` 默认是 checkpoint-relative re-entry，
+   不是 instruction-pointer continuation；
+   边界前的外部副作用应有 idempotency 或 effect fence
+8. webhook、queue、async callback
+   这类外部 wakeup 默认按 at-least-once delivery 设计，
+   恢复链路应带 dedupe / idempotency key，
+   不把活着的 socket / stream 当成 contract
+9. `in-progress` / `paused` task 默认应带显式 claim lease：
    `Assignee`、`Worktree`、`Claimed at`、`Claim expires at`、`Lease version`
-8. `.harness/locks/` 负责短生命周期 mutation guard；
+10. `.harness/locks/` 负责短生命周期 mutation guard；
    `task.md` 头部 claim 字段负责 task-level claim snapshot，
    两者不能互相替代
 

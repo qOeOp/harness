@@ -97,6 +97,9 @@ write_file "$target/.harness/README.md" <<EOF
 - Active task claims should carry assignee, worktree, and renewable claim-expiry metadata in \`task.md\`
 - Runtime mutation locks under \`.harness/locks/\` should carry owner + lease-expiry metadata
 - Long-running execution should record explicit budget / stop boundary in task recovery or a linked artifact
+- Interrupt / resume is checkpoint-relative re-entry, not instruction-pointer continuation
+- Async wakeups from webhook / queue / callback should assume at-least-once delivery and carry dedupe / idempotency semantics
+- Tool / approval / external-evidence provenance should stay explicit in recovery artifacts or traces
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF
 
@@ -117,6 +120,8 @@ Runtime notes:
 - Long-running tasks should carry an explicit budget / stop boundary in \`## Recovery\`
 - Steady-state resume should run a cheap baseline check before the recorded next command
 - Slow human approval / review should pause the task and resume later, not hide in session wait state
+- Resume is checkpoint-relative re-entry; do not assume exactly-once execution before the boundary
+- Async wakeups should assume at-least-once delivery and use dedupe / idempotency handles
 - Harness does not manage consumer root/provider entry files or skill install location
 EOF
 

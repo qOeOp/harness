@@ -218,6 +218,27 @@ task record 同时承载状态与路由。
 1. 若等待会跨 session 或超出当前 run，自任务主状态切到 `paused`
 2. 用 `Interrupt marker` 与 `Resume target` 表达暂停语义，而不是只写自由文本 blocker
 3. 人审完成后通过正式 resume transition 恢复，而不是假设原 run 会继续挂起等待
+4. `resume` 默认是 checkpoint-relative、node-level re-entry，
+   不是 instruction-pointer continuation
+5. resume 后边界前代码可能重跑，
+   外部副作用必须具备 effect fence、expected version、
+   idempotency key 或被移到边界之后
+
+## Wait / Wakeup Model
+
+wait / wakeup 是 runtime contract，不是活着的线程偶然还在。
+
+默认要求：
+
+1. webhook、queue、async callback、
+   background job completion
+   这类跨 run 唤醒，应留下显式 wakeup handle
+   或 event reference
+2. 外部 wakeup 默认按 at-least-once delivery 设计，
+   恢复链路应带 dedupe / idempotency key
+3. provider thread、response、stream cursor
+   这类 transport handle 只服务 reconnect / resume /
+   correlation，不构成 exactly-once 保证
 
 ## Budget / Termination Model
 
@@ -290,7 +311,12 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
 1. 完整 prompt、instruction、tool payload 与 model output 默认不做全量采集
 2. 内容捕获必须显式 opt-in
 3. 优先记录 artifact path、evidence reference、object handle 或 content hash
-4. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
+4. source / provenance metadata
+   例如 `tool`、`human approval`、`external evidence`、
+   `framework note`
+   应独立于 message / transcript / trace display surface 保留，
+   不要在转换视图时丢失 trust analysis 所需来源
+5. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
 
 ## Non-Goals
 

@@ -29,6 +29,9 @@
    先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
 8. steady-state 恢复时，先读 task truth，再做 cheap baseline check，
    不要跳过环境校验直接续跑旧命令
+9. `resume` 默认是 checkpoint-relative re-entry，
+   不是 instruction-pointer continuation；
+   边界前副作用要么 idempotent，要么放到边界之后
 
 ## 存储规则
 

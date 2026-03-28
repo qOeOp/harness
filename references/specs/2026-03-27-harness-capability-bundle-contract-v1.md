@@ -138,6 +138,20 @@ agent 不再是 capability 的持久身份，而是按任务动态加载 bundle 
 4. 主线程默认仍应 local-first
 5. 并发是优化手段，不是默认产品语义
 
+## Instruction vs Enforcement Boundary
+
+`SKILL.md`、bundle-local prompt 片段、
+router metadata 与 prompt object
+属于 capability 的 steerability surface。
+
+这意味着：
+
+1. 它们会改变默认行为，因此必须 versioned、可 review
+2. 但它们本身不是自动获得最高优先级的 enforced policy channel
+3. 若某条规则的违规成本高，
+   必须继续下沉到 managed policy、tool approval、
+   allowlist、typed schema 或 wrapper 检查
+
 ## Convergence to Excellence
 
 基于以上约束，收敛结论如下：

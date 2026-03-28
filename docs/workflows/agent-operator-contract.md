@@ -72,10 +72,16 @@ MCP 安装方式或 config 格式。
 默认要求：
 
 1. 这类 instruction surface 应视为 versioned control surface
-2. promote 前要有 reviewable diff
-3. 若改动会改变 agent 行为、路由、permission 或恢复边界，
+2. `README`、`SKILL.md`、subagent prompt、prompt object
+   默认属于 steerability surface，
+   不是单独足以承担 hard enforcement 的 policy gate
+3. 若某条规则的违规成本高，
+   必须继续下沉到 hooks、managed policy、tool approval、
+   allowlist、typed schema 或 wrapper 机械检查
+4. promote 前要有 reviewable diff
+5. 若改动会改变 agent 行为、路由、permission 或恢复边界，
    需要同步跑对应 deterministic gate、replay fixture 或 eval slice
-4. 不要在 live session 里让 instruction surface 隐式漂移
+6. 不要在 live session 里让 instruction surface 隐式漂移
 
 不要因为某个 provider 支持 subagent、automation、MCP，就默认把这些能力全部打满。
 
@@ -90,7 +96,12 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 1. 完整 prompt、instruction、tool payload 与 model output 默认不采集
 2. 内容级捕获必须显式 opt-in，而不是静默默认开启
 3. 优先记录 artifact path、evidence reference、object handle 或 content hash
-4. tracing backend 不应承担第二份 canonical task memory 的职责
+4. source / provenance metadata
+   例如 `tool`、`human approval`、`external evidence`、
+   `framework note`
+   应独立于 message / transcript / trace display surface 保留，
+   不要在转换视图时把信任来源抹平
+5. tracing backend 不应承担第二份 canonical task memory 的职责
 
 ## Default Operating Loop
 
@@ -210,6 +221,25 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 1. 不要直接开始长自治执行
 2. 先补 task / recovery / delegation brief
 3. 或先产出 reviewable artifact 再继续
+
+## Resume / Wakeup Rule
+
+`interrupt / resume`、后台 job 唤醒与 async callback
+默认都按 checkpoint-relative 的边界理解，
+不是 instruction-pointer continuation。
+
+默认要求：
+
+1. resume 后前置代码可能重跑，
+   不要假设 exactly-once execution
+2. 边界前的外部副作用必须具备 effect fence，
+   例如 idempotency key、expected version、write intent
+   或被移到边界之后
+3. webhook、queue、async callback
+   默认按 at-least-once delivery 设计，
+   唤醒链路必须带 dedupe / idempotency 语义
+4. 不要把活着的线程、socket、stream
+   当成跨 session 的 wakeup contract
 
 ## External Context Rules
 

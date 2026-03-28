@@ -14,6 +14,8 @@
 4. pause / resume 都必须写正式 transition event，不能只做 field mutation。
 5. `Current blocker` 仍然保留给人读的说明，但不再承担 typed governance 语义。
 6. human-facing opener / wrapper 必须继续暴露 `resume_command`，不能把 interrupt metadata 隐没在 blocked candidate 里。
+7. `resume` 默认是 checkpoint-relative re-entry，不是 instruction-pointer continuation；
+   旧 run 边界前的副作用不能假设 exactly-once。
 
 ## 最小字段
 

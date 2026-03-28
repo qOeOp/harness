@@ -1,6 +1,6 @@
 ---
 name: harness
-description: Use when bootstrapping, updating, auditing, or restructuring the harness itself, including hosted-kernel contracts, repo-local .harness runtime layout, and top-level surface reduction.
+description: Use when updating, auditing, or restructuring the harness execution substrate itself, including source-repo contracts, capability-bundle surfaces, task-record runtime layout, and top-level surface reduction.
 ---
 
 # Harness
@@ -9,11 +9,11 @@ Use this skill when the task is about the harness system itself rather than a pr
 
 This includes:
 
-1. hosted-kernel design
-2. `.harness/` runtime workspace
-3. framework source versus runtime boundary
+1. agent execution substrate design
+2. `.harness/` task-record runtime workspace
+3. capability-bundle and role surface design
 4. source-repo contract, audit, and runtime materialization design
-5. top-level surface reduction
+5. top-level surface reduction and compaction
 6. machine-readable runtime contracts and verification surfaces
 
 ## Core Rule

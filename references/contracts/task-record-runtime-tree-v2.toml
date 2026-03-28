@@ -113,6 +113,24 @@ recommended_sections = [
 [interrupts]
 slow_human_gates_require_pause_resume = true
 paused_status_carries_interrupt_metadata = true
+resume_is_checkpoint_relative_reentry = true
+resume_must_not_assume_instruction_pointer_continuation = true
+pre_boundary_side_effects_require_idempotency_or_effect_fence = true
+
+[wakeup]
+cross_run_wait_requires_explicit_handle_or_event = true
+async_delivery_model = "at-least-once"
+async_wakeup_requires_dedupe_or_idempotency_key = true
+live_socket_or_stream_is_not_a_wakeup_contract = true
+
+[observability]
+source_provenance_must_survive_display_projection = true
+provenance_examples = [
+  "tool",
+  "human-approval",
+  "external-evidence",
+  "framework-note",
+]
 
 [claims]
 active_statuses_require_assignee_worktree_claim = true
@@ -144,3 +162,6 @@ runtime_support_versioning = "durable runtime support state must carry explicit 
 cross_version_restore_policy = "runtime support state must migrate or fail closed across code versions"
 slow_human_gate_model = "slow human review, approval, or feedback uses paused plus resume rather than hidden in-flight waiting"
 observability_capture = "prefer evidence references, object handles, or content hashes over default full-content telemetry capture"
+interrupt_resume_model = "resume is checkpoint-relative re-entry rather than instruction-pointer continuation"
+async_wakeup_model = "cross-run wakeups assume at-least-once delivery and require dedupe or idempotency"
+source_provenance = "tool, approval, evidence, and framework-origin metadata should remain explicit across display projections"
