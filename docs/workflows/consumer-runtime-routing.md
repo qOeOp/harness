@@ -1,10 +1,12 @@
 # Consumer Runtime Routing
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
 
 ## 目的
 
 把“某个 consumer runtime 在哪里”从裸路径参数，收敛成更安全、可广播、可审计的名字路由。
+
+这里的 route table 只是 user-owned integration address book，不是组织目录，也不定义任何默认治理层。
 
 ## 问题
 
@@ -92,5 +94,5 @@ research	/Users/vx/WebstormProjects/research-hub	Frontier experiments
 
 1. 路由解析出来的 root 仍必须是合法的 consumer runtime。
 2. 对 runtime role mutation，目标 runtime 还必须已启用相应的 shared writeback / role-extension 模式。
-3. 名字路由只是把“公司地址”从裸路径升级成已登记入口，不会放松现有 proposal / stage / write-root 校验。
+3. 名字路由只是把“runtime 地址”从裸路径升级成已登记入口，不会放松现有 proposal / stage / write-root 校验。
 4. 若你在自动化里需要目标 runtime，优先广播 runtime name，而不是广播裸绝对路径。

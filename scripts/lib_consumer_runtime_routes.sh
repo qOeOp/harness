@@ -29,7 +29,7 @@ consumer_runtime_route_table_example() {
   cat <<'EOF'
 # consumer-runtime<TAB>consumer-repo-root<TAB>optional-notes
 dogfood	/absolute/path/to/consumer-repo	Daily sandbox
-prod-like	/absolute/path/to/another-consumer-repo	Advanced governance runtime
+prod-like	/absolute/path/to/another-consumer-repo	Shared writeback runtime
 EOF
 }
 

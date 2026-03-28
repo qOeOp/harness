@@ -209,7 +209,7 @@ trap cleanup EXIT HUP INT TERM
     fi
   done
 
-  validation_item=$("$script_dir/new_work_item.sh" governance "Harness Task Record Smoke Chain" "Workflow & Automation Lead" high chief-of-staff)
+  validation_item=$("$script_dir/new_work_item.sh" governance "Harness Task Record Smoke Chain" "Workflow & Automation Lead" high general-manager)
   validation_id=$(field_value "$validation_item" "ID")
 
   if [ "$validation_item" != "$(canonical_work_item_path "$validation_id")" ]; then

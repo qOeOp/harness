@@ -6,6 +6,8 @@
 
 区分 Founder-facing 会议的路由目标、默认主持人与升级边界。
 
+这些 `meeting` 名字是 routing label 和 output contract，不是周期性治理仪式，也不是组织结构投影。
+
 ## 会议类型
 
 Founder-facing 正式会议当前只保留 4 类：

@@ -1,6 +1,8 @@
 # Decision Rights
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-28`
+
+本文件定义的是默认 routing / approval control surface，不是组织图。
 
 ## Founder 必须拍板的事项
 
@@ -17,7 +19,7 @@
 3. 普通内部 review。
 4. 已批准 vision 内的日常优先级微调。
 
-## General Manager / Chief of Staff 可自主决定的事项
+## General Manager 可自主决定的事项
 
 1. 当前阶段 owner 分配。
 2. 会议 cadence 与汇报节奏。
@@ -88,7 +90,7 @@
 
 ## Founder 输入物料的升级规则
 
-1. Founder 输入默认先进入 `General Manager / Chief of Staff`。
+1. Founder 输入默认先进入 `General Manager`。
 2. 由其决定：丢弃、观察、进入研究、进入试点建议。
 3. 默认优先复用 baseline 团队处理，而不是立刻新建 runtime role。
 4. 如果该类输入反复出现并证明需要独立 owner，应在 accepted task 的复利 review 中提出 `Role Change Proposal`。
@@ -97,7 +99,7 @@
 
 ## 升级规则
 
-1. 角色间争议先由 `General Manager / Chief of Staff` 裁决。
+1. 角色间争议先由 `General Manager` 裁决。
 2. 如果争议触及使命、风险豁免、预算或高权限自动化，升级给 Founder。
 3. 任何未经 writeback 到 task-local artifacts 或显式 shared writeback 的决定无效。
 

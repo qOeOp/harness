@@ -6,9 +6,9 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 
 type="${1:-}"
 title="${2:-}"
-owner="${3:-Chief of Staff}"
+owner="${3:-General Manager}"
 priority="${4:-medium}"
-sponsor="${5:-chief-of-staff}"
+sponsor="${5:-general-manager}"
 actor="${STATE_ACTOR:-}"
 require_explicit_state_actor "$actor" "$0"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
