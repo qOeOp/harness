@@ -83,8 +83,8 @@ cat >"$company_tmp" <<EOF
 - Runtime mode: $runtime_mode
 - Refresh command: $refresh_command
 
-| Work Item | Type | Status | Interrupt Marker | Priority | Owner | Required Departments | Current Blocker | Founder Escalation | Last Updated |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Work Item | Type | Status | Interrupt Marker | Priority | Owner | Current Blocker | Founder Escalation | Last Updated |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 EOF
 
 cat >"$founder_tmp" <<EOF
@@ -111,7 +111,6 @@ for file in $(list_work_items); do
   status=$(field_value "$file" "Status")
   priority=$(field_value "$file" "Priority")
   owner=$(field_value "$file" "Owner")
-  required_departments=$(pretty_csv "$(field_value "$file" "Required departments")")
   current_blocker=$(sanitize_board_cell "$(field_value "$file" "Current blocker")")
   founder_escalation=$(field_value "$file" "Founder escalation")
   interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
@@ -121,7 +120,7 @@ for file in $(list_work_items); do
   deadline=$(sanitize_board_cell "$(field_value "$file" "Deadline")")
   supporting_pack=$(sanitize_board_cell "$(first_linked_artifact_path "$file")")
 
-  printf '| %s: %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+  printf '| %s: %s | %s | %s | %s | %s | %s | %s | %s |\n' \
     "$(sanitize_board_cell "$id")" \
     "$(sanitize_board_cell "$title")" \
     "$(sanitize_board_cell "$type")" \
@@ -129,7 +128,6 @@ for file in $(list_work_items); do
     "$(sanitize_board_cell "$interrupt_marker")" \
     "$(sanitize_board_cell "$priority")" \
     "$(sanitize_board_cell "$owner")" \
-    "$(sanitize_board_cell "$required_departments")" \
     "$current_blocker" \
     "$(sanitize_board_cell "$founder_escalation")" \
     "$(sanitize_board_cell "$updated_at")" >>"$company_tmp"
@@ -150,7 +148,7 @@ for file in $(list_work_items); do
 done
 
 if [ "$company_rows" -eq 0 ]; then
-  echo '| none | - | - | - | - | - | - | - | - | - |' >>"$company_tmp"
+  echo '| none | - | - | - | - | - | - | - | - |' >>"$company_tmp"
 fi
 
 if [ "$founder_rows" -eq 0 ]; then
@@ -159,56 +157,6 @@ fi
 
 commit_or_check "$company_tmp" "$state_boards_dir/company.md"
 commit_or_check "$founder_tmp" "$state_boards_dir/founder.md"
-
-for department in $(list_departments); do
-  dept_title=$(slug_to_title "$department")
-  dept_dir=".harness/workspace/departments/$department/workspace"
-  dept_tmp=$(mktemp)
-
-  cat >"$dept_tmp" <<EOF
-# Department Board: $dept_title
-
-- Generated at: $(date +%F)
-- Derived only: true
-- Source of truth: .harness/tasks/*/task.md
-- Scope: work items with explicit participation for $department
-- Governance surface: true
-- Refresh command: $refresh_command
-
-| Work Item | Participation | Local Status | Interrupt Marker | Upstream Dependency | Next Handoff | Artifact Due |
-| --- | --- | --- | --- | --- | --- | --- |
-EOF
-
-  dept_rows=0
-  for file in $(list_work_items); do
-    if participation=$(department_participation "$file" "$department" 2>/dev/null); then
-      id=$(field_value "$file" "ID")
-      title=$(field_value "$file" "Title")
-      status=$(field_value "$file" "Status")
-      interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
-      blocked_by=$(sanitize_board_cell "$(field_value "$file" "Blocked by")")
-      next_handoff=$(sanitize_board_cell "$(field_value "$file" "Next handoff")")
-      due_review_at=$(sanitize_board_cell "$(field_value "$file" "Due review at")")
-
-      printf '| %s: %s | %s | %s | %s | %s | %s | %s |\n' \
-        "$(sanitize_board_cell "$id")" \
-        "$(sanitize_board_cell "$title")" \
-        "$(sanitize_board_cell "$participation")" \
-        "$(sanitize_board_cell "$status")" \
-        "$(sanitize_board_cell "$interrupt_marker")" \
-        "$blocked_by" \
-        "$next_handoff" \
-        "$due_review_at" >>"$dept_tmp"
-      dept_rows=$((dept_rows + 1))
-    fi
-  done
-
-  if [ "$dept_rows" -eq 0 ]; then
-    echo '| none | - | - | - | - | - | - |' >>"$dept_tmp"
-  fi
-
-  commit_or_check "$dept_tmp" "$dept_dir/board.md"
-done
 
 if [ "$check_only" -eq 1 ]; then
   if [ "$ok" -eq 1 ]; then

@@ -8,8 +8,8 @@ Canonical layering model:
 2. optional task runtime
    - `.harness/`
    - appears only when the task needs continuity, traceability, or resumability
-3. advanced governance mode
-   - organization, cadence, escalation, and cross-task coordination
+3. optional cross-task mode
+   - decision logs, digests, founder queues, and other derived views
    - only enabled when the user explicitly upgrades beyond a single-task runtime
 4. internal source maintenance
    - this repository
@@ -20,5 +20,5 @@ Boundary reminder:
 
 1. `/harness` is the primary product entrypoint
 2. `.harness/` is runtime state, not a prerequisite
-3. advanced governance is not baseline task usage
+3. cross-task views are not baseline task usage
 4. source-repo maintenance is an internal concern, not the main story

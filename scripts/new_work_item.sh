@@ -61,8 +61,6 @@ cat >"$target" <<EOF
 - Ready criteria: none
 - Done criteria: none
 - Required artifacts: none
-- Required departments: none
-- Participation records: none
 - Current stage owner: $owner
 - Current stage role: triage
 - Next gate: planning

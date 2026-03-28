@@ -9,5 +9,5 @@ Recommended order:
 Operational rule:
 
 1. Only run in `advanced governance mode`.
-2. Read from `.harness/workspace/departments/*/workspace/reports/daily/`.
+2. Read from `.harness/workspace/workstreams/*/workspace/reports/daily/`.
 3. Write only to `.harness/workspace/status/digests/`.

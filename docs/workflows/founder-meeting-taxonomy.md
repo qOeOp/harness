@@ -23,7 +23,7 @@ Founder 与公司之间当前存在 5 类正式会议：
 | `governance` | `Compounding Engineering Lead` | 是 | 公司现在运行得怎样，哪些流程和协作该改 | governance brief、minutes、improvement directions；详见 `founder-governance-meeting-loop.md` |
 | `vision` | `Product Thesis Lead` | 是 | 我们到底在做什么，边界和非目标是否要变 | vision brief、thesis changes、Founder decision |
 | `acceptance` | `Chief of Staff` | 是 | 当前 demo 是否达到 Founder 验收门槛 | acceptance decision、Founder feedback、follow-up directions |
-| `requirements` | `Chief of Staff` | 默认否 | 已批准 vision 在当前阶段该翻译成哪些需求 | scoped requirements brief、acceptance criteria、department tasking |
+| `requirements` | `Chief of Staff` | 默认否 | 已批准 vision 在当前阶段该翻译成哪些需求 | scoped requirements brief、acceptance criteria、workstream tasking |
 | `brainstorming` | 视主题而定 | 可选 | 还不拍板，只发散候选方向与实验 | candidate ideas、hypotheses、candidate experiments |
 
 ## Routing Boundaries
@@ -33,7 +33,7 @@ Founder 与公司之间当前存在 5 类正式会议：
 适用：
 
 1. 公司运行状态
-2. 跨部门摩擦
+2. 跨 workstream 摩擦
 3. ritual、hook、rule、workflow 的调整
 4. 需要 Founder 拍板的治理问题
 
@@ -117,7 +117,7 @@ canonical meeting router 是 `meeting-router` skill。
 该规则适用于：
 
 1. Founder-facing meeting
-2. department 内部讨论
+2. workstream 内部讨论
 3. agent-to-agent brainstorming
 4. internal requirements / review / decision session
 

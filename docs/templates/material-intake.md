@@ -6,7 +6,7 @@
 - Source:
 - Summary:
 - Why Vincent thinks it matters:
-- Candidate departments affected:
+- Candidate workstreams affected:
 - Immediate action requested:
 - Initial triage: discard / observe / research / pilot-candidate
 - Notes:

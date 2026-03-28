@@ -66,24 +66,22 @@
 17. `Objective`
 18. `Ready criteria`
 19. `Done criteria`
-20. `Required departments`
-21. `Participation records`
-22. `Current stage owner`
-23. `Current stage role`
-24. `Next gate`
-25. `Founder escalation`
-26. `Decision status`
-27. `Review status`
-28. `QA status`
-29. `UAT status`
-30. `Acceptance status`
-31. `Blocked by`
-32. `Current blocker`
-33. `Next handoff`
-34. `Linked attachments`
-35. `Created at`
-36. `Updated at`
-37. `Archived at`
+20. `Current stage owner`
+21. `Current stage role`
+22. `Next gate`
+23. `Founder escalation`
+24. `Decision status`
+25. `Review status`
+26. `QA status`
+27. `UAT status`
+28. `Acceptance status`
+29. `Blocked by`
+30. `Current blocker`
+31. `Next handoff`
+32. `Linked attachments`
+33. `Created at`
+34. `Updated at`
+35. `Archived at`
 
 ### Recommended Sections
 
@@ -136,9 +134,7 @@ task record 同时承载状态与路由。
 1. `Current stage owner`
 2. `Current stage role`
 3. `Next gate`
-4. `Required departments`
-5. `Participation records`
-6. `Founder escalation`
+4. `Founder escalation`
 
 ## Attachment Routing
 

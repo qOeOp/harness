@@ -17,8 +17,7 @@ collect_all_files() {
     .harness/workspace/research/sources \
     .harness/workspace/research/dispatches \
     .harness/workspace/decisions/log \
-    .harness/workspace/briefs \
-    .harness/workspace/departments
+    .harness/workspace/briefs
   do
     [ -d "$dir" ] || continue
     find "$dir" -type f -name '*.md'
@@ -32,7 +31,7 @@ collect_staged_files() {
 is_governed_artifact() {
   case "$1" in
     .harness/tasks/*/attachments/*.md|.harness/tasks/*/attachments/*/*.md|.harness/tasks/*/outputs/*.md|.harness/tasks/*/closure/*.md|\
-    .harness/workspace/research/sources/*.md|.harness/workspace/research/dispatches/*.md|.harness/workspace/decisions/log/*.md|.harness/workspace/briefs/*.md|.harness/workspace/departments/*/workspace/memos/*.md|.harness/workspace/departments/*/workspace/outputs/*.md)
+    .harness/workspace/research/sources/*.md|.harness/workspace/research/dispatches/*.md|.harness/workspace/decisions/log/*.md|.harness/workspace/briefs/*.md)
       case "$(basename "$1")" in
         README.md)
           return 1

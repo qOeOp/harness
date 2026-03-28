@@ -23,65 +23,6 @@ is_iso_date_or_none() {
   esac
 }
 
-validate_department_list() {
-  value="$1"
-
-  if value_is_missing "$value"; then
-    return 0
-  fi
-
-  old_ifs=${IFS- }
-  IFS=','
-  set -- $value
-  IFS=$old_ifs
-
-  for raw_department in "$@"; do
-    department=$(trim "$raw_department")
-    [ -n "$department" ] || continue
-    if [ ! -d ".harness/workspace/departments/$department" ]; then
-      echo "unknown department in Required departments: $department" >&2
-      exit 1
-    fi
-  done
-}
-
-validate_participation_records() {
-  value="$1"
-
-  if value_is_missing "$value"; then
-    return 0
-  fi
-
-  old_ifs=${IFS- }
-  IFS=','
-  set -- $value
-  IFS=$old_ifs
-
-  for raw_record in "$@"; do
-    record=$(trim "$raw_record")
-    [ -n "$record" ] || continue
-    department=${record%%=*}
-    participation=${record#*=}
-    department=$(trim "$department")
-    participation=$(trim "$participation")
-
-    if [ -z "$department" ] || [ -z "$participation" ] || [ "$department" = "$participation" ]; then
-      echo "invalid Participation records entry: $record" >&2
-      exit 1
-    fi
-
-    if [ ! -d ".harness/workspace/departments/$department" ]; then
-      echo "unknown department in Participation records: $department" >&2
-      exit 1
-    fi
-
-    if ! is_valid_participation "$participation"; then
-      echo "invalid participation status in Participation records: $record" >&2
-      exit 1
-    fi
-  done
-}
-
 validate_work_item_reference_list() {
   current_id="$1"
   field_label="$2"
@@ -159,12 +100,6 @@ validate_field_update() {
         echo "invalid $field: $value" >&2
         exit 1
       fi
-      ;;
-    Required\ departments)
-      validate_department_list "$value"
-      ;;
-    Participation\ records)
-      validate_participation_records "$value"
       ;;
     Blocked\ by|Blocks)
       validate_work_item_reference_list "$work_item_id" "$field" "$value"

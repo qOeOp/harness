@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--record|--id-only|--path-only] [--all] [--task-id <WI-xxxx>] [--status <status>] [--owner <owner>] [--assignee <assignee>] [--stage-owner <owner>] [--role <role>] [--next-gate <gate>] [--department <slug>] [--decision-status <status>] [--review-status <status>] [--qa-status <status>] [--uat-status <status>] [--acceptance-status <status>] [--founder-escalation <status>]\n' "$(default_harness_command "query_work_items.sh")" >&2
+  printf 'usage: %s [--json|--record|--id-only|--path-only] [--all] [--task-id <WI-xxxx>] [--status <status>] [--owner <owner>] [--assignee <assignee>] [--stage-owner <owner>] [--role <role>] [--next-gate <gate>] [--decision-status <status>] [--review-status <status>] [--qa-status <status>] [--uat-status <status>] [--acceptance-status <status>] [--founder-escalation <status>]\n' "$(default_harness_command "query_work_items.sh")" >&2
   exit "${1:-1}"
 }
 
@@ -18,7 +18,6 @@ assignee_filter=""
 role_filter=""
 stage_owner_filter=""
 next_gate_filter=""
-department_filter=""
 decision_status_filter=""
 review_status_filter=""
 qa_status_filter=""
@@ -81,11 +80,6 @@ while [ "$#" -gt 0 ]; do
     --next-gate)
       [ "$#" -ge 2 ] || usage
       next_gate_filter="$2"
-      shift 2
-      ;;
-    --department)
-      [ "$#" -ge 2 ] || usage
-      department_filter="$2"
       shift 2
       ;;
     --decision-status)
@@ -197,22 +191,6 @@ matches_filter() {
   [ "$actual" = "$expected" ]
 }
 
-matches_department_filter() {
-  file="$1"
-  department="$2"
-
-  if [ -z "$department" ]; then
-    return 0
-  fi
-
-  if department_participation "$file" "$department" >/dev/null 2>&1; then
-    return 0
-  fi
-
-  required_departments=$(field_value_or_none "$file" "Required departments")
-  csv_contains_value "$required_departments" "$department"
-}
-
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT HUP INT TERM
 
@@ -252,8 +230,6 @@ for file in $(list_work_items); do
   matches_filter "$uat_status" "$uat_status_filter" || continue
   matches_filter "$acceptance_status" "$acceptance_status_filter" || continue
   matches_filter "$founder_escalation" "$founder_escalation_filter" || continue
-  matches_department_filter "$file" "$department_filter" || continue
-
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$id" \
     "$file" \

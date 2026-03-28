@@ -121,7 +121,6 @@ run_core_checks() {
 }
 
 run_governance_checks() {
-  check_file ".harness/workspace/departments/README.md"
   check_file ".harness/workspace/decisions/log/README.md"
   check_file ".harness/workspace/current/README.md"
   check_file ".harness/workspace/research/dispatches/README.md"
@@ -142,23 +141,6 @@ run_governance_checks() {
     check_contains ".harness/manifest.toml" "runtime_mode = \"advanced-governance\""
     check_contains ".harness/manifest.toml" "advanced_governance_enabled = true"
   fi
-
-  for dept in .harness/workspace/departments/*; do
-    [ -d "$dept" ] || continue
-    case "$(basename "$dept")" in
-      README.md) continue ;;
-    esac
-    check_file "$dept/README.md"
-    check_file "$dept/charter.md"
-    check_file "$dept/interfaces.md"
-    check_file "$dept/workspace/README.md"
-    check_dir "$dept/workspace/intake"
-    check_dir "$dept/workspace/memos"
-    check_dir "$dept/workspace/outputs"
-    check_dir "$dept/workspace/reports"
-    check_dir "$dept/workspace/reports/daily"
-    check_dir "$dept/workspace/reports/retros"
-  done
 
   for current_file in .harness/workspace/current/*.md; do
     [ -f "$current_file" ] || continue

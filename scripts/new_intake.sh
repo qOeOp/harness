@@ -20,7 +20,7 @@ cat >"$target" <<EOF
 - Source:
 - Summary: $title
 - Why Vincent thinks it matters:
-- Candidate departments affected:
+- Candidate workstreams affected:
 - Immediate action requested:
 - Initial triage:
 - Notes:

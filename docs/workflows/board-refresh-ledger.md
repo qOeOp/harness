@@ -17,7 +17,7 @@
 4. board refresh event 记录的是派生视图写入，不是业务状态迁移。
 5. board refresh event 必须独立于 work item transition ledger。
 6. 只有发生实际 board 文件变化时才写 board refresh event。
-7. department boards 只在 advanced governance mode 下刷新。
+7. workstream boards 只在 advanced governance mode 下刷新。
 
 ## 存储位置
 
@@ -51,7 +51,7 @@
 
 1. `.harness/workspace/state/boards/company.md`
 2. `.harness/workspace/state/boards/founder.md`
-3. `.harness/workspace/departments/<department>/workspace/board.md`
+3. `.harness/workspace/workstreams/<workstream>/workspace/board.md`
    - 仅当 `advanced_governance_enabled = true` 时允许刷新
 
 ## 与 trace taxonomy 的关系

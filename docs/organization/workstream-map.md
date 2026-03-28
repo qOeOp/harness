@@ -1,4 +1,4 @@
-# Department Map
+# Workstream Map
 
 更新日期：`2026-03-28`
 
@@ -8,7 +8,7 @@
 
 ## 默认结论
 
-1. source repo 不内置固定行业部门。
+1. source repo 不内置固定行业 workstream。
 2. 默认只有 source repo baseline roles。
 3. 只有在某类工作反复出现、输入输出稳定、handoff 成本持续存在时，才值得创建 runtime-local role。
 
@@ -32,7 +32,7 @@
 | `memory-ops` | 承接高频 writeback、archive 和 doc hygiene | decision pack、research outputs、closure artifacts | doc updates、decision log、archives | `Knowledge & Memory Lead` |
 | `intake-triage` | 承接 Founder 输入或多来源新增事项的统一入口 | inbox items、links、ideas、feedback | discard / observe / research / pilot decisions | `General Manager / Chief of Staff` |
 
-这些只是常见模式，不是默认必须存在的 built-in 部门。
+这些只是常见模式，不是默认必须存在的 built-in workstream。
 
 ## 创建位置
 
@@ -62,7 +62,7 @@ Founder 输入默认先进入：
 
 ## 与产品 runtime 的边界
 
-runtime-local role 不等于用户可见产品角色，也不等于必须长期存在的部门。
+runtime-local role 不等于用户可见产品角色，也不等于必须长期存在的 workstream。
 
 详细映射见：
 

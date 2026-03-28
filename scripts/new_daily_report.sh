@@ -4,19 +4,19 @@ set -eu
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
-department="${1:-}"
+workstream="${1:-}"
 title="${2:-daily-report}"
 
-if [ -z "$department" ]; then
-  echo "usage: $0 <department> [title]" >&2
+if [ -z "$workstream" ]; then
+  echo "usage: $0 <workstream> [title]" >&2
   exit 1
 fi
 
-require_advanced_governance_runtime_artifact "department daily report" || exit 1
+require_advanced_governance_runtime_artifact "workstream daily report" || exit 1
 
-base=".harness/workspace/departments/${department}/workspace/reports/daily"
+base=".harness/workspace/workstreams/${workstream}/workspace/reports/daily"
 if [ ! -d "$base" ]; then
-  echo "unknown department daily reports path: $base" >&2
+  echo "unknown workstream daily reports path: $base" >&2
   exit 1
 fi
 
@@ -30,10 +30,10 @@ if [ -e "$target" ]; then
 fi
 
 cat >"$target" <<EOF
-# Daily Department Report
+# Daily Workstream Report
 
 - Date: $date
-- Department: $department
+- Workstream: $workstream
 - Owner:
 - Inputs received:
 - Outputs shipped:

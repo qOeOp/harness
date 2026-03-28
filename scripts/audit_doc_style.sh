@@ -15,7 +15,7 @@ fail() {
 
 forbidden_patterns='^## Divergent Hypotheses$|^## First Principles Deconstruction$|^## Convergence to Excellence$|^## 问题定义$|^## 第一性原则$|^## 关键判断$'
 
-for file in README.md docs/project-structure.md .harness/workspace/departments/README.md; do
+for file in README.md docs/project-structure.md .harness/workspace/workstreams/README.md; do
   if [ -f "$file" ] && grep -Eq "$forbidden_patterns" "$file"; then
     fail "reasoning-style headings found in canonical doc: $file"
   fi
@@ -27,7 +27,7 @@ for file in $(find docs/charter docs/memory docs/organization docs/workflows -ty
   fi
 done
 
-for file in .harness/workspace/departments/*/README.md .harness/workspace/departments/*/charter.md .harness/workspace/departments/*/interfaces.md; do
+for file in .harness/workspace/workstreams/*/README.md .harness/workspace/workstreams/*/charter.md .harness/workspace/workstreams/*/interfaces.md; do
   if [ -f "$file" ] && grep -Eq "$forbidden_patterns" "$file"; then
     fail "reasoning-style headings found in canonical doc: $file"
   fi

@@ -8,4 +8,4 @@ Recommended order:
 2. [docs/workflows/retrospective-compaction-and-trap-check.md](../../../docs/workflows/retrospective-compaction-and-trap-check.md)
 
 Only run this bundle in `advanced governance mode`.
-This bundle may emit either a company-level process audit or a department retro, depending on scope.
+This bundle may emit either a company-level process audit or a workstream retro, depending on scope.

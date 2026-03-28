@@ -118,10 +118,6 @@ if [ "$mode" = "governance" ]; then
   require_file "$state_boards_dir/founder.md"
   require_file "$state_board_refreshes_dir/README.md"
 
-  for department in $(list_departments); do
-    require_file ".harness/workspace/departments/$department/workspace/board.md"
-  done
-
   for board_refresh_file in $(list_board_refresh_events); do
     board_refresh_at=$(field_value "$board_refresh_file" "At")
     board_refresh_actor=$(field_value "$board_refresh_file" "Actor")
@@ -320,8 +316,6 @@ for file in $(list_work_items); do
   created_at=$(field_value "$file" "Created at")
   updated_at=$(field_value "$file" "Updated at")
   founder_escalation=$(field_value "$file" "Founder escalation")
-  required_departments=$(field_value "$file" "Required departments")
-  participation_records=$(field_value "$file" "Participation records")
   linked_artifacts=$(field_value "$file" "Linked attachments")
   last_transition_event=$(field_value "$file" "Last transition event")
   interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
@@ -370,8 +364,6 @@ for file in $(list_work_items); do
     "Created at:$created_at" \
     "Updated at:$updated_at" \
     "Founder escalation:$founder_escalation" \
-    "Required departments:$required_departments" \
-    "Participation records:$participation_records" \
     "Linked attachments:$linked_artifacts" \
     "Last transition event:$last_transition_event" \
     "Interrupt marker:$interrupt_marker" \
@@ -477,39 +469,6 @@ for file in $(list_work_items); do
     fi
   fi
 
-  if [ "$mode" = "governance" ] && [ "$required_departments" != "none" ]; then
-    old_ifs=${IFS- }
-    IFS=','
-    set -- $required_departments
-    IFS=$old_ifs
-    for raw_department in "$@"; do
-      department=$(printf '%s\n' "$raw_department" | sed 's/^ *//; s/ *$//')
-      [ -n "$department" ] || continue
-      if [ ! -d ".harness/workspace/departments/$department" ]; then
-        fail "unknown required department '$department' in $file"
-      fi
-    done
-  fi
-
-  if [ "$mode" = "governance" ] && [ "$participation_records" != "none" ]; then
-    old_ifs=${IFS- }
-    IFS=','
-    set -- $participation_records
-    IFS=$old_ifs
-    for record in "$@"; do
-      department=${record%%=*}
-      participation=${record#*=}
-      department=$(printf '%s\n' "$department" | sed 's/^ *//; s/ *$//')
-      participation=$(printf '%s\n' "$participation" | sed 's/^ *//; s/ *$//')
-      if [ ! -d ".harness/workspace/departments/$department" ]; then
-        fail "unknown participation department '$department' in $file"
-      fi
-      if ! is_valid_participation "$participation"; then
-        fail "invalid participation '$participation' in $file"
-      fi
-    done
-  fi
-
   if [ "$linked_artifacts" != "none" ]; then
     old_ifs=${IFS- }
     IFS=';'
@@ -547,9 +506,6 @@ for file in $(list_work_items); do
       fi
       if value_is_missing "$ready_criteria"; then
         fail "missing Ready criteria for active item $file"
-      fi
-      if [ "$mode" = "governance" ] && ! required_departments_satisfied "$file" "ready"; then
-        fail "required departments not assigned for active item $file"
       fi
       ;;
   esac
@@ -593,9 +549,6 @@ for file in $(list_work_items); do
     fi
     if ! value_is_missing "$required_artifacts" && ! required_artifacts_satisfied "$file"; then
       fail "required artifacts not satisfied for done item $file"
-    fi
-    if [ "$mode" = "governance" ] && ! required_departments_satisfied "$file" "done"; then
-      fail "required departments not done for done item $file"
     fi
     if ! value_is_missing "$current_blocker"; then
       fail "done item still has current blocker in $file"

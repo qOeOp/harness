@@ -5,7 +5,7 @@
 - Scope:
 - Signals reviewed:
 - Repeated frictions:
-- Cross-department failures:
+- Cross-workstream failures:
 - Candidate root causes:
 - Proposed experiments:
 - Risks of change:

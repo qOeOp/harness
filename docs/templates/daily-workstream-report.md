@@ -1,7 +1,7 @@
-# Daily Department Report
+# Daily Workstream Report
 
 - Date:
-- Department:
+- Workstream:
 - Owner:
 - Inputs received:
 - Outputs shipped:

@@ -1,7 +1,7 @@
-# Department Retro
+# Workstream Retro
 
 - Date:
-- Department:
+- Workstream:
 - Owner:
 - Period covered:
 - What worked:

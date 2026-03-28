@@ -117,7 +117,7 @@ if [ -z "$reason" ]; then
 fi
 
 repo_refs=$(
-  rg -l -F "$source_file" README.md docs .harness/workspace/departments 2>/dev/null || true
+  rg -l -F "$source_file" README.md docs .harness/workspace/workstreams 2>/dev/null || true
 )
 
 retained_repo_refs=""

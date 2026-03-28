@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--record|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "open_work_item.sh")" >&2
+  printf 'usage: %s [--json|--record|--path-only] [company|founder]\n' "$(default_harness_command "open_work_item.sh")" >&2
 }
 
 recommend_action() {
@@ -179,20 +179,12 @@ while [ $# -gt 0 ]; do
 done
 
 scope="${1:-company}"
-department=""
 if [ $# -gt 0 ]; then
   shift
 fi
 
 case "$scope" in
   company|founder) ;;
-  department)
-    department="${1:-}"
-    if [ -z "$department" ]; then
-      usage
-      exit 1
-    fi
-    ;;
   *)
     usage
     exit 1
@@ -202,7 +194,7 @@ esac
 recovery_command_template=$(default_harness_command "upsert_work_item_recovery.sh")
 resume_command_template=$(default_harness_command "resume_work_item.sh")
 
-if selector_output=$("$script_dir/select_work_item.sh" --record "$scope" ${department:+"$department"} 2>/dev/null); then
+if selector_output=$("$script_dir/select_work_item.sh" --record "$scope" 2>/dev/null); then
   selector_status=0
 else
   selector_status=$?
@@ -371,7 +363,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$selected_scope"),
-  "department": $(json_string_or_null "$selected_department"),
+  "workstream": $(json_string_or_null "$selected_department"),
   "board": $(json_escape "$board_path"),
   "result": $(json_escape "$result"),
   "recommended_action": $(json_escape "$action"),

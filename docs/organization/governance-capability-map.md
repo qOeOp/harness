@@ -4,14 +4,14 @@
 
 ## 目的
 
-把 `root / skills / roles / departments` 的关系讲清楚，避免把能力、责任主体和组织边界混成一层。
+把 `root / skills / roles / workstreams` 的关系讲清楚，避免把能力、责任主体和协作投影混成一层。
 
 ## Core Model
 
 `harness` 不是一棵单树，而是两套正交结构：
 
-1. 组织树
-   - `company -> department -> role -> agent instance`
+1. 协作投影
+   - `company -> optional workstream -> role -> agent instance`
 2. 能力图
    - `skills/*` 被多个 role 横向复用
 
@@ -64,13 +64,13 @@ root 是宪法层、共享底座和总入口。
 2. 默认会消费多种 skill
 3. 不应和某个单 skill 一一绑定
 
-### Departments
+### Workstreams
 
-department 是协作边界，而不是 source repo 的默认内置目录树。
+workstream 是 cross-task coordination projection，而不是 source repo 的默认内置目录树。
 
-默认 baseline 仍然是治理团队。
+默认 baseline 仍然是 task / role / capability。
 
-只有在 `advanced governance mode` 的 consumer runtime 中，才按需 materialize runtime-local departments / roles。
+只有在 `advanced governance mode` 的 consumer runtime 中，才按需 materialize runtime-local workstreams / roles。
 
 ## Skill Taxonomy
 
@@ -120,11 +120,11 @@ department 是协作边界，而不是 source repo 的默认内置目录树。
 | `compounding-engineering-lead` | `retro`, `process-audit`, `governance-meeting`, `capability-scout`, `os-audit` |
 | `runtime-role-manager` | no primary skill bundle; executes policy-governed runtime role mutation |
 
-## Suggested Runtime Department Families
+## Suggested Runtime Workstream Families
 
-这些是常见 family，不是 source repo 的 built-in department truth。
+这些是常见 family，不是 source repo 的 built-in workstream truth。
 
-| Runtime Department Family | Typical Runtime Roles | Typical Skills |
+| Runtime Workstream Family | Typical Runtime Roles | Typical Skills |
 | --- | --- | --- |
 | `product-discovery` | researcher, BA, product manager | `research`, `brainstorming-session`, `vision-meeting`, `requirements-meeting` |
 | `delivery` | frontend engineer, backend engineer, integration engineer | consumes project/domain skills plus `decision-pack` and `memory-checkpoint` as needed |
@@ -135,7 +135,7 @@ department 是协作边界，而不是 source repo 的默认内置目录树。
 ## Design Rules
 
 1. root 越高层越简洁，skills 越低层越自包含
-2. skill 粒度应小于 role，role 粒度应小于 department
+2. skill 粒度应小于 role，role 粒度应小于 workstream projection
 3. 组织结构是树，能力结构是图
-4. 不要把某个 runtime-local department 误写成 source repo baseline truth
+4. 不要把某个 runtime-local workstream 误写成 source repo baseline truth
 5. 不要把单个 role 和单个 skill 永久绑定成同义词

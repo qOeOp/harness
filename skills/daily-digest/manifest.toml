@@ -2,7 +2,7 @@ schema_version = 1
 bundle_slug = "daily-digest"
 bundle_version = 1
 bundle_kind = "governance-skill"
-summary = "Consolidate advanced-governance daily department reports into one company digest."
+summary = "Consolidate advanced-governance daily workstream reports into one company digest."
 
 owner_role = "general-manager"
 scope = "source-baseline"
@@ -15,7 +15,7 @@ activation_modes = ["explicit", "state-gate"]
 output_modes = ["summary", "artifact-path"]
 
 allowed_tools = ["read", "write", "shell"]
-read_roots = ["skills/daily-digest/", "docs/workflows/", ".harness/workspace/departments/"]
+read_roots = ["skills/daily-digest/", "docs/workflows/", ".harness/workspace/workstreams/"]
 write_roots = [".harness/workspace/status/digests/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 

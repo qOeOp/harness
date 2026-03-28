@@ -1,6 +1,6 @@
 ---
 name: process-audit
-description: Use when reviewing department reports, checkpoints, and retros to improve process and coordination.
+description: Use when reviewing workstream reports, checkpoints, and retros to improve process and coordination.
 ---
 
 Read [./manifest.toml](./manifest.toml).

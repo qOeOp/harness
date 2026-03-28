@@ -101,16 +101,15 @@
 2. transition ledger 是 append-only trace，不应用 narrative 文本替代。
 3. accepted task 的 `Role Change Proposal` 默认属于 `closure/`。
 
-## Layer 5: Optional Governance Projection
+## Layer 5: Optional Cross-Task Projection
 
-作用：只在显式升级到 `advanced governance mode` 后承载跨任务、跨部门、跨节奏的治理材料。
+作用：只在显式升级到 cross-task mode 后承载跨任务、跨节奏的派生材料。
 
 目录示例：
 
 - `.harness/workspace/decisions/log/`
 - `.harness/workspace/research/`
 - `.harness/workspace/status/`
-- `.harness/workspace/departments/`
 
 说明：
 

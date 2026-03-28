@@ -1,12 +1,12 @@
-# Department Bootstrap Brief
+# Workstream Bootstrap Brief
 
 - Date:
-- Department:
+- Workstream:
 - Lead:
 - Mission in current phase:
 - Inputs expected:
 - Outputs expected:
-- Adjacent departments:
+- Adjacent workstreams:
 - Active or dormant:
 - Current non-goals:
 - First 7 days:

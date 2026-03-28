@@ -22,5 +22,5 @@ Required sections:
 Use [./templates/decision-pack.md](./templates/decision-pack.md) as the canonical template.
 If a volatile external claim lacks a linked research dispatch, fresh source-note support, or a current URL, treat it as exploratory rather than final.
 Default to a task-local decision pack under `.harness/tasks/<task-id>/attachments/`.
-Only promote it into `.harness/workspace/decisions/log/` or department-level governance outputs when `advanced governance mode` is explicitly enabled.
+Only promote it into `.harness/workspace/decisions/log/` or workstream-level governance outputs when `advanced governance mode` is explicitly enabled.
 Preferred script: [./scripts/new_decision.sh](./scripts/new_decision.sh)

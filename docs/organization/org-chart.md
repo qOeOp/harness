@@ -30,7 +30,7 @@ Founder / Principal
 1. `skills/*` 是能力 bundle
 2. `roles/*` 是责任主体
 3. role 默认消费多个 skill
-4. department 只在 runtime 中按需组合多个 role
+4. workstream 只在 runtime 中按需组合多个 role
 
 ## 角色职责
 
@@ -81,7 +81,7 @@ Founder / Principal
 
 详细边界见：
 
-- [docs/organization/department-map.md](./department-map.md)
+- [docs/organization/workstream-map.md](./workstream-map.md)
 - [docs/organization/company-os-runtime-data-map.md](./company-os-runtime-data-map.md)
 - [docs/organization/governance-capability-map.md](./governance-capability-map.md)
 

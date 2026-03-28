@@ -6,7 +6,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]\n' "$(default_harness_command "start_work_item.sh")" >&2
+  printf 'usage: %s [--json|--path-only] [--reason <text>] [--operation-id <id>] [company|founder]\n' "$(default_harness_command "start_work_item.sh")" >&2
 }
 
 json_escape() {
@@ -174,7 +174,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$selected_scope"),
-  "department": $(json_string_or_null "$selected_department"),
+  "workstream": $(json_string_or_null "$selected_department"),
   "board": $(json_escape "$board_path"),
   "result": $(json_escape "$result"),
   "recommended_action": $(json_escape "$recommended_action"),
@@ -224,20 +224,12 @@ while [ $# -gt 0 ]; do
 done
 
 scope="${1:-company}"
-department=""
 if [ $# -gt 0 ]; then
   shift
 fi
 
 case "$scope" in
   company|founder) ;;
-  department)
-    department="${1:-}"
-    if [ -z "$department" ]; then
-      usage
-      exit 1
-    fi
-    ;;
   *)
     usage
     exit 1
@@ -250,7 +242,7 @@ fi
 
 recovery_command_template=$(default_harness_command "upsert_work_item_recovery.sh")
 
-if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" ${department:+"$department"} 2>/dev/null); then
+if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" 2>/dev/null); then
   opener_status=0
 else
   opener_status=$?

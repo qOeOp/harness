@@ -37,7 +37,7 @@ export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
   cat <<EOF >&2
-usage: $0 [--work-item <WI-xxxx>] [--promote-governance] [company|<department>] <title>
+usage: $0 [--work-item <WI-xxxx>] [--promote-governance] [company|<workstream>] <title>
 
 Research memos default to task-local routing.
 Pass --work-item explicitly for task-local routing.
@@ -85,8 +85,8 @@ if [ "$promote_governance" -eq 1 ]; then
     require_governance_mode_for_workspace_artifact "research memo" || exit 1
     target=".harness/workspace/briefs/${slug}.md"
   else
-    require_governance_mode_for_workspace_artifact "department research memo" || exit 1
-    target=".harness/workspace/departments/${scope}/workspace/memos/${date}-${slug}.md"
+    require_governance_mode_for_workspace_artifact "workstream research memo" || exit 1
+    target=".harness/workspace/workstreams/${scope}/workspace/memos/${date}-${slug}.md"
   fi
 else
   if [ -z "$work_item_id" ]; then

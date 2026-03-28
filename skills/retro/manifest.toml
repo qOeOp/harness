@@ -2,7 +2,7 @@ schema_version = 1
 bundle_slug = "retro"
 bundle_version = 1
 bundle_kind = "governance-skill"
-summary = "Generate company or department retrospectives and compact them into process-audit style operating improvements."
+summary = "Generate company or workstream retrospectives and compact them into process-audit style operating improvements."
 
 owner_role = "compounding-engineering-lead"
 scope = "source-baseline"
@@ -16,7 +16,7 @@ output_modes = ["summary", "artifact-path"]
 
 allowed_tools = ["read", "write", "shell"]
 read_roots = ["skills/retro/", "docs/workflows/", ".harness/workspace/"]
-write_roots = [".harness/workspace/status/process-audits/", ".harness/workspace/departments/<department>/workspace/reports/retros/"]
+write_roots = [".harness/workspace/status/process-audits/", ".harness/workspace/workstreams/<workstream>/workspace/reports/retros/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 
 default_artifact_type = "process-audit"

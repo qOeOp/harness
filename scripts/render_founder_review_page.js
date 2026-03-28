@@ -31,7 +31,7 @@ const today = localDateValue();
 
 function usage() {
   console.error(
-    `usage: ${scriptCommand("render_founder_review_page.sh")} [--work-item <WI-xxxx> | --scope company|founder|department <slug>] [--output <path>]`
+    `usage: ${scriptCommand("render_founder_review_page.sh")} [--work-item <WI-xxxx> | --scope company|founder] [--output <path>]`
   );
   process.exit(1);
 }
@@ -287,7 +287,6 @@ function gateRows(context) {
 function resolveSelection() {
   let workItemId = "";
   let scope = "founder";
-  let department = "";
   let outputPath = "";
 
   const args = process.argv.slice(2);
@@ -301,12 +300,6 @@ function resolveSelection() {
         scope = args.shift() || "";
         if (!scope) {
           usage();
-        }
-        if (scope === "department") {
-          department = args.shift() || "";
-          if (!department) {
-            usage();
-          }
         }
         break;
       case "--output":
@@ -332,19 +325,15 @@ function resolveSelection() {
     return {
       workItemId,
       workItemPath,
-      routeHint: scope === "department" ? `department:${department}` : scope,
+      routeHint: scope,
       outputPath,
       selectionResult: "explicit",
       selectionReason: "work item provided explicitly",
       scope,
-      department,
     };
   }
 
   const openArgs = ["--json", scope];
-  if (scope === "department") {
-    openArgs.push(department);
-  }
 
   const result = run(scriptCommand("open_work_item.sh"), openArgs);
   if (![0, 2].includes(result.status)) {
@@ -363,14 +352,13 @@ function resolveSelection() {
       routeHint: payload.route || payload.board || scope,
       outputPath,
       selectionResult: payload.result || "unknown",
-    selectionReason:
-      payload.selector_reason ||
-      (payload.next_blocked_candidate && payload.next_blocked_candidate.blocked_because) ||
-      payload.recommended_action ||
-      "none",
-    scope,
-    department,
-  };
+      selectionReason:
+        payload.selector_reason ||
+        (payload.next_blocked_candidate && payload.next_blocked_candidate.blocked_because) ||
+        payload.recommended_action ||
+        "none",
+      scope,
+    };
 }
 
 function renderPage(context) {
@@ -827,8 +815,7 @@ function main() {
     routeHint: selection.routeHint,
     selectionResult: selection.selectionResult,
     selectionReason: selection.selectionReason,
-    scopeLabel:
-      selection.scope === "department" ? `department:${selection.department}` : selection.scope,
+    scopeLabel: selection.scope,
     recovery: markdown
       ? {
           updatedAt: fieldValue(markdown, "Updated at"),

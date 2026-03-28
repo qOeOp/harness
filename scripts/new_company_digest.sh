@@ -25,11 +25,11 @@ render_company_digest_template() {
     '
       /^- Date:$/ { $0 = "- Date: " digest_date }
       /^- Owner:$/ { $0 = "- Owner: Chief of Staff" }
-      /^- Department reports reviewed:$/ { $0 = "- Department reports reviewed: " report_summary }
-      /^- Company-wide inputs:$/ { $0 = "- Company-wide inputs: Review department snapshots below and synthesize common inputs." }
-      /^- Company-wide outputs:$/ { $0 = "- Company-wide outputs: Review department snapshots below and synthesize shipped outputs." }
-      /^- Key blockers:$/ { $0 = "- Key blockers: Review department blockers below and collapse duplicates." }
-      /^- Cross-department risks:$/ { $0 = "- Cross-department risks: Review failed handoffs and process friction below." }
+      /^- Workstream reports reviewed:$/ { $0 = "- Workstream reports reviewed: " report_summary }
+      /^- Company-wide inputs:$/ { $0 = "- Company-wide inputs: Review workstream snapshots below and synthesize common inputs." }
+      /^- Company-wide outputs:$/ { $0 = "- Company-wide outputs: Review workstream snapshots below and synthesize shipped outputs." }
+      /^- Key blockers:$/ { $0 = "- Key blockers: Review workstream blockers below and collapse duplicates." }
+      /^- Cross-workstream risks:$/ { $0 = "- Cross-workstream risks: Review failed handoffs and process friction below." }
       /^- Decisions at risk:$/ { $0 = "- Decisions at risk: Fill after reviewing blockers and unresolved dependencies." }
       /^- Escalations for Founder:$/ { $0 = "- Escalations for Founder: Fill only if a blocker truly requires Founder intervention." }
       { print }
@@ -76,10 +76,10 @@ extract_field() {
 reports_tmp=$(mktemp)
 trap 'rm -f "$reports_tmp"' EXIT
 
-find .harness/workspace/departments -path "*/workspace/reports/daily/${date}-*.md" ! -name README.md -type f | sort >"$reports_tmp"
+find .harness/workspace/workstreams -path "*/workspace/reports/daily/${date}-*.md" ! -name README.md -type f | sort >"$reports_tmp"
 
 if [ -s "$reports_tmp" ]; then
-  report_summary="see department snapshots below"
+  report_summary="see workstream snapshots below"
 else
   report_summary="none yet"
 fi
@@ -89,12 +89,12 @@ printf '\n' >>"$target"
 
 if [ -s "$reports_tmp" ]; then
   {
-    printf '## Department Snapshots\n\n'
+    printf '## Workstream Snapshots\n\n'
 
     while IFS= read -r report; do
       [ -n "$report" ] || continue
 
-      department=$(extract_field "$report" "Department")
+      workstream=$(extract_field "$report" "Workstream")
       owner=$(extract_field "$report" "Owner")
       inputs=$(extract_field "$report" "Inputs received")
       outputs=$(extract_field "$report" "Outputs shipped")
@@ -103,7 +103,7 @@ if [ -s "$reports_tmp" ]; then
       friction=$(extract_field "$report" "Process friction observed")
       improvements=$(extract_field "$report" "Suggested improvements")
 
-      [ -n "$department" ] || department="unknown"
+      [ -n "$workstream" ] || workstream="unknown"
       [ -n "$owner" ] || owner="unassigned"
       [ -n "$inputs" ] || inputs="none recorded"
       [ -n "$outputs" ] || outputs="none recorded"
@@ -112,7 +112,7 @@ if [ -s "$reports_tmp" ]; then
       [ -n "$friction" ] || friction="none recorded"
       [ -n "$improvements" ] || improvements="none recorded"
 
-      printf '### %s\n\n' "$department"
+      printf '### %s\n\n' "$workstream"
       printf -- '- Report: %s\n' "$report"
       printf -- '- Owner: %s\n' "$owner"
       printf -- '- Inputs received: %s\n' "$inputs"

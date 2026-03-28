@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 . "$script_dir/lib_state.sh"
 
 usage() {
-  printf 'usage: %s [--json|--record|--id-only|--path-only] [company|founder|department <slug>]\n' "$(default_harness_command "select_work_item.sh")" >&2
+  printf 'usage: %s [--json|--record|--id-only|--path-only] [company|founder]\n' "$(default_harness_command "select_work_item.sh")" >&2
 }
 
 output_mode="summary"
@@ -43,7 +43,6 @@ if [ $# -gt 0 ]; then
   shift
 fi
 
-department=""
 board_path=""
 
 case "$scope" in
@@ -57,22 +56,6 @@ case "$scope" in
   founder)
     if runtime_governance_enabled; then
       board_path="$state_boards_dir/founder.md"
-    else
-      board_path="none"
-    fi
-    ;;
-  department)
-    department="${1:-}"
-    if [ -z "$department" ]; then
-      usage
-      exit 1
-    fi
-    if [ ! -d ".harness/workspace/departments/$department" ]; then
-      echo "unknown department: $department" >&2
-      exit 1
-    fi
-    if runtime_governance_enabled; then
-      board_path=".harness/workspace/departments/$department/workspace/board.md"
     else
       board_path="none"
     fi
@@ -105,15 +88,6 @@ priority_rank() {
     high) printf '20\n' ;;
     medium) printf '30\n' ;;
     low) printf '40\n' ;;
-    *) printf '99\n' ;;
-  esac
-}
-
-participation_rank() {
-  case "$1" in
-    required) printf '10\n' ;;
-    blocked) printf '20\n' ;;
-    optional) printf '30\n' ;;
     *) printf '99\n' ;;
   esac
 }
@@ -194,15 +168,6 @@ selection_reason_for_file() {
     founder)
       :
       ;;
-    department)
-      participation=$(department_participation "$file" "$department" 2>/dev/null || true)
-      if [ "$participation" = "blocked" ]; then
-        reason=$(append_reason "$reason" "department marked blocked")
-      fi
-      if [ -n "$participation" ] && [ "$founder_escalation" = "pending-founder" ]; then
-        reason=$(append_reason "$reason" "awaiting founder decision")
-      fi
-      ;;
   esac
 
   if ! blocked_by_resolved "$blocked_by"; then
@@ -254,21 +219,6 @@ for file in $(list_work_items); do
     founder)
       if [ "$founder_escalation" = "pending-founder" ] || [ "$interrupt_marker" = "founder-review-required" ]; then
         selected=1
-      fi
-      ;;
-    department)
-      participation=$(department_participation "$file" "$department" 2>/dev/null || true)
-      case "$participation" in
-        required|optional|blocked)
-          selected=1
-          scope_rank=$(participation_rank "$participation")
-          ;;
-      esac
-      if [ "$participation" = "blocked" ]; then
-        reason=$(append_reason "$reason" "department marked blocked")
-      fi
-      if [ "$selected" -eq 1 ] && [ "$founder_escalation" = "pending-founder" ]; then
-        reason=$(append_reason "$reason" "awaiting founder decision")
       fi
       ;;
   esac
@@ -431,7 +381,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$scope"),
-  "department": $(json_string_or_null "$department"),
+  "workstream": null,
   "board": $(json_escape "$board_path"),
   "result": $(json_escape "$result"),
   "reason": $(json_escape "$reason"),
@@ -468,7 +418,7 @@ EOF
     record)
       emit_record \
         "$scope" \
-        "$department" \
+        "" \
         "$board_path" \
         "actionable" \
         "actionable" \
@@ -528,7 +478,7 @@ EOF
     record)
       emit_record \
         "$scope" \
-        "$department" \
+        "" \
         "$board_path" \
         "blocked" \
         "no actionable work item" \
@@ -590,7 +540,7 @@ fi
 if [ "$output_mode" = "record" ]; then
   emit_record \
     "$scope" \
-    "$department" \
+    "" \
     "$board_path" \
     "empty" \
     "no open work item matches this scope" \

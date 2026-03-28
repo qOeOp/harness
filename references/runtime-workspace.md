@@ -32,7 +32,7 @@ Out of scope for the default runtime contract:
 1. skill installation path
 2. consumer `AGENTS.md / CLAUDE.md / GEMINI.md`
 3. consumer `.claude/ / .codex/ / .gemini/`
-4. advanced governance role trees such as `.harness/workspace/roles/`
+4. optional cross-task coordination surfaces such as `.harness/workspace/roles/`
 
 ## Canonical task-record tree
 
@@ -73,4 +73,4 @@ Generation and verification:
 This source repository does not own a live `.harness/` tree.
 It only defines the runtime contract that consumer repos may materialize on demand.
 
-Heavier structures such as department workspaces, cadence artifacts, governance reports, or organization role projections belong to `advanced governance mode`, not to the default task runtime.
+Heavier structures such as decision logs, digests, status snapshots, or other cross-task views belong to the optional cross-task layer, not to the default task runtime.

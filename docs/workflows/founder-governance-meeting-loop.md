@@ -12,7 +12,7 @@
 
 1. 公司运行状态
 2. 流程摩擦
-3. 跨部门协作问题
+3. 跨 workstream 协作问题
 4. 治理表面变化
 5. 值得进入试点的治理改进
 
@@ -38,19 +38,19 @@
    - 向 Founder 提出流程优化建议和组织风险
 2. `Chief of Staff`
    - 汇总 company daily digest
-   - 维护跨部门承诺
+   - 维护跨 workstream 承诺
    - 会后负责落地与跟踪
 3. Founder
    - 只拍板需要创始人决定的治理问题
    - 不接管日常执行
 
-### Step 1: Department Daily Reports
+### Step 1: Workstream Daily Reports
 
-每个活跃部门按 cadence 提交日报。
+每个活跃 workstream 按 cadence 提交日报。
 
 ### Step 2: Company Daily Digest
 
-`Chief of Staff` 汇总部门日报，形成公司级运营摘要。
+`Chief of Staff` 汇总 workstream 日报，形成公司级运营摘要。
 
 ### Step 3: Governance Meeting Brief
 
@@ -70,7 +70,7 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 向 Founder 呈现的不是原始日报，而是高密度治理会议包：
 
 1. 公司现在运行得怎样
-2. 哪些部门在卡住彼此
+2. 哪些 workstream 在卡住彼此
 3. 哪些流程该优化
 4. 哪些建议值得进入试点
 5. 哪些问题需要 Founder 拍板
@@ -81,12 +81,12 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 
 - meeting minutes
 - approved improvement directions
-- departments impacted
+- workstreams impacted
 - required improvement plans
 
-### Step 6: Department Improvement Plans
+### Step 6: Workstream Improvement Plans
 
-相关部门 leader 提交本部门改进计划。
+相关 workstream owner 提交本 workstream 改进计划。
 
 模板：
 
@@ -96,10 +96,10 @@ Founder 通过 canonical `meeting-router` skill 进入治理会议。
 
 `Compounding Engineering Lead` review 改进计划。
 
-如果只是本部门局部优化，可以直接进入执行。
+如果只是本 workstream 局部优化，可以直接进入执行。
 如果涉及：
 
-- 跨部门协作协议
+- 跨 workstream 协作协议
 - 公司 ritual
 - 高权限自动化
 - Founder-facing demo gate

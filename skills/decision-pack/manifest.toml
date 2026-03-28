@@ -16,7 +16,7 @@ output_modes = ["summary", "artifact-path"]
 
 allowed_tools = ["read", "write", "shell", "web"]
 read_roots = ["skills/decision-pack/", "docs/workflows/", "references/"]
-write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/workspace/decisions/log/", ".harness/workspace/departments/<department>/workspace/outputs/"]
+write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/workspace/decisions/log/", ".harness/workspace/workstreams/<workstream>/workspace/outputs/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 
 default_artifact_type = "decision-pack"

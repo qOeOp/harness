@@ -41,8 +41,6 @@ header_required = [
   "Objective",
   "Ready criteria",
   "Done criteria",
-  "Required departments",
-  "Participation records",
   "Current stage owner",
   "Current stage role",
   "Next gate",

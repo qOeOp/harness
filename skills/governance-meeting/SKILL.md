@@ -12,7 +12,7 @@ If the runtime has not materialized the required `.harness/workspace/` governanc
 Prepare a governance meeting brief by combining:
 
 - company daily digest
-- department reports
+- workstream reports
 - process audits
 - retro findings
 

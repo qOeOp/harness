@@ -69,6 +69,7 @@ require_file "skills/research/templates/research-brief.md"
 require_file "skills/research/templates/research-memo.md"
 require_file "skills/research/templates/source-note.md"
 require_file "skills/research/templates/evidence-ledger.md"
+require_file "scripts/research/browser_extract.py"
 require_file "docs/workflows/agent-operator-contract.md"
 require_file "docs/workflows/consumer-runtime-routing.md"
 require_file "docs/workflows/task-artifact-routing.md"
@@ -127,13 +128,14 @@ forbidden_path "references/specs/2026-03-27-codex-worktree-convergence-matrix-v1
 
 require_contains "docs/memory/memory-architecture.md" '默认 runtime memory 是 `task-scoped`'
 require_contains "docs/memory/memory-architecture.md" '.harness/tasks/<task-id>/task.md'
-require_contains "docs/memory/memory-architecture.md" 'advanced governance mode'
+require_contains "docs/memory/memory-architecture.md" 'cross-task mode'
 require_contains "docs/memory/memory-architecture.md" 'task.md` 既负责任务真相，也负责恢复协议。'
 require_contains "docs/workflows/agent-operator-contract.md" '在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`'
 require_contains "docs/workflows/agent-operator-contract.md" '在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`'
 require_contains "docs/workflows/task-artifact-routing.md" '`task-local first, governance by explicit promotion`'
 require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md'
 require_contains "skills/research/SKILL.md" 'This bundle owns the `research` capability as one bounded entity.'
+require_contains "skills/research/SKILL.md" '`browser` for JS-rendered or interaction-gated pages'
 require_contains "skills/research/manifest.toml" 'bundle_slug = "research"'
 require_contains "skills/research/manifest.toml" 'operation_modes = ['
 require_contains "skills/decision-pack/manifest.toml" 'bundle_slug = "decision-pack"'
@@ -146,7 +148,7 @@ require_contains "scripts/new_decision.sh" 'skills/decision-pack/templates/decis
 require_contains "scripts/new_checkpoint.sh" 'skills/memory-checkpoint/templates/checkpoint.md'
 require_contains "scripts/new_company_digest.sh" 'skills/daily-digest/templates/company-daily-digest.md'
 require_contains "scripts/new_retro.sh" 'skills/retro/templates/process-audit.md'
-require_contains "scripts/new_retro.sh" 'skills/retro/templates/department-retro.md'
+require_contains "scripts/new_retro.sh" 'skills/retro/templates/workstream-retro.md'
 require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mode'
 require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
@@ -155,6 +157,10 @@ require_contains "skills/governance-meeting/SKILL.md" 'Only use this skill when 
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
+require_contains "skills/research/refs/runtime-contract.md" 'headless Playwright'
+require_contains "skills/research/refs/tool-routing.md" 'headless by default'
+require_contains "skills/research/refs/tool-routing.md" 'dedicated copied profile'
+require_contains "skills/research/refs/runtime-contract.md" 'storage state or a configured browser profile directory'
 require_contains "roles/README.md" '本仓库不再维护 provider-owned generated role mirrors'
 require_contains "roles/README.md" '.harness/workspace/roles/'
 require_contains "roles/README.md" '`runtime-role-manager`'
@@ -172,7 +178,7 @@ require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: sc
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
 require_contains "SKILL.md" 'task-record-runtime-tree-v2.toml'
 require_contains "scripts/new_company_digest.sh" 'require_advanced_governance_runtime_artifact "company daily digest"'
-require_contains "scripts/new_daily_report.sh" 'require_advanced_governance_runtime_artifact "department daily report"'
+require_contains "scripts/new_daily_report.sh" 'require_advanced_governance_runtime_artifact "workstream daily report"'
 require_contains "scripts/new_retro.sh" 'require_advanced_governance_runtime_artifact "retro output"'
 
 if rg -n '/Users/[^/]+/.+/(\\.agents/skills/harness|\\.harness)/|/Users/[^/]+/.+/AGENTS\\.md|/Users/[^/]+/.+/CLAUDE\\.md|/Users/[^/]+/.+/GEMINI\\.md|/Users/[^/]+/.+/(\\.codex|\\.gemini)/' \

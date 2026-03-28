@@ -12,7 +12,7 @@
 
 | 节奏 | Owner | 核心输入 | 核心输出 |
 | --- | --- | --- | --- |
-| 每日 workstream / department 日报 | 各活跃 owner | 当日输入、输出、阻塞、handoff 摩擦 | 日报 |
+| 每日 workstream 日报 | 各活跃 owner | 当日输入、输出、阻塞、handoff 摩擦 | 日报 |
 | 每日 company digest | `General Manager / Chief of Staff` | 各日报 | 公司级运营摘要 |
 | 每周 operating checkpoint | `General Manager / Chief of Staff` | digest、open blockers、跨角色承诺 | 本周运行状态与升级事项 |
 | 每周 process audit | `Compounding Engineering Lead` | retro、checkpoint、Founder feedback | process audit、实验提案、治理会议输入 |
@@ -22,7 +22,7 @@
 
 ## Daily Rituals
 
-每个已 materialize 的 workstream / department 每天至少沉淀一条日报。
+每个已 materialize 的 workstream 每天至少沉淀一条日报。
 
 最小字段：
 
@@ -34,11 +34,11 @@
 
 模板：
 
-- [docs/templates/daily-department-report.md](../templates/daily-department-report.md)
+- [docs/templates/daily-workstream-report.md](../templates/daily-workstream-report.md)
 
 标准落盘位置：
 
-- `.harness/workspace/departments/<department>/workspace/reports/daily/`
+- `.harness/workspace/workstreams/<workstream>/workspace/reports/daily/`
 
 由 `General Manager / Chief of Staff` 汇总各日报，形成公司级运营摘要。
 
@@ -93,7 +93,7 @@ company digest 至少覆盖：
 
 标准落盘位置：
 
-- 部门 retro: `.harness/workspace/departments/<department>/workspace/reports/retros/`
+- workstream retro: `.harness/workspace/workstreams/<workstream>/workspace/reports/retros/`
 - 公司级 process audit: `.harness/workspace/status/process-audits/`
 
 对高风险决策、自动化升级或重复失败相关的复盘，还应额外遵守：

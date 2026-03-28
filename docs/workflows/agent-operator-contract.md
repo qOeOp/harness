@@ -87,7 +87,7 @@
 1. `Freshness`
    - 是否触碰 `volatile-by-default`
 2. `Write scope`
-   - 是否会改动 canonical docs、state、department code、shared append-only memory
+   - 是否会改动 canonical docs、state、workstream-local code、shared append-only memory
 3. `Coupling`
    - 当前任务是否高度依赖即时上下文和连续推理
 4. `Parallelism value`

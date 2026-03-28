@@ -100,7 +100,7 @@ for brief_file in $(find "$briefs_dir" -maxdepth 1 -type f -name '*.md' ! -name 
   fi
 
   if [ "$brief_status" = "archived-redirect" ]; then
-    repo_refs=$(rg -l -F "$brief_rel" README.md docs .harness/workspace/departments 2>/dev/null || true)
+    repo_refs=$(rg -l -F "$brief_rel" README.md docs .harness/workspace/workstreams 2>/dev/null || true)
     retained_repo_refs="none"
 
     if [ -n "$repo_refs" ]; then

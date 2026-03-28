@@ -264,10 +264,6 @@ case "$next_status" in
       echo "cannot transition to ready without Ready criteria" >&2
       exit 1
     fi
-    if ! required_departments_satisfied "$file" "ready"; then
-      echo "cannot transition to ready until all required departments are assigned in Participation records" >&2
-      exit 1
-    fi
     ;;
   done)
     if value_is_missing "$objective"; then
@@ -276,10 +272,6 @@ case "$next_status" in
     fi
     if value_is_missing "$done_criteria"; then
       echo "cannot transition to done without Done criteria" >&2
-      exit 1
-    fi
-    if ! required_departments_satisfied "$file" "done"; then
-      echo "cannot transition to done until all required departments are marked done" >&2
       exit 1
     fi
     if [ "$founder_escalation" = "pending-founder" ]; then

@@ -2,10 +2,10 @@
 
 - Date:
 - Owner:
-- Department reports reviewed:
+- Workstream reports reviewed:
 - Company-wide inputs:
 - Company-wide outputs:
 - Key blockers:
-- Cross-department risks:
+- Cross-workstream risks:
 - Decisions at risk:
 - Escalations for Founder:

@@ -6,7 +6,7 @@
 
 本仓库采用：
 
-`company-level monorepo + department bounded contexts + one-thread-one-worktree`
+`company-level monorepo + workstream bounded contexts + one-thread-one-worktree`
 
 而不是：
 
@@ -17,15 +17,15 @@
 ## 基本规则
 
 1. 一个 thread 对应一个 `git worktree`。
-2. 一个部门线程主写一个部门子树。
+2. 一个 workstream 线程主写一个 workstream 子树。
 3. 公司级 `workspace/` 只允许 append-only 写入。
-4. 跨部门协作通过 artifact handoff，不通过直接修改对方目录。
+4. 跨 workstream 协作通过 artifact handoff，不通过直接修改对方目录。
 
 ## Branch 命名
 
 推荐：
 
-`codex/<department>-<task>`
+`codex/<workstream>-<task>`
 
 例如：
 
@@ -36,7 +36,7 @@
 
 推荐放在仓库外层：
 
-`../harness-worktrees/<department>-<task>`
+`../harness-worktrees/<workstream>-<task>`
 
 原因：
 
@@ -59,11 +59,11 @@
 
 这些只能由治理层或被明确授权的线程修改。
 
-### 部门级
+### Workstream 级
 
-- `.harness/workspace/departments/<department>/`
+- `.harness/workspace/workstreams/<workstream>/`
 
-部门线程默认只写自己的目录。
+workstream 线程默认只写自己的目录。
 
 ### 共享 append-only
 
@@ -75,15 +75,15 @@
 
 这些目录允许多个线程同时新增文件，但不鼓励频繁改同一个已有文件。
 
-## 跨部门流程
+## 跨 Workstream 流程
 
-1. 在自己部门目录完成研究或产出。
+1. 在自己 workstream 目录完成研究或产出。
 2. 输出写成 memo / proposal / handoff note。
 3. 如需进入公司级 memory，则新增一条 append-only entry。
-4. 如需对方部门响应，则在对方部门的 intake 或 handoff 文档中以新文件形式提交。
+4. 如需对方 workstream 响应，则在对方 workstream 的 intake 或 handoff 文档中以新文件形式提交。
 
 ## 禁止事项
 
 1. 不要多个 thread 共享同一 worktree。
-2. 不要部门线程直接重写公司级规范文件。
+2. 不要 workstream 线程直接重写公司级规范文件。
 3. 不要让多个线程并行编辑同一份总表。

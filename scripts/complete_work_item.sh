@@ -6,12 +6,11 @@ script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
 usage() {
-  printf 'usage: %s [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [company|founder|department <slug>]\n' "$(default_harness_command "complete_work_item.sh")" >&2
+  printf 'usage: %s [--json|--path-only] --target-status review|done|killed [--work-item WI-xxxx] [--reason <text>] [--operation-id <id>] [company|founder]\n' "$(default_harness_command "complete_work_item.sh")" >&2
 }
 
 resolve_board_path() {
   scope="$1"
-  department="$2"
 
   if ! runtime_governance_enabled; then
     printf '%s\n' "none"
@@ -24,9 +23,6 @@ resolve_board_path() {
       ;;
     founder)
       printf '%s\n' "$state_boards_dir/founder.md"
-      ;;
-    department)
-      printf '.harness/workspace/departments/%s/workspace/board.md\n' "$department"
       ;;
   esac
 }
@@ -193,7 +189,7 @@ EOF
   cat <<EOF
 {
   "scope": $(json_escape "$selected_scope"),
-  "department": $(json_string_or_null "$selected_department"),
+  "workstream": $(json_string_or_null "$selected_department"),
   "board": $(json_escape "$board_path"),
   "target_status": $(json_escape "$target_status"),
   "result": $(json_escape "$result"),
@@ -268,20 +264,12 @@ case "$target_status" in
 esac
 
 scope="${1:-company}"
-department=""
 if [ $# -gt 0 ]; then
   shift
 fi
 
 case "$scope" in
   company|founder) ;;
-  department)
-    department="${1:-}"
-    if [ -z "$department" ]; then
-      usage
-      exit 1
-    fi
-    ;;
   *)
     usage
     exit 1
@@ -304,9 +292,9 @@ if [ -z "$complete_reason" ]; then
 fi
 
 if [ -n "$explicit_work_item_id" ]; then
-  board_path=$(resolve_board_path "$scope" "$department")
+  board_path=$(resolve_board_path "$scope")
   selected_scope="$scope"
-  selected_department="$department"
+  selected_department=""
   opener_result="actionable"
   opener_action="explicit-target"
   selector_reason="explicit work item target"
@@ -333,7 +321,7 @@ if [ -n "$explicit_work_item_id" ]; then
   blocked_owner=""
   blocked_reason=""
 else
-  if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" ${department:+"$department"} 2>/dev/null); then
+  if opener_output=$("$script_dir/open_work_item.sh" --record "$scope" 2>/dev/null); then
     opener_status=0
   else
     opener_status=$?

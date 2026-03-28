@@ -282,8 +282,6 @@ Objective
 Ready criteria
 Done criteria
 Required artifacts
-Required departments
-Participation records
 Current stage owner
 Current stage role
 Next gate
@@ -866,7 +864,6 @@ EOF
 work_item_matches_scope() {
   file="$1"
   scope="$2"
-  department="${3:-}"
   founder_escalation=$(field_value "$file" "Founder escalation")
   interrupt_marker=$(field_value_or_none "$file" "Interrupt marker")
 
@@ -876,11 +873,6 @@ work_item_matches_scope() {
       ;;
     founder)
       [ "$founder_escalation" = "pending-founder" ] || [ "$interrupt_marker" = "founder-review-required" ]
-      return $?
-      ;;
-    department)
-      [ -n "$department" ] || return 1
-      department_participation "$file" "$department" >/dev/null 2>&1
       return $?
       ;;
     *)
@@ -991,16 +983,9 @@ is_valid_trace_event_type() {
   esac
 }
 
-is_valid_participation() {
-  case "$1" in
-    required|optional|blocked|done|not-involved) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
 is_valid_type() {
   case "$1" in
-    vision|governance|company-init|research|department-task|demo) return 0 ;;
+    vision|governance|company-init|research|demo) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -1018,11 +1003,6 @@ is_valid_board_refresh_target() {
   case "$target" in
     .harness/workspace/state/boards/company.md|.harness/workspace/state/boards/founder.md)
       return 0
-      ;;
-    .harness/workspace/departments/*/workspace/board.md)
-      department=$(printf '%s\n' "$target" | sed 's#^.harness/workspace/departments/##; s#/workspace/board.md$##')
-      [ -n "$department" ] && [ -d ".harness/workspace/departments/$department" ]
-      return $?
       ;;
     *)
       return 1
@@ -1160,11 +1140,11 @@ list_work_items() {
   fi
 }
 
-list_departments() {
-  if [ ! -d ".harness/workspace/departments" ]; then
+list_workstreams() {
+  if [ ! -d ".harness/workspace/workstreams" ]; then
     return 0
   fi
-  find .harness/workspace/departments -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
+  find .harness/workspace/workstreams -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
 }
 
 slug_to_title() {
@@ -1267,31 +1247,6 @@ sanitize_board_cell() {
       printf '%s\n' "$value" | tr '\n' ' ' | sed 's/|/\\|/g; s/[[:space:]][[:space:]]*/ /g; s/^ //; s/ $//'
       ;;
   esac
-}
-
-department_participation() {
-  file="$1"
-  department="$2"
-  records=$(field_value "$file" "Participation records")
-  if [ -z "$records" ] || [ "$records" = "none" ]; then
-    return 1
-  fi
-  printf '%s\n' "$records" | tr ',' '\n' | awk -F= -v department="$department" '
-    {
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $1)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
-      if ($1 == department) {
-        print $2
-        found = 1
-        exit
-      }
-    }
-    END {
-      if (!found) {
-        exit 1
-      }
-    }
-  '
 }
 
 first_linked_artifact_path() {
@@ -1975,39 +1930,6 @@ upsert_task_ref_index_entry() {
   } >"$refs_index"
 
   rm -f "$tmp"
-}
-
-required_departments_satisfied() {
-  file="$1"
-  mode="$2"
-  required_departments=$(field_value "$file" "Required departments")
-
-  if value_is_missing "$required_departments"; then
-    return 0
-  fi
-
-  old_ifs=${IFS- }
-  IFS=','
-  set -- $required_departments
-  IFS=$old_ifs
-
-  for raw_department in "$@"; do
-    department=$(trim "$raw_department")
-    [ -n "$department" ] || continue
-    participation=$(department_participation "$file" "$department" 2>/dev/null || true)
-
-    if [ -z "$participation" ]; then
-      return 1
-    fi
-
-    case "$mode:$participation" in
-      ready:required|ready:done) ;;
-      done:done) ;;
-      *) return 1 ;;
-    esac
-  done
-
-  return 0
 }
 
 required_artifacts_satisfied() {
