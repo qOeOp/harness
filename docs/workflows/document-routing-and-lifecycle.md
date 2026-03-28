@@ -134,13 +134,12 @@ repo-local runtime 只在需要持久化时出现：
 ## Validation
 
 framework source repo：
-
 ```bash
 ./scripts/validate_source_repo.sh
 ./scripts/audit_role_schema.sh
+./scripts/audit_entropy_budget.sh
 ./scripts/run_surface_diagnostic.sh --mode source
 ```
-
 materialized runtime：
 
 ```bash

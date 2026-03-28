@@ -1,0 +1,22 @@
+schema_version = 1
+contract_kind = "active-surface-entropy-budget"
+budget_mode = "freeze-by-default"
+budget_change_requires_explicit_decision = true
+budget_change_artifact = "decision-pack-or-equivalent-reviewed-rationale"
+active_reference_scope = "references/ excluding references/archive/"
+
+max_total_active_files = 236
+max_total_active_lines = 26724
+max_readme_lines = 1201
+max_docs_files = 49
+max_docs_lines = 4335
+max_skills_files = 74
+max_skills_lines = 1432
+max_roles_files = 8
+max_roles_lines = 548
+max_scripts_files = 94
+max_scripts_lines = 17647
+max_active_reference_files = 10
+max_active_reference_lines = 1561
+
+notes = "The source repo active surface is frozen by contract. Growth requires explicit budget change or compensating compaction."

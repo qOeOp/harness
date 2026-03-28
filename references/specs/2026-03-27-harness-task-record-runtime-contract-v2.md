@@ -384,11 +384,11 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 4. 不依赖 persisted board
 
 ## Validation Surface
-
 source repo：
-
 1. [validate_source_repo.sh](/Users/vx/WebstormProjects/harness/scripts/validate_source_repo.sh)
-2. [run_surface_diagnostic.sh](/Users/vx/WebstormProjects/harness/scripts/run_surface_diagnostic.sh)
+2. [audit_role_schema.sh](/Users/vx/WebstormProjects/harness/scripts/audit_role_schema.sh)
+3. [audit_entropy_budget.sh](/Users/vx/WebstormProjects/harness/scripts/audit_entropy_budget.sh)
+4. [run_surface_diagnostic.sh](/Users/vx/WebstormProjects/harness/scripts/run_surface_diagnostic.sh)
 
 materialized runtime：
 

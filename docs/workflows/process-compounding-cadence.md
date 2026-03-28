@@ -54,6 +54,7 @@
 
 - source repo:
   - `./scripts/run_surface_diagnostic.sh --mode source`
+  - `./scripts/audit_entropy_budget.sh`
 - consumer / dogfood repo:
   - `./scripts/run_surface_diagnostic.sh --mode consumer`
 
@@ -61,6 +62,16 @@
 
 - [docs/workflows/surface-audit.md](./surface-audit.md)
 - [skills/os-audit/templates/surface-audit.md](../../skills/os-audit/templates/surface-audit.md)
+
+若 source repo budget breach：
+
+1. 默认进入 `compaction-only mode`
+2. 当周 surface audit 必须先回答
+   哪些 active surface 应被
+   `compress / merge / archive / delete`
+3. 若确实需要提高 budget，
+   必须先有 reviewable rationale，
+   再修改 budget contract
 
 ### Escalation Rule
 
@@ -111,6 +122,7 @@
 1. source repo：
    - `./scripts/validate_source_repo.sh`
    - `./scripts/audit_role_schema.sh`
+   - `./scripts/audit_entropy_budget.sh`
    - `./scripts/run_surface_diagnostic.sh --mode source`
 2. consumer / dogfood repo：
    - `./scripts/audit_document_system.sh`

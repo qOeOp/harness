@@ -87,12 +87,13 @@ esac
 if [ "$mode" = "source" ]; then
   run_check "validate_source_repo" "$script_dir/validate_source_repo.sh"
   run_check "audit_role_schema" "$script_dir/audit_role_schema.sh"
+  run_check "audit_entropy_budget" "$script_dir/audit_entropy_budget.sh"
 
   source_skills=$(find skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
   source_roles=$(find roles -maxdepth 1 -type f -name '*.md' ! -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')
-  source_scripts=$(find scripts -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
+  source_scripts=$(find scripts -type f 2>/dev/null | wc -l | tr -d ' ')
   source_docs=$(find docs -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
-  source_references=$(find references -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  source_references=$(find references -path 'references/archive' -prune -o -type f -print 2>/dev/null | wc -l | tr -d ' ')
   source_workflows=$(find docs/workflows -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
   source_skill_refs=$(find skills -path '*/refs/*' -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
   source_archive_refs=$(find references/archive -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
@@ -117,7 +118,7 @@ $(cat "$check_file")
 - Canonical roles: $source_roles
 - Source scripts: $source_scripts
 - Source docs: $source_docs
-- Source references: $source_references
+- Active source references: $source_references
 
 ## Surface Entropy Snapshot
 
@@ -133,6 +134,7 @@ $(cat "$check_file")
 2. 若要诊断真实安装态，请在 dogfood / consumer repo 运行同一脚本的 consumer 模式。
 3. \`Surface Entropy Snapshot\` 只做暴露，不直接判定好坏；重点看 active surface 是否在增长时同步发生 compress / merge / archive。
 4. 若 OS 结构发生变化，应先更新本脚本，再更新 cadence 或 audit 模板。
+5. 若 \`audit_entropy_budget\` 失败，source repo 默认进入 compaction-only mode；先压缩 active surface，再继续长新 surface。
 EOF
 else
   run_check "validate_workspace" "$script_dir/validate_workspace.sh"

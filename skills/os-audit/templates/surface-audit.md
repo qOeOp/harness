@@ -5,6 +5,9 @@
 - Scope:
 - Surfaces reviewed:
 - Diagnostic command:
+- Budget contract:
+- Budget status:
+- Compaction-only mode:
 - Keep:
 - Compress or merge:
 - Archive or delete:

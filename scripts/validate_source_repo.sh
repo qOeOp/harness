@@ -7,16 +7,13 @@ ok=1
 say() {
   [ "$quiet" = "--quiet" ] || echo "$1"
 }
-
 fail() {
   ok=0
   say "$1"
 }
-
 require_file() {
   [ -e "$1" ] || fail "missing: $1"
 }
-
 require_dir() {
   [ -d "$1" ] || fail "missing directory: $1"
 }
@@ -79,6 +76,7 @@ require_file "references/layering.md"
 require_file "references/runtime-workspace.md"
 require_dir "references/contracts"
 require_file "references/contracts/task-record-runtime-tree-v2.toml"
+require_file "references/contracts/active-surface-entropy-budget-v1.toml"
 require_file "references/top-level-surface.md"
 require_file "references/specs/README.md"
 require_file "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md"
@@ -119,6 +117,7 @@ require_exec "scripts/materialize_runtime_fixture.sh"
 require_exec "scripts/run_surface_diagnostic.sh"
 require_exec "scripts/run_governance_surface_diagnostic.sh"
 require_exec "scripts/run_shared_writeback_surface_diagnostic.sh"
+require_exec "scripts/audit_entropy_budget.sh"
 require_exec "scripts/run_state_validation_slice.sh"
 require_exec "scripts/audit_role_schema.sh"
 require_exec "scripts/new_role.sh"
@@ -318,9 +317,12 @@ require_contains "docs/workflows/founder-meeting-taxonomy.md" '这些 `meeting` 
 require_contains "docs/workflows/founder-intake-evolution-loop.md" '`general-manager`'
 require_contains "docs/workflows/surface-audit.md" '# Surface Audit'
 require_contains "docs/workflows/surface-audit.md" 'run_surface_diagnostic.sh'
+require_contains "docs/workflows/surface-audit.md" 'audit_entropy_budget.sh'
+require_contains "docs/workflows/surface-audit.md" 'compaction-only mode'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" '慢速 human review / approval / feedback'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" 'cheap baseline check'
 require_contains "docs/workflows/document-routing-and-lifecycle.md" '兼容别名保留'
+require_contains "docs/workflows/document-routing-and-lifecycle.md" 'audit_entropy_budget.sh'
 require_contains "docs/workflows/work-item-recovery-protocol.md" '等待 human approval / review / feedback 跨 session 时'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'cheap baseline check'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'checkpoint-relative re-entry'
@@ -375,6 +377,12 @@ require_contains "docs/workflows/volatile-research-default.md" 'skills/research/
 require_contains "docs/workflows/internal-research-routing.md" 'skills/research/templates/research-dispatch.md'
 require_contains "docs/workflows/process-compounding-cadence.md" 'skills/process-audit/templates/process-audit.md'
 require_contains "docs/workflows/process-compounding-cadence.md" 'skills/os-audit/templates/surface-audit.md'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'audit_entropy_budget.sh'
+require_contains "README.md" 'audit_entropy_budget.sh'
+require_contains "README.md" 'active-surface entropy budget'
+require_contains "README.md" 'compaction-only mode'
+require_contains "references/contracts/active-surface-entropy-budget-v1.toml" 'budget_mode = "freeze-by-default"'
+require_contains "references/contracts/active-surface-entropy-budget-v1.toml" 'active_reference_scope = "references/ excluding references/archive/"'
 require_redirect_stub "docs/templates/acceptance-review-brief.md" 'skills/acceptance-review/templates/acceptance-review-brief.md'
 require_redirect_stub "docs/templates/brainstorming-notes.md" 'skills/brainstorming-session/templates/brainstorming-notes.md'
 require_redirect_stub "docs/templates/decision-pack.md" 'skills/decision-pack/templates/decision-pack.md'
@@ -434,6 +442,10 @@ if command -v markdownlint >/dev/null 2>&1; then
   markdownlint README.md >/dev/null 2>&1 || fail "README.md failed markdownlint"
 else
   fail "missing command: markdownlint (required subtractive-governance control)"
+fi
+
+if ! ./scripts/audit_entropy_budget.sh --quiet >/dev/null 2>&1; then
+  fail "entropy budget audit failed"
 fi
 
 require_legacy_redirect_stub "docs/workflows/governance-surface-audit.md" 'docs/workflows/surface-audit.md'

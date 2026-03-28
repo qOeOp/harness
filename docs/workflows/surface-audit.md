@@ -20,6 +20,7 @@ canonical 名称统一收敛到 `surface audit` /
 
 - source repo:
   - `./scripts/run_surface_diagnostic.sh --mode source`
+  - `./scripts/audit_entropy_budget.sh`
 - consumer / dogfood repo:
   - `./scripts/run_surface_diagnostic.sh --mode consumer`
 
@@ -45,6 +46,47 @@ canonical 名称统一收敛到 `surface audit` /
 6. 审计脚本本身也属于 active surface，不能默认永远正确
 7. active surface 是 working set，不是 evidence dump
 8. 同一主题默认只应有一个 active canonical entry
+
+## Entropy Budget Gate
+
+source repo 的 active surface
+除了人工 audit，
+还必须过一层机械 budget gate。
+
+当前默认 contract：
+
+- `references/contracts/active-surface-entropy-budget-v1.toml`
+
+当前默认 gate：
+
+- `./scripts/audit_entropy_budget.sh`
+
+规则：
+
+1. budget 按 active source 计数，
+   默认不把 `references/archive/`
+   计入 source working set
+2. budget breach 不是“提醒”，
+   而是进入 `compaction-only mode`
+3. `compaction-only mode`
+   默认只允许：
+   - `compress`
+   - `merge`
+   - `archive`
+   - `delete`
+   - 必须的 bug fix
+   - 必须的 contract tightening
+   - 把 prose rule 下沉到
+     更硬 control surface
+4. 若要提高 budget，
+   必须显式修改 contract，
+   并附 reviewable rationale；
+   不允许靠连续小提交静默抬高
+5. `run_surface_diagnostic.sh`
+   继续负责暴露热点；
+   `audit_entropy_budget.sh`
+   负责把热点升级成
+   可阻断的 source gate
 
 ## Promotion Matrix
 
@@ -111,6 +153,7 @@ canonical 名称统一收敛到 `surface audit` /
 
 - source repo:
   - `./scripts/run_surface_diagnostic.sh --mode source`
+  - `./scripts/audit_entropy_budget.sh`
 - consumer / dogfood repo:
   - `./scripts/run_surface_diagnostic.sh --mode consumer`
 
@@ -168,3 +211,5 @@ hooks 不能完美证明 agent 做了足够的 web search。
 9. next experiments
 10. survivor failures
 11. active-surface budget hotspots
+12. budget status
+13. whether compaction-only mode is active
