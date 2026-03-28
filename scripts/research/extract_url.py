@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import sys
+
+sys.dont_write_bytecode = True
+
 import argparse
 
 from lib_extract import fetch_url, html_to_markdownish, to_json, truncate_text

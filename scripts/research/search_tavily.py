@@ -7,6 +7,8 @@ import sys
 import urllib.error
 import urllib.request
 
+sys.dont_write_bytecode = True
+
 
 API_URL = "https://api.tavily.com/search"
 

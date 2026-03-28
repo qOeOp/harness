@@ -3,6 +3,8 @@ set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 runtime_dir="$script_dir/research"
+PYTHONDONTWRITEBYTECODE=1
+export PYTHONDONTWRITEBYTECODE
 
 usage() {
   cat <<EOF >&2
@@ -28,16 +30,16 @@ case "$command_name" in
     exec "$runtime_dir/runtime_status.sh" "$@"
     ;;
   search)
-    exec python3 "$runtime_dir/search_tavily.py" "$@"
+    exec python3 -B "$runtime_dir/search_tavily.py" "$@"
     ;;
   extract-url)
-    exec python3 "$runtime_dir/extract_url.py" "$@"
+    exec python3 -B "$runtime_dir/extract_url.py" "$@"
     ;;
   crawl)
-    exec python3 "$runtime_dir/crawl_site.py" "$@"
+    exec python3 -B "$runtime_dir/crawl_site.py" "$@"
     ;;
   ingest-local)
-    exec python3 "$runtime_dir/ingest_local.py" "$@"
+    exec python3 -B "$runtime_dir/ingest_local.py" "$@"
     ;;
   --help|-h|help)
     usage

@@ -4,10 +4,13 @@ import datetime as _dt
 import json
 import re
 import ssl
+import sys
 import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 from typing import Iterable
+
+sys.dont_write_bytecode = True
 
 
 USER_AGENT = "harness-research/0.1 (+https://github.com)"

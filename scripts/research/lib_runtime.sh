@@ -14,7 +14,7 @@ have_python_module() {
 
   have_python3 || return 1
 
-  python3 - "$module_name" <<'PY'
+  PYTHONDONTWRITEBYTECODE=1 python3 -B - "$module_name" <<'PY'
 import importlib.util
 import sys
 
