@@ -32,3 +32,4 @@ Route by information shape, not by habit.
 5. Use scripts for normalization, deduplication, and export when the same cleanup is likely to recur.
 6. Reach for Crawl4AI only when its richer browser/crawl features materially improve the run over the lighter Playwright browser route.
 7. If a site is broad but repetitive, prefer crawl plus ranking over manual browsing.
+8. In a materialized consumer runtime, default research support state should stay inside `.harness/`, not leak into unrelated repo or user-home surfaces unless explicitly configured.

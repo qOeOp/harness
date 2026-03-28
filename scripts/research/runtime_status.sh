@@ -20,11 +20,15 @@ echo "- browser_user_data_dir: $(env_var_state HARNESS_RESEARCH_BROWSER_USER_DAT
 echo "- browser_channel: $(env_var_state HARNESS_RESEARCH_BROWSER_CHANNEL)"
 echo "- browser_local_browser: $(env_var_state HARNESS_RESEARCH_BROWSER_LOCAL_BROWSER)"
 echo "- browser_profile_directory: $(env_var_state HARNESS_RESEARCH_BROWSER_PROFILE_DIRECTORY)"
+echo "- local_browser_home: $(env_var_state HARNESS_RESEARCH_LOCAL_BROWSER_HOME)"
+echo "- browser_snapshot_dir: $(env_var_state HARNESS_RESEARCH_BROWSER_SNAPSHOT_DIR)"
 echo "- http_cache_dir: $(env_var_state HARNESS_RESEARCH_HTTP_CACHE_DIR)"
 echo "- disable_http_cache: $(env_var_state HARNESS_RESEARCH_DISABLE_HTTP_CACHE)"
 echo "- http_retries: $(env_var_state HARNESS_RESEARCH_HTTP_RETRIES)"
 echo "- http_max_retry_after: $(env_var_state HARNESS_RESEARCH_HTTP_MAX_RETRY_AFTER)"
 echo "- searxng_url: $(env_var_state HARNESS_RESEARCH_SEARXNG_URL)"
+echo "- crawl4ai_home: $(env_var_state HARNESS_RESEARCH_CRAWL4AI_HOME)"
+echo "- research_venv_root: $(env_var_state HARNESS_RESEARCH_VENV_ROOT)"
 
 echo
 echo "## Suggested routes"
@@ -55,6 +59,7 @@ if have_python_module crawl4ai; then
 else
   echo "- crawl4ai: unavailable until Python crawl4ai is installed"
 fi
+echo "- crawl4ai-isolated: in a materialized consumer runtime, defaults support state to .harness/runtime/research/"
 
 if have_cmd markitdown || have_python_module markitdown; then
   echo "- ingest-local: markitdown available for rich document formats"

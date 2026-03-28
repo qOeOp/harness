@@ -34,6 +34,15 @@ Out of scope for the default runtime contract:
 3. consumer `.claude/ / .codex/ / .gemini/`
 4. company / workstream trees, boards, digests, or founder queues
 
+Implementation-owned support state may still live under `.harness/` when needed.
+
+Recommended non-canonical support root:
+
+1. `.harness/runtime/`
+   - caches, tool homes, isolated adapter environments, and other operational support state
+   - not canonical task truth
+   - not a default reading surface for normal task recovery
+
 ## Canonical task-record tree
 
 ```text
@@ -41,6 +50,7 @@ Out of scope for the default runtime contract:
   manifest.toml
   entrypoint.md
   README.md
+  runtime/
   tasks/
     <task-id>/
       task.md

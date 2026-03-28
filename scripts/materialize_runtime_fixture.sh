@@ -89,6 +89,8 @@ write_file "$target/.harness/README.md" <<EOF
 - Contract: \`$contract_path\`
 - Purpose: consumer sandbox fixture for validation and smoke-chain execution
 - Harness-owned surface: \`.harness/\`
+- Optional support root: \`.harness/runtime/\` for tool-owned caches and isolated runtime support state
+- Canonical task truth: \`.harness/tasks/<task-id>/task.md\`
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF
 

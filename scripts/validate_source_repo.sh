@@ -81,8 +81,10 @@ require_file "scripts/research/browser_extract.py"
 require_file "scripts/research/crawl4ai_extract.py"
 require_file "scripts/research/lib_extract.py"
 require_file "scripts/research/lib_local_browser.py"
+require_file "scripts/research/lib_runtime_paths.py"
 require_file "scripts/research/lib_search.py"
 require_file "scripts/research/local_browser_profiles.py"
+require_file "scripts/research/run_crawl4ai_isolated.sh"
 require_file "scripts/research/search_auto.py"
 require_file "docs/workflows/agent-operator-contract.md"
 require_file "docs/workflows/consumer-runtime-routing.md"
@@ -103,6 +105,7 @@ require_exec "scripts/resolve_consumer_runtime_root.sh"
 require_exec "scripts/new_role_change_proposal.sh"
 require_exec "scripts/runtime_role_manager.sh"
 require_exec "scripts/research_ctl.sh"
+require_exec "scripts/research/run_crawl4ai_isolated.sh"
 require_exec "skills/research/scripts/new_dispatch.sh"
 require_exec "skills/research/scripts/new_brief.sh"
 require_exec "skills/research/scripts/new_memo.sh"
@@ -184,6 +187,12 @@ require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
 require_contains "skills/research/refs/runtime-contract.md" 'configured SearXNG instance'
 require_contains "skills/research/refs/runtime-contract.md" 'optional heavy-duty headless crawler'
+require_contains "skills/research/refs/runtime-contract.md" '.harness/runtime/research/'
+require_contains "references/runtime-workspace.md" '.harness/runtime/'
+require_contains "docs/project-structure.md" '.harness/runtime/'
+require_contains "skills/research/manifest.toml" '.harness/runtime/research/'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" '.harness/runtime'
+require_contains "references/contracts/capability-bundle-manifest-v1.toml" 'runtime_local_support_roots_may_be_explicit = true'
 require_contains "roles/README.md" '本仓库不再维护 provider-owned generated role mirrors'
 require_contains "roles/README.md" '.harness/workspace/roles/'
 require_contains "roles/README.md" '`runtime-role-manager`'

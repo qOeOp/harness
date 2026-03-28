@@ -67,6 +67,11 @@
   - 受控状态写入时的运行时锁
 - `manifest.toml`
   - repo-local runtime metadata
+- `runtime/`
+  - 按需出现的 tool-owned support root
+  - 用于 cache、isolated env、browser snapshot 等 operational support state
+  - 推荐路径是 `.harness/runtime/`
+  - 不属于 canonical task truth，也不是默认恢复读取面
 
 source repo 不保留 live `.harness/`。
 

@@ -14,6 +14,11 @@ generated_files = [
   ".harness/manifest.toml",
 ]
 
+optional_support_paths = [
+  ".harness/runtime",
+  ".harness/runtime/<tool>",
+]
+
 lazily_created_paths = [
   ".harness/tasks/<task-id>",
   ".harness/tasks/<task-id>/task.md",
@@ -101,3 +106,4 @@ task_truth = "task.md is the only task source of truth in v2 core"
 archive_semantics = "archived is represented by task status plus Archived at"
 attachment_routing = "task-local materials live under attachments/ and are linked from task.md"
 recovery_model = "Recovery lives inside task.md as part of the task record"
+runtime_support_boundary = ".harness/runtime is reserved for non-canonical tool-owned support state when needed"

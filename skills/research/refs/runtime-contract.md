@@ -37,3 +37,4 @@ The research runtime exposes one primary control surface:
 6. For authenticated browser runs, prefer storage state or a dedicated copied profile; reusing a live personal profile directly can be brittle.
 7. When borrowing local browser state, copy only the selected browser profile into a temporary working directory and discard it after the run.
 8. Prefer polite HTTP behavior by default: conditional requests, bounded retry/backoff, and local validator reuse should come before more aggressive collection tactics.
+9. In a materialized consumer runtime, research-owned support state should default under `.harness/runtime/research/` unless an explicit operator override is provided.

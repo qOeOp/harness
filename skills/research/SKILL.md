@@ -67,6 +67,7 @@ Only promote to `.harness/workspace/*` when shared writeback is explicitly enabl
 5. `raw capture` is not a default formal artifact.
    - Keep raw material only when it is hard to reproduce, highly volatile, or needed for audit.
    - Prefer task-local `working/` or another non-canonical cache surface over formal attachment routing.
+   - In a materialized consumer runtime, prefer `.harness/runtime/research/` for tool-owned support state and caches.
 
 ## Preferred Assets
 

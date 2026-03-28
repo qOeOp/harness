@@ -18,6 +18,7 @@ commands:
   crawl <seed-url> [--max-pages N] [--max-depth N] [--format markdown|json] [--insecure]
   browser <url> [--format markdown|json] [--max-chars N] [--wait-until load|domcontentloaded|networkidle] [--storage-state path | --user-data-dir dir | --local-browser chrome|edge|chromium]
   crawl4ai <url> [--format markdown|json] [--max-chars N] [--wait-for cond] [--user-data-dir dir | --local-browser chrome|edge|chromium]
+  crawl4ai-isolated <url> [crawl4ai args...]
   ingest-local <path> [--format markdown|json] [--max-chars N]
 EOF
   exit 1
@@ -49,6 +50,9 @@ case "$command_name" in
     ;;
   crawl4ai)
     exec python3 -B "$runtime_dir/crawl4ai_extract.py" "$@"
+    ;;
+  crawl4ai-isolated)
+    exec "$runtime_dir/run_crawl4ai_isolated.sh" "$@"
     ;;
   ingest-local)
     exec python3 -B "$runtime_dir/ingest_local.py" "$@"

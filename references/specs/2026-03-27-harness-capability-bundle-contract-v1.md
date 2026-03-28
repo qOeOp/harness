@@ -267,6 +267,13 @@ capability bundle 不拥有长期状态。
 
 bundle 只能声明默认写入根，不能私自扩张 write roots。
 
+补充边界：
+
+1. 若 bundle 运行需要 cache、tool home、isolated adapter env 一类 operational support state，
+   可以把 `.harness/runtime/*` 作为显式 write root
+2. 这类 support root 不是 canonical task truth，也不是默认 artifact path
+3. `default_artifact_path` 仍应指向 task-local artifact 或显式允许的共享写回面
+
 ## Example Manifest
 
 ```toml
@@ -285,7 +292,7 @@ entrypoints = ["chat", "work-item"]
 activation_modes = ["explicit", "router"]
 allowed_tools = ["read", "write", "shell", "web"]
 read_roots = ["skills/research/", "references/"]
-write_roots = [".harness/tasks/<task-id>/attachments/"]
+write_roots = [".harness/tasks/<task-id>/attachments/", ".harness/runtime/research/"]
 forbidden_roots = ["roles/", ".harness/workspace/roles/"]
 output_modes = ["artifact-path", "summary"]
 default_artifact_type = "research-dispatch"

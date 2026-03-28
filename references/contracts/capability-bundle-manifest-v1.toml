@@ -114,6 +114,8 @@ required = [
 tool_names_are_provider_neutral = true
 write_roots_must_be_explicit = true
 forbidden_roots_take_precedence = true
+runtime_local_support_roots_may_be_explicit = true
+runtime_local_support_roots_must_stay_under_harness_runtime = true
 
 [artifacts]
 required = [
@@ -127,6 +129,7 @@ recommended_task_local_paths = [
 ]
 
 governance_paths_require_explicit_promotion = true
+default_artifact_path_must_not_point_to_runtime_support_state = true
 
 [loading]
 required = [

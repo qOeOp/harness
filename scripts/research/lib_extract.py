@@ -16,6 +16,8 @@ import urllib.request
 from html.parser import HTMLParser
 from typing import Iterable
 
+from lib_runtime_paths import default_research_support_dir
+
 sys.dont_write_bytecode = True
 
 
@@ -54,6 +56,10 @@ def cache_root() -> pathlib.Path | None:
     configured = os.environ.get("HARNESS_RESEARCH_HTTP_CACHE_DIR", "").strip()
     if configured:
         return pathlib.Path(configured).expanduser()
+
+    runtime_default = default_research_support_dir("http-cache")
+    if runtime_default is not None:
+        return runtime_default
 
     xdg_cache_home = os.environ.get("XDG_CACHE_HOME", "").strip()
     if xdg_cache_home:

@@ -23,6 +23,7 @@ read_roots = [
 ]
 write_roots = [
   ".harness/tasks/<task-id>/attachments/",
+  ".harness/runtime/research/",
   ".harness/workspace/research/dispatches/",
   ".harness/workspace/briefs/",
 ]
