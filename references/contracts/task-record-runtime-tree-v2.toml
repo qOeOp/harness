@@ -132,6 +132,20 @@ provider_background_or_pollable_modes_may_require_provider_stored_state = true
 provider_transport_state_may_carry_retention_or_zdr_constraints = true
 provider_stored_state_is_not_zero_retention_truth = true
 
+[prompt_shape]
+runtime_config_surface_is_distinct_from_task_truth = true
+exact_prefix_stability_is_runtime_discipline = true
+task_delta_and_tool_observations_append_at_tail = true
+mid_run_config_change_requires_explicit_transition = true
+prefix_breaking_changes = [
+  "model-snapshot",
+  "tool-set",
+  "tool-order",
+  "sandbox-config",
+  "approval-mode",
+  "cwd",
+]
+
 [persisted_context]
 serialized_context_requires_explicit_version = true
 serialized_context_cross_version_policy = "migrate-or-fail-closed"
@@ -200,6 +214,9 @@ interrupt_resume_model = "resume is checkpoint-relative re-entry rather than ins
 async_wakeup_model = "cross-run wakeups assume at-least-once delivery and require dedupe or idempotency"
 source_provenance = "tool, approval, evidence, and framework-origin metadata should remain explicit across display projections"
 transport_state_boundary = "provider and SDK continuation handles preserve transport continuity, not instruction continuity"
+prompt_shape_boundary = "static instructions, examples, tool descriptors, image descriptors, and sandbox/cwd/approval metadata form a runtime config surface distinct from task truth"
+prompt_shape_stability = "long-running sessions should keep the exact prefix stable and append new task delta or tool observations at the tail"
+prefix_breaking_change_model = "changes to model, tool set/order, sandbox, approval mode, or cwd should be treated as explicit transitions rather than silent drift"
 persisted_context_boundary = "serialized app, agent, or session context is persisted data, must be versioned, and should not store raw secrets"
 provider_stored_state_boundary = "provider-side stored state used by background or pollable transport remains transport state and may carry retention or ZDR limits"
 subagent_memory_boundary = "auto-injected subagent or project memory is instruction surface plus persisted data plus capability grant, not canonical task truth"

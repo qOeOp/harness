@@ -81,6 +81,7 @@ require_dir "references/contracts"
 require_file "references/contracts/task-record-runtime-tree-v2.toml"
 require_file "references/top-level-surface.md"
 require_file "references/specs/README.md"
+require_file "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md"
 require_file "docs/organization/decision-rights.md"
 require_file "roles/README.md"
 require_file "roles/runtime-role-manager.md"
@@ -194,6 +195,8 @@ require_contains "docs/memory/memory-architecture.md" 'capture / redaction / dis
 require_contains "README.md" 'control surfaces'
 require_contains "docs/workflows/agent-operator-contract.md" '在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`'
 require_contains "docs/workflows/agent-operator-contract.md" '在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`'
+require_contains "docs/workflows/agent-operator-contract.md" '`prompt shape / runtime config surface`'
+require_contains "docs/workflows/agent-operator-contract.md" 'exact-prefix 稳定'
 require_contains "docs/workflows/task-artifact-routing.md" '`task-local first, shared writeback by explicit promotion`'
 require_contains "docs/workflows/task-artifact-routing.md" '.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md'
 require_contains "skills/research/SKILL.md" 'This bundle owns the `research` capability as one bounded entity.'
@@ -214,7 +217,10 @@ require_contains "roles/general-manager.md" '`research` bundle 的 `dispatch` mo
 require_contains "skills/meeting-router/SKILL.md" '`research` bundle `dispatch` requirements'
 require_contains "skills/decision-pack/SKILL.md" '.harness/tasks/<task-id>/attachments/'
 require_contains "skills/acceptance-review/SKILL.md" 'Acceptance Ledger'
+require_contains "docs/workflows/provider-deltas/codex.md" 'prompt shape stability'
+require_contains "docs/workflows/provider-deltas/codex.md" 'tool 集合或枚举顺序'
 require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成、不修改这些文件'
+require_contains "docs/workflows/provider-deltas/gemini.md" 'Projection Config Changes Are Explicit Boundaries'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
 require_contains "skills/research/refs/runtime-contract.md" 'configured SearXNG instance'
@@ -234,6 +240,8 @@ require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'durabl
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'slow_human_gates_require_pause_resume = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'resume_is_checkpoint_relative_reentry = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'async_delivery_model = "at-least-once"'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'exact_prefix_stability_is_runtime_discipline = true'
+require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'mid_run_config_change_requires_explicit_transition = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'source_provenance_must_survive_display_projection = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'required_metadata_files = ['
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'stale_reclaim_policy = "expired-lease-or-dead-pid"'
@@ -258,6 +266,8 @@ require_contains "roles/compounding-engineering-lead.md" 'regression sample'
 require_contains "docs/workflows/consumer-runtime-routing.md" 'consumer runtime route table'
 require_contains "docs/workflows/consumer-runtime-routing.md" '$HOME/.harness/consumer-runtime-routes.tsv'
 require_contains "docs/workflows/consumer-runtime-routing.md" '`--consumer-runtime <name>`'
+require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'Prompt Shape / Runtime Config Boundary'
+require_contains "docs/memory/memory-architecture.md" 'prompt shape / runtime config surface'
 require_contains "docs/workflows/post-acceptance-compounding-loop.md" 'completion candidate -> acceptance -> compounding review -> role change proposal -> runtime-role-manager execution'
 require_contains "docs/workflows/task-artifact-routing.md" 'role-change-proposal.md'
 require_contains "docs/workflows/task-artifact-routing.md" 'Acceptance Ledger'

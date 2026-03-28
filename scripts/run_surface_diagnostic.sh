@@ -167,7 +167,7 @@ EOF
   archived_tasks=$(awk "BEGIN { print $all_tasks - $active_tasks }")
   recovery_backed_tasks=$(find .harness/tasks -mindepth 2 -maxdepth 2 -type f -name 'task.md' -exec grep -l '^## Recovery$' {} \; 2>/dev/null | wc -l | tr -d ' ')
   transition_events=$(find .harness/tasks -path '*/history/transitions/TX-*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
-  governance_dirs=$(find .harness/workspace -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+  shared_workspace_dirs=$(find .harness/workspace -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
 
   cat >"$report_file" <<EOF
 # Surface Diagnostic
@@ -187,7 +187,7 @@ $(cat "$check_file")
 - Archived-status tasks: $archived_tasks
 - Task records with Recovery: $recovery_backed_tasks
 - Transition events: $transition_events
-- Shared workspace directories: $governance_dirs
+- Shared workspace directories: $shared_workspace_dirs
 
 ## Brief Layer Snapshot
 

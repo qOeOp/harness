@@ -4,7 +4,7 @@
 
 ## 目的
 
-定义 `harness` 在 v2 task-record runtime 下的记忆分层，避免把 task truth、恢复协议、治理投影和 source repo 文档混成一套叙事。
+定义 `harness` 在 v2 task-record runtime 下的记忆分层，避免把 task truth、恢复协议、prompt-shape 配置、治理投影和 source repo 文档混成一套叙事。
 
 ## 核心原则
 
@@ -18,6 +18,11 @@
    同时属于 instruction surface、
    persisted data 与 capability grant，
    不是 canonical task truth。
+8. static instructions、tool descriptors、
+   sandbox / cwd / approval metadata
+   构成 prompt shape / runtime config surface；
+   它不是 task truth，
+   但长任务里要尽量保持 exact-prefix 稳定。
 
 ## Layer 0: Source Repo Constitution
 
@@ -99,6 +104,17 @@
 3. serialized app / agent / session context、subagent memory directory、project memory 一旦会持久化或自动注入 prompt，就按 persisted data 治理，并带显式 scope、retention、schema / format version 与审计边界。
 4. 若这些 memory surface 会隐式放宽工具能力或改变默认行为，它们还应同时视为 capability grant 与 instruction surface。
 5. 真正影响 acceptance、恢复入口或外部承诺的 durable fact，仍必须回落到 `task.md`、task-local artifact 或 transition history。
+6. static prefix、examples、tool descriptors、
+   image descriptors、sandbox / cwd / approval metadata
+   组成 prompt shape / runtime config surface；
+   新的 task delta 与 tool observation
+   默认追加在尾部，
+   不静默回写前缀。
+7. mid-run 改 model、tool 集合或枚举顺序、
+   sandbox config、approval mode、cwd
+   这类会破坏前缀稳定性的动作，
+   默认应视为显式 boundary /
+   transition，而不是隐式记忆延续。
 
 ## Layer 4: Task-Scoped Evidence And Trace
 

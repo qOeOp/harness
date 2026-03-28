@@ -284,6 +284,34 @@ provider / SDK continuation handle
    `attachments/` 或
    `history/transitions/`
 
+## Prompt Shape / Runtime Config Boundary
+
+prompt shape / runtime config surface
+不是 canonical task truth，
+但它决定长任务里的 cache、
+compaction 与行为稳定性。
+
+默认要求：
+
+1. static instructions、examples、
+   tool descriptors、image descriptors、
+   sandbox / cwd / approval metadata
+   一起构成 prompt shape / runtime config surface
+2. 长回合里应尽量保持 exact-prefix 稳定，
+   不把 prompt shape stability
+   误当成纯成本优化
+3. 新的 task delta、tool observation
+   与最新 user intent
+   默认追加在尾部，
+   不静默回写前缀
+4. mid-run 动态切换 model snapshot、
+   改 tool 集合或枚举顺序、
+   变更 sandbox config、
+   approval mode、cwd
+   或其他会破坏前缀稳定性的配置，
+   默认应视为显式 boundary /
+   transition，而不是静默漂移
+
 ## Budget / Termination Model
 
 bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。

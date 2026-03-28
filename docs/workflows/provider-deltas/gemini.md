@@ -1,6 +1,6 @@
 # Gemini Delta
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -42,7 +42,28 @@ Gemini 官方 workspace skill 发现支持：
 这些都属于 provider 自己的发现机制，不属于 harness runtime contract。
 因此当前仓库不生成、也不要求任何 Gemini skill mirror。
 
-### 3. Custom Subagents Are Experimental
+### 3. Projection Config Changes Are Explicit Boundaries
+
+Gemini 的 `GEMINI.md` 层级上下文
+与 `.gemini/settings.json` 配置
+都属于 projection / runtime config surface，
+不是 task truth。
+
+默认要求：
+
+1. 若 mid-run 改 `context.fileName`、
+   开关 experimental agents、
+   或调整其他会改变上下文前缀的 adapter 设置，
+   应视为显式 boundary，
+   不是静默漂移
+2. 新的 task delta、recovery 信息
+   仍应回落到 canonical task surface，
+   不要指望 provider projection
+   代替 `task.md`
+3. 不要把 `GEMINI.md` 变成
+   第二套会随会话临时漂移的 repo 宪法
+
+### 4. Custom Subagents Are Experimental
 
 截至 `2026-03-24`，Gemini custom subagents 仍是 experimental。
 
@@ -60,7 +81,7 @@ Gemini 官方 workspace skill 发现支持：
 2. Gemini custom subagents 仍是 experimental
 3. 为了表面对称而复制 11 个 provider mirror，只会重新引入 drift surface
 
-### 4. Agent Semantics Stay In `roles/`
+### 5. Agent Semantics Stay In `roles/`
 
 Gemini 侧当前只有：
 
@@ -70,7 +91,7 @@ Gemini 侧当前只有：
 
 这些语义都落在 `roles/` 和 canonical docs，不落在 Gemini-specific repo mirrors。
 
-### 5. Missing Gemini Agent Adapter Should Produce Honest Output
+### 6. Missing Gemini Agent Adapter Should Produce Honest Output
 
 如果某个建议需要 Gemini custom subagents 才成立，正确做法是：
 
