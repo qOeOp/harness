@@ -45,6 +45,16 @@
 3. 默认 query 直接从 `task.md` header 派生
 4. board 不属于默认 runtime contract
 
+## Runtime Support State Boundary
+
+`.harness/runtime/` 允许承载 tool-owned support state，但它不是 canonical task truth。
+
+补充规则：
+
+1. 若 support state 会 durable 到进程外、跨 session 或跨重启恢复，必须带显式 schema / format version
+2. 跨代码版本恢复这类 state 时，默认要 migrate 或 fail closed
+3. raw checkpoint internals、serialized agent state、provider-owned blobs 不能直接晋升为 task truth
+
 ## Canonical Task Record
 
 ### Required Header Fields
@@ -137,6 +147,16 @@ task record 同时承载状态与路由。
 2. `Current stage role`
 3. `Next gate`
 4. `Founder escalation`
+
+## Slow Human Gate Model
+
+慢速 human approval / review / feedback 不应被建模成隐藏的 in-flight waiting state。
+
+默认处理方式：
+
+1. 若等待会跨 session 或超出当前 run，自任务主状态切到 `paused`
+2. 用 `Interrupt marker` 与 `Resume target` 表达暂停语义，而不是只写自由文本 blocker
+3. 人审完成后通过正式 resume transition 恢复，而不是假设原 run 会继续挂起等待
 
 ## Attachment Routing
 

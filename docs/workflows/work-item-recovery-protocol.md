@@ -22,6 +22,7 @@
    - 当前在做什么
    - 下一条命令是什么
    - 从哪里继续
+6. 等待 human approval / review / feedback 跨 session 时，先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
 
 ## 存储规则
 
@@ -46,6 +47,7 @@ Recovery 至少记录：
 2. 当前会话准备结束、但任务仍处于 `in-progress` 或 `paused` 时，应刷新 Recovery
 3. 当前 focus 或下一条命令已变化时，应刷新 Recovery
 4. opener / starter 若显示 `Recovery sync state: missing`，应先补 Recovery 再继续
+5. 任务因 Founder / manual / risk review 进入 `paused` 后，应把 resume 命令和恢复条件刷进 `## Recovery`
 
 ## 推荐操作
 

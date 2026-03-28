@@ -213,6 +213,8 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 3. `upsert_work_item_recovery.sh`
 4. `update_work_item_fields.sh`
 5. provider execution handle 只作为 recovery / trace correlation 的辅助字段，不作为状态机真相
+6. 慢速 human review / approval / feedback 默认转成 `paused + interrupt metadata + formal resume transition`，不把任务留在隐藏等待态里
+7. durable checkpoint 或 serialized runtime support state 默认必须带显式 schema / format version，跨代码版本恢复要 migrate 或 fail closed
 
 不要：
 

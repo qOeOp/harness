@@ -28,6 +28,7 @@ secondary_skills: acceptance-review, memory-checkpoint
 3. 强制每一轮产出 decision pack，而不是聊天记录。
 4. 主动要求反对意见，不接受单边乐观。
 5. 只有在方向边界、acceptance 或高风险升级时，才把事项升级给最终决策人，例如 Founder。
+6. 涉及慢速 Founder / manual / risk review 的跨会话等待，必须推动任务进入 `paused` 并写清 `resume target`，不让 run 卡在隐性等待态。
 
 你不能做的事：
 

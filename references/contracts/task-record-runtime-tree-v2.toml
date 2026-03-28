@@ -25,6 +25,11 @@ lazily_created_paths = [
   ".harness/tasks/<task-id>/attachments",
 ]
 
+[runtime_support]
+root = ".harness/runtime"
+durable_state_requires_explicit_version = true
+cross_version_resume_policy = "migrate-or-fail-closed"
+
 [task_record]
 header_required = [
   "Schema version",
@@ -94,6 +99,10 @@ recommended_sections = [
   "Notes",
 ]
 
+[interrupts]
+slow_human_gates_require_pause_resume = true
+paused_status_carries_interrupt_metadata = true
+
 [query_surface]
 persisted_boards = false
 shell_generated_views = true
@@ -107,3 +116,6 @@ archive_semantics = "archived is represented by task status plus Archived at"
 attachment_routing = "task-local materials live under attachments/ and are linked from task.md"
 recovery_model = "Recovery lives inside task.md as part of the task record"
 runtime_support_boundary = ".harness/runtime is reserved for non-canonical tool-owned support state when needed"
+runtime_support_versioning = "durable runtime support state must carry explicit schema or format version"
+cross_version_restore_policy = "runtime support state must migrate or fail closed across code versions"
+slow_human_gate_model = "slow human review, approval, or feedback uses paused plus resume rather than hidden in-flight waiting"

@@ -90,6 +90,8 @@ write_file "$target/.harness/README.md" <<EOF
 - Purpose: consumer sandbox fixture for validation and smoke-chain execution
 - Harness-owned surface: \`.harness/\`
 - Optional support root: \`.harness/runtime/\` for tool-owned caches and isolated runtime support state
+- Durable support state under \`.harness/runtime/\` must carry explicit schema / format version
+- Cross-version restore of runtime support state must migrate or fail closed
 - Canonical task truth: \`.harness/tasks/<task-id>/task.md\`
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF
@@ -108,6 +110,7 @@ Runtime notes:
 - Mode: minimum-core
 - Task truth lives under \`.harness/tasks/<task-id>/\`
 - Recovery lives inside each task record
+- Slow human approval / review should pause the task and resume later, not hide in session wait state
 - Harness does not manage consumer root/provider entry files or skill install location
 EOF
 

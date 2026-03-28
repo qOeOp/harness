@@ -42,6 +42,8 @@ Recommended non-canonical support root:
    - caches, tool homes, isolated adapter environments, and other operational support state
    - not canonical task truth
    - not a default reading surface for normal task recovery
+   - any durable serialized state there must carry explicit schema / format version
+   - cross-version restore must migrate or fail closed
 
 ## Canonical task-record tree
 
@@ -68,6 +70,7 @@ Recommended non-canonical support root:
 3. task-local decision / research / review / source-note 默认进入 `attachments/`
 4. `archived` 通过状态字段表达，不再默认要求物理 `archive/`
 5. board、digest、org chart 不属于默认 runtime tree
+6. slow human approval / review / feedback 默认应 materialize 为 `paused` + resume transition，而不是隐藏的 waiting state
 
 Machine-readable contract:
 
