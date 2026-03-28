@@ -17,6 +17,8 @@ work_item_schema_version="2"
 work_item_state_authority="script-only"
 runtime_manifest_schema_version="1"
 default_runtime_mode="minimum-core"
+default_lock_lease_seconds="120"
+default_claim_lease_hours="4"
 
 ensure_runtime_manifest() {
   manifest_dir=$(dirname "$runtime_manifest_path")
@@ -100,6 +102,87 @@ now_iso_timestamp() {
   date '+%Y-%m-%dT%H:%M:%S%z'
 }
 
+date_add_seconds_iso() {
+  seconds="$1"
+
+  if date -v+"${seconds}"S '+%Y-%m-%dT%H:%M:%S%z' >/dev/null 2>&1; then
+    date -v+"${seconds}"S '+%Y-%m-%dT%H:%M:%S%z'
+    return 0
+  fi
+
+  if date -d "+${seconds} seconds" '+%Y-%m-%dT%H:%M:%S%z' >/dev/null 2>&1; then
+    date -d "+${seconds} seconds" '+%Y-%m-%dT%H:%M:%S%z'
+    return 0
+  fi
+
+  echo "date command does not support second offsets on this platform" >&2
+  return 1
+}
+
+date_add_hours_iso() {
+  hours="$1"
+
+  if date -v+"${hours}"H '+%Y-%m-%dT%H:%M:%S%z' >/dev/null 2>&1; then
+    date -v+"${hours}"H '+%Y-%m-%dT%H:%M:%S%z'
+    return 0
+  fi
+
+  if date -d "+${hours} hours" '+%Y-%m-%dT%H:%M:%S%z' >/dev/null 2>&1; then
+    date -d "+${hours} hours" '+%Y-%m-%dT%H:%M:%S%z'
+    return 0
+  fi
+
+  echo "date command does not support hour offsets on this platform" >&2
+  return 1
+}
+
+lock_owner_identity() {
+  if ! value_is_missing "${STATE_ACTOR:-none}"; then
+    printf '%s\n' "${STATE_ACTOR}"
+    return 0
+  fi
+
+  if ! value_is_missing "${STATE_INVOKER:-none}"; then
+    printf '%s\n' "${STATE_INVOKER}"
+    return 0
+  fi
+
+  printf '%s\n' "unknown"
+}
+
+default_lock_expiry_timestamp() {
+  lock_lease_seconds="${HARNESS_LOCK_LEASE_SECONDS:-$default_lock_lease_seconds}"
+
+  if ! is_nonnegative_integer "$lock_lease_seconds"; then
+    echo "invalid HARNESS_LOCK_LEASE_SECONDS: $lock_lease_seconds" >&2
+    return 1
+  fi
+
+  date_add_seconds_iso "$lock_lease_seconds"
+}
+
+default_claim_expiry_timestamp() {
+  claim_lease_hours="${HARNESS_CLAIM_LEASE_HOURS:-$default_claim_lease_hours}"
+
+  if ! is_nonnegative_integer "$claim_lease_hours"; then
+    echo "invalid HARNESS_CLAIM_LEASE_HOURS: $claim_lease_hours" >&2
+    return 1
+  fi
+
+  date_add_hours_iso "$claim_lease_hours"
+}
+
+iso_timestamp_after() {
+  left="$1"
+  right="$2"
+
+  if value_is_missing "$left" || value_is_missing "$right"; then
+    return 1
+  fi
+
+  [ "$left" \> "$right" ]
+}
+
 linked_attachments_field_label() {
   printf '%s\n' "Linked attachments"
 }
@@ -142,6 +225,10 @@ release_registered_locks() {
     lock_name=$(trim "$lock_name")
     [ -n "$lock_name" ] || continue
     lock_path="$state_locks_dir/$lock_name.lock"
+    rm -f "$lock_path/lease_id" >/dev/null 2>&1 || true
+    rm -f "$lock_path/lease_expires_at" >/dev/null 2>&1 || true
+    rm -f "$lock_path/claimed_at" >/dev/null 2>&1 || true
+    rm -f "$lock_path/owner" >/dev/null 2>&1 || true
     rm -f "$lock_path/pid" >/dev/null 2>&1 || true
     rmdir "$lock_path" >/dev/null 2>&1 || true
   done
@@ -180,10 +267,27 @@ acquire_named_lock() {
 
   while ! mkdir "$lock_path" 2>/dev/null; do
     stale_pid=""
+    lock_expires_at="none"
     if [ -f "$lock_path/pid" ]; then
       stale_pid=$(cat "$lock_path/pid" 2>/dev/null || true)
     fi
+    if [ -f "$lock_path/lease_expires_at" ]; then
+      lock_expires_at=$(cat "$lock_path/lease_expires_at" 2>/dev/null || true)
+    fi
+    if ! value_is_missing "$lock_expires_at" && iso_timestamp_after "$(now_iso_timestamp)" "$lock_expires_at"; then
+      rm -f "$lock_path/lease_id" >/dev/null 2>&1 || true
+      rm -f "$lock_path/lease_expires_at" >/dev/null 2>&1 || true
+      rm -f "$lock_path/claimed_at" >/dev/null 2>&1 || true
+      rm -f "$lock_path/owner" >/dev/null 2>&1 || true
+      rm -f "$lock_path/pid" >/dev/null 2>&1 || true
+      rmdir "$lock_path" >/dev/null 2>&1 || true
+      continue
+    fi
     if is_nonnegative_integer "${stale_pid:-}" && ! kill -0 "$stale_pid" 2>/dev/null; then
+      rm -f "$lock_path/lease_id" >/dev/null 2>&1 || true
+      rm -f "$lock_path/lease_expires_at" >/dev/null 2>&1 || true
+      rm -f "$lock_path/claimed_at" >/dev/null 2>&1 || true
+      rm -f "$lock_path/owner" >/dev/null 2>&1 || true
       rm -f "$lock_path/pid" >/dev/null 2>&1 || true
       rmdir "$lock_path" >/dev/null 2>&1 || true
       continue
@@ -196,6 +300,15 @@ acquire_named_lock() {
     sleep "$wait_seconds"
   done
 
+  claimed_at=$(now_iso_timestamp)
+  lease_expires_at=$(default_lock_expiry_timestamp)
+  owner=$(lock_owner_identity)
+  lease_id=$(default_operation_id "$lock_name" "lock-lease")
+
+  printf '%s\n' "$owner" >"$lock_path/owner"
+  printf '%s\n' "$claimed_at" >"$lock_path/claimed_at"
+  printf '%s\n' "$lease_expires_at" >"$lock_path/lease_expires_at"
+  printf '%s\n' "$lease_id" >"$lock_path/lease_id"
   printf '%s\n' "$$" >"$lock_path/pid"
 
   STATE_HELD_LOCKS=$(append_csv_value "${STATE_HELD_LOCKS:-none}" "$lock_name")

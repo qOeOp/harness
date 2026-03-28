@@ -93,6 +93,8 @@ write_file "$target/.harness/README.md" <<EOF
 - Durable support state under \`.harness/runtime/\` must carry explicit schema / format version
 - Cross-version restore of runtime support state must migrate or fail closed
 - Canonical task truth: \`.harness/tasks/<task-id>/task.md\`
+- Active task claims should carry assignee, worktree, and renewable claim-expiry metadata in \`task.md\`
+- Runtime mutation locks under \`.harness/locks/\` should carry owner + lease-expiry metadata
 - Long-running execution should record explicit budget / stop boundary in task recovery or a linked artifact
 - Skill installation path, provider config, and provider entry files remain user-owned and out of scope
 EOF

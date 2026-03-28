@@ -123,6 +123,9 @@
 2. stale checks
 3. newly required checks
 4. approved script updates
+5. 哪些 prompt / policy / skill / handoff / model snapshot 变更
+   还没有绑定 replay fixture、eval slice
+   或 regression sample
 
 ## Adoption Gate
 

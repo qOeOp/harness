@@ -55,6 +55,20 @@
 2. 跨代码版本恢复这类 state 时，默认要 migrate 或 fail closed
 3. raw checkpoint internals、serialized agent state、provider-owned blobs 不能直接晋升为 task truth
 
+## Lock And Claim Boundary
+
+`.harness/locks/` 与 `task.md` 头部 claim 字段分别服务两个不同层次：
+
+1. `.harness/locks/`
+   - 短生命周期的 mutation guard
+   - lock dir 元数据默认应带 `owner`、`claimed_at`、`lease_expires_at`、`lease_id` 与 `pid`
+   - stale reclaim 以 lease 过期或 pid 已死为准
+2. `task.md` claim header
+   - task-level claim snapshot，而不是 mutex 本体
+   - 用于解释当前谁持有执行 claim、在哪个 worktree、claim 何时过期、lease 已轮换到哪个版本
+
+两者都重要，但职责不同，不能互相替代。
+
 ## Canonical Task Record
 
 ### Required Header Fields
@@ -117,6 +131,25 @@
 `Recovery notes` 还应写明 budget / stop boundary，
 例如 `max turns / iterations`、timebox、tool / write budget、
 pause / cancel / kill semantics。
+
+### Claim / Lease Fields
+
+`Claimed at`、`Claim expires at` 与 `Lease version`
+不是占位字段，而是 active claim 的正式快照。
+
+默认规则：
+
+1. `in-progress` 与 `paused` task 必须带：
+   - `Assignee`
+   - `Worktree`
+   - `Claimed at`
+   - `Claim expires at`
+   - `Lease version`
+2. 进入 active execution 时，claim expiry 默认按可续租的小时级 lease 生成
+3. 当前 shell runtime 默认通过 `HARNESS_CLAIM_LEASE_HOURS`
+   控制 lease 时长；未显式配置时使用仓库默认值
+4. 离开 active execution 后，应清掉 claim snapshot，
+   避免把过期 claim 误当当前执行真相
 
 ## State Model
 

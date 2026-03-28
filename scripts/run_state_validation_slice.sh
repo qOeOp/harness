@@ -280,10 +280,31 @@ trap cleanup EXIT HUP INT TERM
     exit 1
   fi
 
+  if [ "$(field_value_or_none "$validation_item" "Claim expires at")" = "none" ]; then
+    echo "validation slice failed: start_work_item did not set claim expiry" >&2
+    exit 1
+  fi
+
+  if [ "$(field_value_or_none "$validation_item" "Lease version")" = "0" ]; then
+    echo "validation slice failed: start_work_item did not increment lease version" >&2
+    exit 1
+  fi
+
   if [ "$(field_value "$validation_item" "Current stage role")" != "executor" ]; then
     echo "validation slice failed: in-progress item did not switch to executor stage role" >&2
     exit 1
   fi
+
+  (
+    acquire_named_lock "validation-slice-contract" 1 0.01
+    lock_dir=".harness/locks/validation-slice-contract.lock"
+    for required_file in pid owner claimed_at lease_expires_at lease_id; do
+      if [ ! -f "$lock_dir/$required_file" ]; then
+        echo "validation slice failed: lock metadata missing $required_file" >&2
+        exit 1
+      fi
+    done
+  )
 
   validation_dispatch=$("$script_dir/new_research_dispatch.sh" --work-item "$validation_id" "Runtime Smoke Dispatch")
   case "$validation_dispatch" in
@@ -388,6 +409,11 @@ trap cleanup EXIT HUP INT TERM
 
   if [ "$(field_value "$validation_item" "Status")" != "review" ]; then
     echo "validation slice failed: complete_work_item did not move item to review" >&2
+    exit 1
+  fi
+
+  if [ "$(field_value_or_none "$validation_item" "Claim expires at")" != "none" ]; then
+    echo "validation slice failed: review item still carries claim expiry" >&2
     exit 1
   fi
 

@@ -30,6 +30,17 @@ root = ".harness/runtime"
 durable_state_requires_explicit_version = true
 cross_version_resume_policy = "migrate-or-fail-closed"
 
+[locks]
+root = ".harness/locks"
+required_metadata_files = [
+  "owner",
+  "claimed_at",
+  "lease_expires_at",
+  "lease_id",
+  "pid",
+]
+stale_reclaim_policy = "expired-lease-or-dead-pid"
+
 [task_record]
 header_required = [
   "Schema version",
@@ -103,6 +114,15 @@ recommended_sections = [
 slow_human_gates_require_pause_resume = true
 paused_status_carries_interrupt_metadata = true
 
+[claims]
+active_statuses_require_assignee_worktree_claim = true
+active_statuses = [
+  "in-progress",
+  "paused",
+]
+default_claim_lease = "renewable-hours-lease"
+default_claim_lease_hours_env = "HARNESS_CLAIM_LEASE_HOURS"
+
 [query_surface]
 persisted_boards = false
 shell_generated_views = true
@@ -115,6 +135,8 @@ task_truth = "task.md is the only task source of truth in v2 core"
 archive_semantics = "archived is represented by task status plus Archived at"
 attachment_routing = "task-local materials live under attachments/ and are linked from task.md"
 recovery_model = "Recovery lives inside task.md as part of the task record"
+lock_model = "runtime lock directories carry owner plus lease-expiry metadata and are stale-reclaimed on expiry or dead pid"
+claim_model = "active task claims carry assignee, worktree, claimed-at, claim-expiration, and lease-version metadata"
 runtime_support_boundary = ".harness/runtime is reserved for non-canonical tool-owned support state when needed"
 runtime_support_versioning = "durable runtime support state must carry explicit schema or format version"
 cross_version_restore_policy = "runtime support state must migrate or fail closed across code versions"

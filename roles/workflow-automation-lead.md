@@ -27,6 +27,9 @@ secondary_skills: process-audit
 2. 先设计输入输出协议，再设计 agent 链路。
 3. 没有明确 owner 和 artifact 的自动化一律暂缓。
 4. 默认先定义 `skills` 或 `agents`；只有存在明确收益时才加 hooks 或 command aliases。
+5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode
+   必须落成 config、policy 或 typed metadata，
+   不能只写在自由文本 handoff 里。
 
 你必须优先读取：
 

@@ -531,11 +531,40 @@ for file in $(list_work_items); do
 
   case "$status" in
     in-progress|paused)
+      if value_is_missing "$assignee"; then
+        fail "active item missing Assignee in $file"
+      fi
+      if value_is_missing "$worktree"; then
+        fail "active item missing Worktree in $file"
+      fi
+      if value_is_missing "$claimed_at"; then
+        fail "active item missing Claimed at in $file"
+      fi
+      if value_is_missing "$claim_expires_at"; then
+        fail "active item missing Claim expires at in $file"
+      fi
+      if [ "$lease_version" -lt 1 ]; then
+        fail "active item must have positive Lease version in $file"
+      fi
       if value_is_missing "$recovery_current_focus"; then
         fail "active item missing Recovery current focus in $file"
       fi
       if value_is_missing "$recovery_next_command"; then
         fail "active item missing Recovery next command in $file"
+      fi
+      ;;
+    *)
+      if ! value_is_missing "$assignee"; then
+        fail "non-active item still has Assignee in $file"
+      fi
+      if ! value_is_missing "$worktree"; then
+        fail "non-active item still has Worktree in $file"
+      fi
+      if ! value_is_missing "$claimed_at"; then
+        fail "non-active item still has Claimed at in $file"
+      fi
+      if ! value_is_missing "$claim_expires_at"; then
+        fail "non-active item still has Claim expires at in $file"
       fi
       ;;
   esac

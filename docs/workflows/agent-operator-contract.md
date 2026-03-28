@@ -59,6 +59,24 @@ MCP 安装方式或 config 格式。
 4. 轻自动化
 5. 轻 orchestration
 
+## Control Surface Rule
+
+会改变默认行为基线的文本面，不应被当成“只是文案”。
+
+至少包括：
+
+1. `README / SKILL.md / rules / role`
+2. prompt object / managed policy
+3. model snapshot、tool schema、runtime code revision 绑定关系
+
+默认要求：
+
+1. 这类 instruction surface 应视为 versioned control surface
+2. promote 前要有 reviewable diff
+3. 若改动会改变 agent 行为、路由、permission 或恢复边界，
+   需要同步跑对应 deterministic gate、replay fixture 或 eval slice
+4. 不要在 live session 里让 instruction surface 隐式漂移
+
 不要因为某个 provider 支持 subagent、automation、MCP，就默认把这些能力全部打满。
 
 ## Default Operating Loop
@@ -209,6 +227,18 @@ MCP 安装方式或 config 格式。
 
 1. official source 优先
 2. community source 只能作为补充，不应单独成为 formal recommendation 的基础
+
+## Capability Grant Rule
+
+`MCP roots`、OAuth audience / scope、tool allowlist、permission mode
+这类会改变 capability grant 或 transport policy 的配置，
+应优先落在 config、policy frontmatter 或 typed metadata。
+
+不要把这类 grant 藏在：
+
+1. 自由文本 handoff
+2. task prose
+3. 临时聊天说明
 
 ## Worktree Rules
 

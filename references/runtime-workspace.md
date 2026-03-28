@@ -21,7 +21,9 @@ It should appear only when a task needs:
 2. `.harness/tasks/`
    - flat task-record truth and task-local artifacts
 3. `.harness/locks/`
-   - runtime lock files during controlled state mutation
+   - runtime lock leases during controlled state mutation
+   - lock dir metadata should carry `owner`、`claimed_at`、`lease_expires_at`、`lease_id` 与 `pid`
+   - stale reclaim 以 `lease_expires_at` 过期或 pid 已死为准
 
 Harness-owned surface in a consumer repo:
 
@@ -71,6 +73,11 @@ Recommended non-canonical support root:
 4. `archived` 通过状态字段表达，不再默认要求物理 `archive/`
 5. board、digest、org chart 不属于默认 runtime tree
 6. slow human approval / review / feedback 默认应 materialize 为 `paused` + resume transition，而不是隐藏的 waiting state
+7. `in-progress` / `paused` task 默认应带显式 claim lease：
+   `Assignee`、`Worktree`、`Claimed at`、`Claim expires at`、`Lease version`
+8. `.harness/locks/` 负责短生命周期 mutation guard；
+   `task.md` 头部 claim 字段负责 task-level claim snapshot，
+   两者不能互相替代
 
 Machine-readable contract:
 

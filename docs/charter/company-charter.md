@@ -6,7 +6,7 @@
 
 本仓库当前定义为：
 
-> 一个以 `/harness` 触发的 agent execution substrate：提供 agent-readable repo map、minimal resumable task runtime、deterministic validation/evals、observability/replay，以及清晰的 control surfaces。
+> 一个以 `/harness` 触发的 agent execution substrate：提供 agent-readable repo map、minimal resumable task runtime、deterministic validation/gates + evals、observability/replay，以及清晰的 control surfaces。
 
 ## 当前阶段目标
 

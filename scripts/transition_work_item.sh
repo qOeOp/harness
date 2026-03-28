@@ -305,7 +305,7 @@ case "$next_status" in
     next_assignee="$actor"
     next_worktree=$(pwd -P)
     next_claimed_at=$(now_iso_timestamp)
-    next_claim_expires_at="none"
+    next_claim_expires_at=$(default_claim_expiry_timestamp)
     next_lease_version=$((current_lease_version + 1))
     ;;
   paused)
