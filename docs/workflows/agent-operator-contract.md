@@ -85,6 +85,27 @@ MCP 安装方式或 config 格式。
 
 不要因为某个 provider 支持 subagent、automation、MCP，就默认把这些能力全部打满。
 
+## Skill Trust Boundary
+
+`remote / marketplace / user-supplied skill`
+默认先视为潜在不可信的
+instruction + code surface。
+
+默认要求：
+
+1. 未经过 curate / review / version pin 前，
+   不进入 executable catalog，
+   也不应获得默认 capability grant
+2. “终端用户可选”或 provider 可发现，
+   不等于 repo 的 security baseline
+3. 若要评估外部 skill，
+   先把它当 research / pilot 输入，
+   输出先落成 source note、decision pack
+   或其他 reviewable artifact
+4. 未审阅的 external skill
+   不应直接注入高优先级
+   instruction / policy layer
+
 ## Observability Capture Rule
 
 observability / replay 默认服务的是解释执行、关联证据与调试，
@@ -241,6 +262,36 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 4. 不要把活着的线程、socket、stream
    当成跨 session 的 wakeup contract
 
+## Session Continuity Rule
+
+provider / SDK continuation handle
+只表示 transport / session continuity，
+不等于 instruction continuity。
+
+默认要求：
+
+1. `system / developer / policy / prompt object /
+   managed settings`
+   默认要显式重放、重绑版本
+   或重新注入
+2. provider-native reasoning / compaction artifact
+   若 provider 要求回传，
+   默认只当 verbatim continuation payload，
+   不手改、不解析成业务状态，
+   不直接晋升为 canonical task truth
+3. serialized app / agent / session context
+   一旦随 checkpoint、thread、
+   HITL pause 或 background job 持久化，
+   就应按 persisted data 治理
+4. 这类 persisted data
+   必须带 schema / format version；
+   跨版本恢复时要 migrate 或 fail closed
+5. raw secret、raw credential、
+   高敏感 token
+   不应进入 serialized context；
+   默认只保留可替换 handle、
+   scope 与 expiry
+
 ## External Context Rules
 
 凡是触碰以下主题，默认视为 `volatile-by-default`：
@@ -372,6 +423,22 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 后者主要服务 diagnosis、回归趋势与轨迹质量判断，不替代 deterministic gate、approval gate 与 human review。
 
 如果 grader 结论与 deterministic gate 冲突，以显式 contract 与可重复 gate 为准。
+
+对 eval / replay slice：
+
+1. eval bootstrap
+   先用 20-50 个来自真实失败、
+   真实工单或代表性边界条件的 case
+   立起 capability slice，
+   不要一开始就追求大而全
+2. 每次 trial 默认从干净、隔离环境启动，
+   不让 cache、残留文件、
+   历史 git 状态或共享资源抖动
+   污染结果
+3. capability eval 与 regression eval
+   默认分层；
+   成熟 capability case
+   再晋升为 regression sample
 
 对 volatile external conclusion：
 

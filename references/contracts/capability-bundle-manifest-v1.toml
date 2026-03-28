@@ -176,6 +176,9 @@ operation_mode_alias_shims_are_temporary_only = true
 skill_surface_is_versioned_instruction_surface = true
 skill_surface_is_not_standalone_enforcement = true
 high_cost_rules_require_mechanical_enforcement_boundary = true
+remote_or_user_supplied_bundle_is_untrusted_until_curated = true
+executable_bundle_catalog_requires_review_and_version_pin = true
+user_selectable_bundle_is_not_security_baseline = true
 
 [notes]
 design_center = "capability bundle as entity, agent instance as runtime, task record as external truth"

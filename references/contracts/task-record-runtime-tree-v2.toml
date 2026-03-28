@@ -123,6 +123,18 @@ async_delivery_model = "at-least-once"
 async_wakeup_requires_dedupe_or_idempotency_key = true
 live_socket_or_stream_is_not_a_wakeup_contract = true
 
+[transport_state]
+provider_or_sdk_handles_are_transport_state_only = true
+transport_continuity_does_not_imply_instruction_continuity = true
+instruction_surface_must_be_explicitly_rebound_on_resume = true
+provider_native_reasoning_or_compaction_is_continuation_payload_only = true
+
+[persisted_context]
+serialized_context_requires_explicit_version = true
+serialized_context_cross_version_policy = "migrate-or-fail-closed"
+serialized_context_must_not_store_raw_secrets = true
+serialized_context_should_prefer_handles_scope_and_expiry = true
+
 [observability]
 source_provenance_must_survive_display_projection = true
 provenance_examples = [
@@ -165,3 +177,5 @@ observability_capture = "prefer evidence references, object handles, or content 
 interrupt_resume_model = "resume is checkpoint-relative re-entry rather than instruction-pointer continuation"
 async_wakeup_model = "cross-run wakeups assume at-least-once delivery and require dedupe or idempotency"
 source_provenance = "tool, approval, evidence, and framework-origin metadata should remain explicit across display projections"
+transport_state_boundary = "provider and SDK continuation handles preserve transport continuity, not instruction continuity"
+persisted_context_boundary = "serialized app, agent, or session context is persisted data, must be versioned, and should not store raw secrets"

@@ -240,6 +240,33 @@ wait / wakeup 是 runtime contract，不是活着的线程偶然还在。
    这类 transport handle 只服务 reconnect / resume /
    correlation，不构成 exactly-once 保证
 
+## Session Continuity Boundary
+
+provider / SDK continuation handle
+只表示 transport / session continuity，
+不等于 instruction continuity。
+
+默认要求：
+
+1. `system / developer / policy / prompt object /
+   managed settings`
+   默认要显式重放、重绑版本
+   或重新注入
+2. provider-native reasoning / compaction artifact
+   若 provider 要求回传，
+   默认只做 continuation payload，
+   不手改、不解析成业务状态
+3. serialized app / agent / session context
+   一旦持久化，
+   就按 persisted data 治理，
+   必须带 schema / format version
+4. 跨代码版本恢复 serialized context
+   时要 migrate 或 fail closed
+5. raw secret、raw credential、
+   高敏感 token
+   不应写入 serialized app / agent / session context；
+   默认只保留 handle、scope 与 expiry
+
 ## Budget / Termination Model
 
 bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。

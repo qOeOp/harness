@@ -152,6 +152,23 @@ router metadata 与 prompt object
    必须继续下沉到 managed policy、tool approval、
    allowlist、typed schema 或 wrapper 检查
 
+## Remote Bundle Trust Boundary
+
+`remote / marketplace / user-supplied skill`
+默认先视为潜在不可信的
+instruction + code surface。
+
+这意味着：
+
+1. 未经过 curate / review / version pin 前，
+   不应进入 executable catalog
+2. provider 能发现、
+   或终端用户可选，
+   不等于 repo 的 security baseline
+3. 评估 external bundle 时，
+   默认先把它当 research / pilot 输入，
+   而不是直接 promote 成 canonical capability surface
+
 ## Convergence to Excellence
 
 基于以上约束，收敛结论如下：

@@ -47,3 +47,5 @@ secondary_skills: research, memory-checkpoint
 2. 没有当轮 external sources，就不能把“社区正在这么做”包装成正式治理建议。
 3. 任何制度升级都要留下 source note 或 URL 痕迹，再进入 propose / pilot / review。
 4. 若复盘结论涉及角色边界变化，先写 `Role Change Proposal`，再交给 `Runtime Role Manager` 执行。
+5. remote / marketplace / user-supplied skill 默认视为潜在不可信的 instruction + code surface；未经 curate / review / version pin，不进入可执行 catalog。
+6. 新流程、skill 或 adapter 的 eval pilot，先用 20-50 个真实失败、真实工单或代表性边界条件立 capability slice，并在干净、隔离环境里运行；成熟 case 再升级为 regression sample。
