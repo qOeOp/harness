@@ -8,7 +8,7 @@ Read [./refs/README.md](./refs/README.md).
 
 Prepare the final founder or user review using [./templates/acceptance-review-brief.md](./templates/acceptance-review-brief.md).
 
-If acceptance progress spans sessions, slices, or parallel verification work, first create a task-local `Acceptance Ledger` using [./templates/acceptance-ledger.md](./templates/acceptance-ledger.md).
+If acceptance progress spans sessions, slices, or parallel verification work, first create a task-local `Acceptance Ledger` using [./templates/acceptance-ledger.md](./templates/acceptance-ledger.md); keep it update-only by advancing status / checklist / evidence references instead of rewriting the full acceptance spec every round.
 
 Canonical script surface:
 

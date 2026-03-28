@@ -76,7 +76,7 @@
 1. `Research Brief` 是 collection 复杂时的前置 artifact，不要求每次都写。
 2. `Evidence Ledger` 是长流程、多来源、可中断研究时的可选台账，不应变成强制 paperwork。
 3. `Source Note` 仍是默认正式证据 artifact。
-4. `Acceptance Ledger` 用于跨 session 维护 feature / acceptance checklist、验证进度与未完成边界；最终 closeout 仍可进入 `closure/`。
+4. `Acceptance Ledger` 用于跨 session 维护 feature / acceptance checklist、验证进度与未完成边界；默认做 update-only 的 status / checklist / evidence reference 增量，最终 closeout 仍可进入 `closure/`。
 
 ### 3. Shared Writeback Promotion
 

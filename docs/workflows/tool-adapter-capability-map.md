@@ -23,10 +23,8 @@
 2. 真正硬约束下沉到 `scripts/`、audit、CI、tool permissions 与 canonical docs
 3. 任何关键能力都不能只活在某个 provider 的 `command` 或 `hook` 里
 4. consumer runtime 的名字路由 / 地址簿同样属于 user-owned integration，不属于 runtime contract
-5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode
-   属于 capability grant / transport policy；
-   应落在 config、policy 或 typed metadata，
-   不要只写在自然语言 handoff 里
+5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode 属于 capability grant / transport policy，
+   应落在 config、policy 或 typed metadata；tool name、description、argument schema、output contract 也是 agent-facing runtime surface，默认短、明确、typed，大输出优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
 
 ## Adapter-Only Surface
 

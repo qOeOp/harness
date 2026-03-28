@@ -67,7 +67,7 @@ MCP 安装方式或 config 格式。
 
 1. `README / SKILL.md / rules / role`
 2. prompt object / managed policy
-3. model snapshot、tool schema、runtime code revision 绑定关系
+3. model snapshot、tool contract（tool name / description / argument schema / output contract）与 runtime code revision 的绑定关系
 
 默认要求：
 
@@ -94,10 +94,8 @@ MCP 安装方式或 config 格式。
 
 默认要求：
 
-1. static instructions、examples、
-   tool descriptors、image descriptors、
-   sandbox / cwd / approval metadata
-   一起构成 prompt shape / runtime config surface
+1. static instructions、examples、tool name / description / argument schema / output contract、image descriptors、
+   sandbox / cwd / approval metadata 一起构成 prompt shape / runtime config surface
 2. 长回合里应尽量保持 exact-prefix 稳定，
    不把 prompt shape stability
    误当成纯性能优化
@@ -152,7 +150,9 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 
 1. 完整 prompt、instruction、tool payload 与 model output 默认不采集
 2. 内容级捕获必须显式 opt-in，而不是静默默认开启
-3. 优先记录 artifact path、evidence reference、object handle 或 content hash
+3. 优先记录 artifact path、evidence reference、object handle 或 content hash；
+   若 tool output 体积大、可分页或高保真，默认让 tool contract 优先返回
+   handle / locator / page token，不把大 blob 直接塞回上下文
 4. source / provenance metadata
    例如 `tool`、`human approval`、`external evidence`、
    `framework note`

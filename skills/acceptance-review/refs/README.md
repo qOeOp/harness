@@ -11,4 +11,4 @@ Recommended order:
 5. [docs/workflows/post-acceptance-compounding-loop.md](../../../docs/workflows/post-acceptance-compounding-loop.md)
 
 Use the `research` bundle `dispatch` mode when external volatile facts affect acceptance criteria.
-Use an `Acceptance Ledger` when acceptance criteria or verification progress must survive more than one session.
+Use an `Acceptance Ledger` when acceptance criteria or verification progress must survive more than one session; keep it update-only by advancing status, checklist rows, and evidence references instead of rewriting the full acceptance spec.

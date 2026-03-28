@@ -157,7 +157,7 @@ frontier 长任务默认把 bootstrap 与 steady-state 分开建模。
    - 再看最近 transition / progress / 必要附件
    - 先跑一个 cheap baseline check，再执行 `Next command`
 3. 若进度需要跨回合累计，优先写 task-local、结构化、可机读 ledger，
-   不要只写 narrative prose、provider transcript 或聊天结论
+   不要只写 narrative prose、provider transcript 或聊天结论；默认做 update-only 的 status / checklist / evidence reference 增量，不在每轮重写整份 spec 或完成标准
 4. 每次长回合结束时，应至少留下：
    - next command
    - validated completion boundary
@@ -269,7 +269,7 @@ provider / SDK continuation handle
    或重新注入
 2. provider-native reasoning / compaction artifact
    若 provider 要求回传，
-   默认只做 continuation payload，
+   默认只做 verbatim continuation payload，
    不手改、不解析成业务状态
 3. serialized app / agent / session context
    一旦持久化，
@@ -301,10 +301,9 @@ compaction 与行为稳定性。
 
 默认要求：
 
-1. static instructions、examples、
-   tool descriptors、image descriptors、
-   sandbox / cwd / approval metadata
-   一起构成 prompt shape / runtime config surface
+1. static instructions、examples、tool name / description / argument schema / output contract、
+   image descriptors、sandbox / cwd / approval metadata 一起构成
+   prompt shape / runtime config surface
 2. 长回合里应尽量保持 exact-prefix 稳定，
    不把 prompt shape stability
    误当成纯成本优化
@@ -363,13 +362,13 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 
 长任务若需要跨 session 维护 feature / acceptance checklist，
 优先使用 `Acceptance Ledger` 这类结构化、可机读附件，
-不要把“已完成 / 已验证”只留在 prose 或 provider transcript。
+不要把“已完成 / 已验证”只留在 prose 或 provider transcript；
+默认优先增量更新 status / checklist / evidence reference，不在每轮重写整份 acceptance spec。
 
 若 worker / subagent 产生大体积、
 高保真或结构化结果，
 默认应先直写 task-local artifact，
-再回传 artifact path、locator
-或简要摘要；
+再回传 artifact path、locator、page token、content hash 或简要摘要；
 不要让多级 coordinator
 用 transcript 做
 “口耳相传” copy chain。
