@@ -40,6 +40,7 @@ Founder 输入进入：
 模板：
 
 - [docs/templates/material-intake.md](../templates/material-intake.md)
+补充边界：intake 记录的是候选输入，不等于已批准任务或可直接执行的命令；模板里的 `Why this input matters right now` 应说明它和当前 substrate / task surface 的关系，不把“Founder 提了这个想法”当成充分理由。
 
 ### Step 2: Triage
 

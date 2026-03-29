@@ -19,7 +19,7 @@ cat >"$target" <<EOF
 - Type: article / video / thread / thesis / idea
 - Source:
 - Summary: $title
-- Why the founder thinks it matters:
+- Why this input matters right now:
 - Candidate tasks or surfaces affected:
 - Immediate action requested:
 - Initial triage: discard / observe / research / pilot-candidate

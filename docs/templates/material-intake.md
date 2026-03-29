@@ -1,11 +1,10 @@
 # Material Intake
-
 - Date:
 - Submitted by:
 - Type: article / video / thread / thesis / idea
 - Source:
 - Summary:
-- Why the founder thinks it matters:
+- Why this input matters right now:
 - Candidate tasks or surfaces affected:
 - Immediate action requested:
 - Initial triage: discard / observe / research / pilot-candidate

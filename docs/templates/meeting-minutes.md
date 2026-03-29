@@ -4,8 +4,8 @@
 - Host:
 - Participants:
 - Key conclusions:
-- Founder decisions:
+- Decisions or approvals made:
 - Improvement directions approved:
 - Roles or surfaces impacted:
 - Owners:
-- Follow-up review date:
+- Next review or resume boundary:
