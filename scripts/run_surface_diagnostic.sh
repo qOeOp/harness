@@ -134,7 +134,7 @@ $(cat "$check_file")
 2. 若要诊断真实安装态，请在 dogfood / consumer repo 运行同一脚本的 consumer 模式。
 3. \`Surface Entropy Snapshot\` 只做暴露，不直接判定好坏；重点看 active surface 是否在增长时同步发生 compress / merge / archive。
 4. 若 OS 结构发生变化，应先更新本脚本，再更新 cadence 或 audit 模板。
-5. 若 \`audit_entropy_budget\` 失败，source repo 默认进入 compaction-only mode；先压缩 active surface，再继续长新 surface。
+5. 若 \`audit_entropy_budget\` 失败，source repo 默认进入 compaction-only mode；若仍 pass 但 headroom 为 0，任何 net-new surface 也必须先做补偿性压缩或显式改 contract。
 EOF
 else
   run_check "validate_workspace" "$script_dir/validate_workspace.sh"

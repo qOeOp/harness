@@ -74,10 +74,10 @@ source repo 的 active surface
    并附 reviewable rationale；
    不允许靠连续小提交静默抬高
 5. `run_surface_diagnostic.sh`
-   继续负责暴露热点；
+   继续负责暴露热点与剩余 headroom；
    `audit_entropy_budget.sh`
-   负责把热点升级成
-   可阻断的 source gate
+   负责把 budget breach 与
+   zero-headroom saturation 升级成 source gate 信号
 
 ## Promotion Matrix
 
@@ -203,4 +203,4 @@ hooks 不能完美证明 agent 做了足够的 web search。
 10. survivor failures
 11. active-surface budget hotspots
 12. budget status
-13. whether compaction-only mode is active
+13. whether compaction-only mode or zero-headroom freeze is active

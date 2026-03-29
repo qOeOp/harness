@@ -83,15 +83,9 @@ append_detail() {
 }
 
 check_max() {
-  label="$1"
-  actual="$2"
-  max="$3"
-
-  if [ "$actual" -le "$max" ]; then
-    append_detail "- ${label}: ${actual}/${max}"
-    return 0
-  fi
-
+  label="$1"; actual="$2"; max="$3"
+  if [ "$actual" -lt "$max" ]; then append_detail "- ${label}: ${actual}/${max}"; return 0; fi
+  if [ "$actual" -eq "$max" ]; then append_detail "- ${label}: ${actual}/${max} (at ceiling)"; return 0; fi
   ok=0
   append_detail "- budget breach: ${label} ${actual} > ${max}"
 }
@@ -173,14 +167,14 @@ check_max "active reference lines" "$active_reference_lines" "$max_active_refere
 check_max "total active files" "$total_active_files" "$max_total_active_files"
 check_max "total active lines" "$total_active_lines" "$max_total_active_lines"
 
-status="ok"
-if [ "$ok" -ne 1 ]; then
-  status="fail"
-fi
+status="ok"; growth_state="headroom-available"
+[ "$ok" -eq 1 ] || status="fail"
+[ "$ok" -eq 1 ] || growth_state="breached"
+if [ "$growth_state" = "headroom-available" ] && { [ "$total_active_files" -eq "$max_total_active_files" ] || [ "$total_active_lines" -eq "$max_total_active_lines" ]; }; then growth_state="saturated"; fi
 
 say "entropy budget audit: $status"
-say "- Budget mode: $budget_mode | explicit decision required: $budget_change_requires_explicit_decision"
-say "- Active totals: files $total_active_files/$max_total_active_files | lines $total_active_lines/$max_total_active_lines"
+say "- Budget mode: $budget_mode | explicit decision required: $budget_change_requires_explicit_decision | growth state: $growth_state"
+say "- Active totals: files $total_active_files/$max_total_active_files | lines $total_active_lines/$max_total_active_lines | headroom files $((max_total_active_files - total_active_files)) | lines $((max_total_active_lines - total_active_lines))"
 [ -n "$detail_lines" ] && [ "$quiet" != "--quiet" ] && printf '%s' "$detail_lines"
 
 if [ "$ok" -eq 1 ]; then
