@@ -224,6 +224,7 @@ require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成�
 require_contains "docs/workflows/provider-deltas/gemini.md" 'Projection Config Changes Are Explicit Boundaries'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
+for needle in 'discovery scope + operational boundary' 'path 映射'; do require_contains "docs/workflows/tool-adapter-capability-map.md" "$needle"; done; for needle in 'discovery scope + operational boundary' 'path mapping'; do require_contains "roles/workflow-automation-lead.md" "$needle"; done
 require_contains "skills/research/refs/runtime-contract.md" 'configured SearXNG instance'
 require_contains "skills/research/refs/runtime-contract.md" 'optional heavy-duty headless crawler'
 require_contains "skills/research/refs/runtime-contract.md" '.harness/runtime/research/'
@@ -313,6 +314,7 @@ require_contains "docs/workflows/agent-operator-contract.md" 'regression sample'
 require_contains "docs/workflows/agent-operator-contract.md" 'tool name / description /'
 require_contains "docs/workflows/agent-operator-contract.md" 'argument schema / output contract'
 require_contains "docs/workflows/agent-operator-contract.md" 'page token'
+for needle in '双重上报或默默复用冲突语义' 'exact trajectory /' 'path 映射' 'partial credit'; do require_contains "docs/workflows/agent-operator-contract.md" "$needle"; done
 require_contains "docs/workflows/provider-deltas/codex.md" 'full-context fork'
 require_contains "docs/workflows/provider-deltas/codex.md" 'budget / stop boundary'
 require_contains "docs/organization/decision-rights.md" '`Role Change Proposal`'
@@ -359,6 +361,7 @@ require_contains "references/specs/2026-03-27-harness-task-record-runtime-contra
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'verbatim continuation payload'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'update-only'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'page token'
+for needle in '双重上报或语义冲突' 'typed schema' 'Verification / Eval Boundary' 'exact trajectory /' 'path 映射' 'partial credit'; do require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" "$needle"; done
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'budget / stop boundary'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'full parent transcript'
 require_contains "references/specs/2026-03-27-harness-capability-bundle-contract-v1.md" 'steerability surface'
@@ -434,6 +437,7 @@ require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'side_e
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'mcp_oauth_tokens_must_be_audience_bound = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'tool outputs should prefer handles, locators, or page tokens over inline blobs when large or paged'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'update-only acceptance ledger under attachments/ with status/checklist plus evidence references rather than full-spec rewrites'
+for needle in 'builtin_tracing_must_avoid_double_reporting_or_semantic_conflict = true' 'deterministic_gate_precedes_trace_or_llm_eval = true' 'exact_trajectory_is_not_default_pass_condition = true' 'multi_component_eval_may_award_partial_credit = true' 'mcp_roots_are_operational_boundary_not_just_discovery_scope = true' 'mcp_root_exposure_and_path_mapping_require_explicit_validation = true'; do require_contains "references/contracts/task-record-runtime-tree-v2.toml" "$needle"; done
 forbid_contains "roles/general-manager.md" '你是本项目的职业经理人。'
 forbid_contains "scripts/new_work_item.sh" 'Chief of Staff'
 forbid_contains "docs/workflows/volatile-research-default.md" 'Founder -> company 的入口'

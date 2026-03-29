@@ -186,6 +186,14 @@ provenance_examples = [
 builtin_tracing_defaults_require_explicit_capture_policy = true
 builtin_tracing_defaults_require_explicit_redaction_policy = true
 builtin_tracing_defaults_require_disable_path = true
+builtin_tracing_must_avoid_double_reporting_or_semantic_conflict = true
+
+[verification]
+deterministic_gate_precedes_trace_or_llm_eval = true
+tool_using_eval_should_separate_end_state_tool_choice_and_arg_correctness = true
+exact_trajectory_is_not_default_pass_condition = true
+exact_tool_sequence_only_matters_when_contractual = true
+multi_component_eval_may_award_partial_credit = true
 
 [guardrails]
 side_effect_prevention_requires_blocking_preflight_or_wrapper = true
@@ -193,6 +201,8 @@ parallel_or_posthoc_guardrail_is_not_sufficient = true
 guardrail_pipeline_coverage_must_be_explicit = true
 
 [capability_grants]
+mcp_roots_are_operational_boundary_not_just_discovery_scope = true
+mcp_root_exposure_and_path_mapping_require_explicit_validation = true
 mcp_oauth_tokens_must_be_audience_bound = true
 mcp_oauth_client_must_send_resource = true
 mcp_oauth_server_must_not_passthrough_client_token = true

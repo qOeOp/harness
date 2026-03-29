@@ -360,18 +360,12 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 9. `Role Change Proposal`
    - `.harness/tasks/<task-id>/closure/<date>-<slug>-role-change-proposal.md`
 
-长任务若需要跨 session 维护 feature / acceptance checklist，
-优先使用 `Acceptance Ledger` 这类结构化、可机读附件，
-不要把“已完成 / 已验证”只留在 prose 或 provider transcript；
+长任务若需要跨 session 维护 feature / acceptance checklist，优先使用 `Acceptance Ledger` 这类结构化、可机读附件，
+不要把“已完成 / 已验证”只留在 prose 或 provider transcript；若 agent 会高频改写这类 ledger，默认更偏向 typed schema 或其他 update-friendly 结构，不让自由 prose 承担 mutable control plane；
 默认优先增量更新 status / checklist / evidence reference，不在每轮重写整份 acceptance spec。
 
-若 worker / subagent 产生大体积、
-高保真或结构化结果，
-默认应先直写 task-local artifact，
-再回传 artifact path、locator、page token、content hash 或简要摘要；
-不要让多级 coordinator
-用 transcript 做
-“口耳相传” copy chain。
+若 worker / subagent 产生大体积、高保真或结构化结果，默认应先直写 task-local artifact，
+再回传 artifact path、locator、page token、content hash 或简要摘要；不要让多级 coordinator 用 transcript 做“口耳相传” copy chain。
 
 ## Query Surface
 
@@ -383,6 +377,7 @@ bounded autonomy 也是 runtime contract 的一部分，而不是聊天习惯。
 4. 不依赖 persisted board
 
 ## Validation Surface
+
 source repo：
 1. [validate_source_repo.sh](/Users/vx/WebstormProjects/harness/scripts/validate_source_repo.sh)
 2. [audit_role_schema.sh](/Users/vx/WebstormProjects/harness/scripts/audit_role_schema.sh)
@@ -390,7 +385,6 @@ source repo：
 4. [run_surface_diagnostic.sh](/Users/vx/WebstormProjects/harness/scripts/run_surface_diagnostic.sh)
 
 materialized runtime：
-
 1. [validate_workspace.sh](/Users/vx/WebstormProjects/harness/scripts/validate_workspace.sh)
 2. [audit_document_system.sh](/Users/vx/WebstormProjects/harness/scripts/audit_document_system.sh)
 3. [audit_state_system.sh](/Users/vx/WebstormProjects/harness/scripts/audit_state_system.sh)
@@ -406,41 +400,26 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
 1. 完整 prompt、instruction、tool payload 与 model output 默认不做全量采集
 2. 内容捕获必须显式 opt-in
 3. 优先记录 artifact path、evidence reference、object handle 或 content hash
-4. source / provenance metadata
-   例如 `tool`、`human approval`、`external evidence`、
-   `framework note`
-   应独立于 message / transcript / trace display surface 保留，
-   不要在转换视图时丢失 trust analysis 所需来源
+4. source / provenance metadata 例如 `tool`、`human approval`、`external evidence`、`framework note` 应独立于 message / transcript / trace display surface 保留，不要在转换视图时丢失 trust analysis 所需来源
 5. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
-6. 若 runtime 默认开启内建 tracing
-   或 agent SDK tracing，
-   就必须显式声明 capture policy、
-   redaction policy 与 disable path；
-   不要假设 vendor default
-   天然满足 least-data
+6. 若 runtime 默认开启内建 tracing 或 agent SDK tracing，就必须显式声明 capture policy、redaction policy 与 disable path；不要假设 vendor default 天然满足 least-data，还要避免与外部 instrumentation 双重上报或语义冲突
+
+## Verification / Eval Boundary
+
+默认顺序：先跑 deterministic gate / code-graded check，再看 trace grading 或 LLM-graded eval。对 tool-using agent，默认至少拆开看 `end-state`、`tool choice` 与 `argument correctness / schema fit`。
+
+除非工具顺序、审批路径或协议交互本身就是 contract，默认不要把 exact trajectory / exact tool sequence 当成硬通过条件；更应检查 end-state、safety invariant、required evidence 与 bounded tool correctness，多组件任务可保留 partial credit。
 
 ## Guardrail / Capability Boundary
 
-若目标是阻止副作用，
-默认使用 blocking preflight、
-tool wrapper 或外层 approval gate；
-不要把 input / output guardrail
-或 parallel guardrail
-当成唯一防线。
+若目标是阻止副作用，默认使用 blocking preflight、tool wrapper 或外层 approval gate；不要把 input / output guardrail 或 parallel guardrail 当成唯一防线。
 
 补充规则：
 
-1. guardrail coverage
-   必须按具体 pipeline 说明；
-   handoff、hosted tool、
-   built-in execution path
-   可能不走同一 guardrail 链路
-2. `MCP OAuth` 默认按
-   audience-bound token 设计；
-   client 在授权与 token 请求中
-   显式带 `resource`
-3. server 不得把 client token
-   passthrough 给上游 API
+1. `MCP roots` 更像 attention / discovery scope + operational boundary，不是单独充分的安全边界；client / server 都应显式校验 root 暴露、变更与 path 映射
+2. guardrail coverage 必须按具体 pipeline 说明；handoff、hosted tool、built-in execution path 可能不走同一 guardrail 链路
+3. `MCP OAuth` 默认按 audience-bound token 设计；client 在授权与 token 请求中显式带 `resource`
+4. server 不得把 client token passthrough 给上游 API
 
 ## Non-Goals
 

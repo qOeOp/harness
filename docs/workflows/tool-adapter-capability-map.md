@@ -24,7 +24,7 @@
 3. 任何关键能力都不能只活在某个 provider 的 `command` 或 `hook` 里
 4. consumer runtime 的名字路由 / 地址簿同样属于 user-owned integration，不属于 runtime contract
 5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode 属于 capability grant / transport policy，
-   应落在 config、policy 或 typed metadata；tool name、description、argument schema、output contract 也是 agent-facing runtime surface，默认短、明确、typed，大输出优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
+   应落在 config、policy 或 typed metadata；其中 `MCP roots` 更像 discovery scope + operational boundary，不是单独充分的安全边界，client / server 都应显式校验 root 暴露、变更与 path 映射；tool name、description、argument schema、output contract 也是 agent-facing runtime surface，默认短、明确、typed，大输出优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
 
 ## Adapter-Only Surface
 

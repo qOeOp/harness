@@ -159,12 +159,7 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
    应独立于 message / transcript / trace display surface 保留，
    不要在转换视图时把信任来源抹平
 5. tracing backend 不应承担第二份 canonical task memory 的职责
-6. 若 runtime 默认开启内建 tracing
-   或 agent SDK tracing，
-   必须显式声明 capture policy、
-   redaction policy 与 disable path；
-   不要假设 vendor default
-   天然满足 least-data
+6. 若 runtime 默认开启内建 tracing 或 agent SDK tracing，必须显式声明 capture policy、redaction policy 与 disable path；不要假设 vendor default 天然满足 least-data，也不要与外部 instrumentation 双重上报或默默复用冲突语义
 
 ## Default Operating Loop
 
@@ -397,6 +392,8 @@ provider / SDK continuation handle
 这类会改变 capability grant 或 transport policy 的配置，
 应优先落在 config、policy frontmatter 或 typed metadata。
 
+其中 `MCP roots` 更像 attention / discovery scope + operational boundary，不是单独充分的安全边界；client / server 都应显式校验 root 暴露、变更与 path 映射，不把“能看到这个 root”误当成“这个路径就可安全访问”。
+
 不要把这类 grant 藏在：
 
 1. 自由文本 handoff
@@ -521,6 +518,8 @@ coding agent 不得把聊天输出当成 canonical state mutation。
 
 不要把这些失败模式
 全压成一个 holistic 分数。
+
+除非工具顺序、审批路径或协议交互本身就是 contract，默认不要把 exact trajectory / exact tool sequence 当成硬通过条件；更应检查 end-state、safety invariant、required evidence 与 bounded tool correctness，多组件任务可保留 partial credit。
 
 如果 grader 结论与 deterministic gate 冲突，以显式 contract 与可重复 gate 为准。
 
