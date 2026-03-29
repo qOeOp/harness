@@ -40,16 +40,13 @@ done
 
 infer_runtime_mode() {
   manifest=".harness/manifest.toml"
-
   if [ ! -f "$manifest" ]; then
     printf '%s\n' "core"
     return 0
   fi
-
   runtime_mode=$(awk -F'=' '/^[[:space:]]*runtime_mode[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
   governance_enabled=$(awk -F'=' '/^[[:space:]]*advanced_governance_enabled[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
-
-  if [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
     printf '%s\n' "shared"
   else
     printf '%s\n' "core"
@@ -71,14 +68,12 @@ check_file() {
     [ "$quiet" = "--quiet" ] || echo "missing: $1"
   fi
 }
-
 check_exec() {
   if [ ! -x "$1" ]; then
     ok=0
     [ "$quiet" = "--quiet" ] || echo "not executable: $1"
   fi
 }
-
 check_contains() {
   file="$1"
   pattern="$2"
@@ -94,7 +89,6 @@ check_dir() {
     [ "$quiet" = "--quiet" ] || echo "missing directory: $1"
   fi
 }
-
 fail_message() {
   ok=0
   [ "$quiet" = "--quiet" ] || echo "$1"
@@ -139,12 +133,12 @@ run_shared_writeback_checks() {
   check_dir ".harness/workspace/archive"
   check_dir ".harness/workspace/state/boards"
   check_dir ".harness/workspace/state/board-refreshes"
-
+  check_file ".harness/workspace/state/boards/founder.md"
+  if [ ! -f ".harness/workspace/state/boards/shared.md" ] && [ ! -f ".harness/workspace/state/boards/company.md" ]; then fail_message "missing shared board projection in .harness/workspace/state/boards/"; fi
   if [ -f ".harness/manifest.toml" ]; then
-    check_contains ".harness/manifest.toml" "runtime_mode = \"advanced-governance\""
     check_contains ".harness/manifest.toml" "advanced_governance_enabled = true"
+    if ! grep -Eq 'runtime_mode = "(shared-writeback|advanced-governance)"' ".harness/manifest.toml"; then fail_message ".harness/manifest.toml must declare runtime_mode as shared-writeback (advanced-governance still accepted as a compatibility alias)"; fi
   fi
-
   for current_file in .harness/workspace/current/*.md; do
     [ -f "$current_file" ] || continue
     case "$(basename "$current_file")" in
@@ -152,12 +146,10 @@ run_shared_writeback_checks() {
       *) check_file "$current_file" ;;
     esac
   done
-
   if ! "$script_dir/audit_document_system.sh" --quiet >/dev/null 2>&1; then
     ok=0
     [ "$quiet" = "--quiet" ] || echo "document routing audit failed"
   fi
-
   if ! "$script_dir/audit_doc_style.sh" --quiet >/dev/null 2>&1; then
     ok=0
     [ "$quiet" = "--quiet" ] || echo "doc style audit failed"

@@ -62,7 +62,7 @@ runtime_governance_enabled() {
   runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "$default_runtime_mode")
   advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "false")
 
-  if [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
     return 0
   fi
 
@@ -992,7 +992,7 @@ normalize_work_item_scope() {
 
 board_path_for_scope() {
   case "$(normalize_work_item_scope "${1:-shared}")" in
-    shared) printf '%s\n' "$state_boards_dir/company.md" ;;
+    shared) printf '%s\n' "$state_boards_dir/shared.md" ;;
     founder) printf '%s\n' "$state_boards_dir/founder.md" ;;
   esac
 }
@@ -1137,7 +1137,7 @@ is_valid_board_refresh_target() {
   target="$1"
 
   case "$target" in
-    .harness/workspace/state/boards/company.md|.harness/workspace/state/boards/founder.md)
+    .harness/workspace/state/boards/shared.md|.harness/workspace/state/boards/company.md|.harness/workspace/state/boards/founder.md)
       return 0
       ;;
     *)

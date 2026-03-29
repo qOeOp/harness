@@ -49,8 +49,9 @@
 
 `Targets` 只允许包含：
 
-1. `.harness/workspace/state/boards/company.md`（legacy filename for the shared work item board projection）
-2. `.harness/workspace/state/boards/founder.md`
+1. `.harness/workspace/state/boards/shared.md`（canonical shared board projection）
+2. `.harness/workspace/state/boards/company.md`（legacy compatibility mirror for the same shared board）
+3. `.harness/workspace/state/boards/founder.md`
 
 ## 与 trace taxonomy 的关系
 
@@ -63,6 +64,7 @@
 1. `./scripts/audit_state_system.sh` 校验：
    - board refresh event hash chain 完整
    - target 路径合法且存在
+   - 若 `company.md` 仍存在，则必须与 `shared.md` 同步
    - actor 非空且非 `system`
    - minimum-core runtime 不强制要求 board surface
 2. `./scripts/run_state_validation_slice.sh` 在 sandbox 里证明 board refresh ledger 会被实际写出。
@@ -72,4 +74,4 @@
 1. 不把 board refresh event 绑定到单个 work item。
 2. 不设计 runtime trace/span/session store。
 3. 不引入额外外部 tracing framework。
-4. 不在本轮文档里引入新的 shared board path 或组织投影分层。
+4. 不再扩展额外的 shared board path 或组织投影分层；当前只收敛到 `shared.md` canonical + `company.md` legacy mirror。

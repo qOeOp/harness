@@ -43,7 +43,7 @@ consumer_runtime_governance_enabled() {
   runtime_mode=$(consumer_runtime_manifest_value "$runtime_root" "runtime_mode" || printf '%s\n' "")
   governance_enabled=$(consumer_runtime_manifest_value "$runtime_root" "advanced_governance_enabled" || printf '%s\n' "")
 
-  if [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
     return 0
   fi
 

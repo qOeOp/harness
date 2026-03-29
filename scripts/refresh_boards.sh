@@ -37,13 +37,13 @@ ensure_governance_runtime_dirs
 runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "$default_runtime_mode")
 refresh_command=$(default_harness_command "refresh_boards.sh")
 
-company_tmp=$(mktemp)
+shared_tmp=$(mktemp)
+shared_legacy_tmp=$(mktemp)
 founder_tmp=$(mktemp)
 ok=1
 
 append_changed_target() {
   target="$1"
-
   if value_is_missing "$changed_targets"; then
     changed_targets="$target"
   else
@@ -54,7 +54,6 @@ append_changed_target() {
 commit_or_check() {
   tmp="$1"
   target="$2"
-
   if [ "$check_only" -eq 1 ]; then
     if [ ! -f "$target" ] || ! cmp -s "$tmp" "$target"; then
       echo "stale board: $target" >&2
@@ -73,7 +72,7 @@ commit_or_check() {
   fi
 }
 
-cat >"$company_tmp" <<EOF
+cat >"$shared_tmp" <<EOF
 # Shared Work Item Board
 
 - Generated at: $(date +%F)
@@ -99,9 +98,8 @@ cat >"$founder_tmp" <<EOF
 | --- | --- | --- | --- | --- | --- | --- |
 EOF
 
-company_rows=0
+shared_rows=0
 founder_rows=0
-
 for file in $(list_work_items); do
   id=$(field_value "$file" "ID")
   title=$(field_value "$file" "Title")
@@ -128,8 +126,8 @@ for file in $(list_work_items); do
     "$(sanitize_board_cell "$owner")" \
     "$current_blocker" \
     "$(sanitize_board_cell "$founder_escalation")" \
-    "$(sanitize_board_cell "$updated_at")" >>"$company_tmp"
-  company_rows=$((company_rows + 1))
+    "$(sanitize_board_cell "$updated_at")" >>"$shared_tmp"
+  shared_rows=$((shared_rows + 1))
 
   if [ "$founder_escalation" = "pending-founder" ] || [ "$interrupt_marker" = "founder-review-required" ]; then
     printf '| %s: %s | %s | %s | %s | %s | %s | %s |\n' \
@@ -144,16 +142,15 @@ for file in $(list_work_items); do
     founder_rows=$((founder_rows + 1))
   fi
 done
-
-if [ "$company_rows" -eq 0 ]; then
-  echo '| none | - | - | - | - | - | - | - | - |' >>"$company_tmp"
+if [ "$shared_rows" -eq 0 ]; then
+  echo '| none | - | - | - | - | - | - | - | - |' >>"$shared_tmp"
 fi
-
 if [ "$founder_rows" -eq 0 ]; then
   echo '| none | - | - | - | - | - | - |' >>"$founder_tmp"
 fi
-
-commit_or_check "$company_tmp" "$state_boards_dir/company.md"
+cp "$shared_tmp" "$shared_legacy_tmp"
+commit_or_check "$shared_tmp" "$state_boards_dir/shared.md"
+commit_or_check "$shared_legacy_tmp" "$state_boards_dir/company.md"
 commit_or_check "$founder_tmp" "$state_boards_dir/founder.md"
 
 if [ "$check_only" -eq 1 ]; then
@@ -168,5 +165,5 @@ if ! value_is_missing "$changed_targets"; then
   write_board_refresh_event "$changed_targets" "$actor" >/dev/null
 fi
 
-echo "$state_boards_dir/company.md"
+echo "$state_boards_dir/shared.md"
 echo "$state_boards_dir/founder.md"

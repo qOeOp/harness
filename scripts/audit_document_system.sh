@@ -62,7 +62,7 @@ infer_runtime_mode() {
   runtime_mode=$(awk -F'=' '/^[[:space:]]*runtime_mode[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
   governance_enabled=$(awk -F'=' '/^[[:space:]]*advanced_governance_enabled[[:space:]]*=/ { value=$2; sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+$/, "", value); gsub(/^"/, "", value); gsub(/"$/, "", value); print value; exit }' "$manifest")
 
-  if [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
     printf '%s\n' "shared"
   else
     printf '%s\n' "core"

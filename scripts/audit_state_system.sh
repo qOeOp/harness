@@ -43,7 +43,7 @@ done
 if [ -z "$mode" ]; then
   runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "")
   advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "")
-  if [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
     mode="shared"
   else
     mode="core"
@@ -54,33 +54,27 @@ if [ -f "SKILL.md" ] && [ -d "skills" ] && [ -d "roles" ] && [ ! -d ".harness" ]
   echo "audit_state_system.sh checks a consumer runtime workspace, not the framework source repo." >&2
   exit 2
 fi
-
 fail() {
   ok=0
   [ "$quiet" = "--quiet" ] || echo "$1"
 }
-
 require_dir() {
   if [ ! -d "$1" ]; then
     fail "missing directory: $1"
   fi
 }
-
 require_file() {
   if [ ! -f "$1" ]; then
     fail "missing file: $1"
   fi
 }
-
 require_dir "$task_runtime_dir"
 require_file "$runtime_manifest_path"
-
 manifest_schema_version=$(runtime_manifest_value "schema_version" || true)
 manifest_runtime_mode=$(runtime_manifest_value "runtime_mode" || true)
 manifest_governance=$(runtime_manifest_value "advanced_governance_enabled" || true)
 manifest_created_at=$(runtime_manifest_value "created_at" || true)
 manifest_updated_at=$(runtime_manifest_value "updated_at" || true)
-
 for pair in \
   "schema_version:$manifest_schema_version" \
   "runtime_mode:$manifest_runtime_mode" \
@@ -90,17 +84,13 @@ for pair in \
 do
   label=${pair%%:*}
   value=${pair#*:}
-  if [ -z "$value" ]; then
-    fail "missing manifest field '$label' in $runtime_manifest_path"
-  fi
+  if [ -z "$value" ]; then fail "missing manifest field '$label' in $runtime_manifest_path"; fi
 done
-
 if [ "$manifest_schema_version" != "$runtime_manifest_schema_version" ]; then
   fail "invalid manifest schema version '$manifest_schema_version' in $runtime_manifest_path"
 fi
-
 case "$manifest_runtime_mode" in
-  minimum-core|advanced-governance) ;;
+  minimum-core|shared-writeback|advanced-governance) ;;
   *)
     fail "invalid runtime mode '$manifest_runtime_mode' in $runtime_manifest_path"
     ;;
@@ -117,10 +107,10 @@ if [ "$mode" = "shared" ]; then
   require_dir "$state_root"
   require_dir "$state_boards_dir"
   require_dir "$state_board_refreshes_dir"
-  require_file "$state_boards_dir/company.md"
   require_file "$state_boards_dir/founder.md"
   require_file "$state_board_refreshes_dir/README.md"
-
+  if [ ! -f "$state_boards_dir/shared.md" ] && [ ! -f "$state_boards_dir/company.md" ]; then fail "missing shared board projection in $state_boards_dir"; fi
+  if [ -f "$state_boards_dir/shared.md" ] && [ -f "$state_boards_dir/company.md" ] && ! cmp -s "$state_boards_dir/shared.md" "$state_boards_dir/company.md"; then fail "legacy shared board alias is out of sync: $state_boards_dir/company.md"; fi
   for board_refresh_file in $(list_board_refresh_events); do
     board_refresh_at=$(field_value "$board_refresh_file" "At")
     board_refresh_actor=$(field_value "$board_refresh_file" "Actor")
