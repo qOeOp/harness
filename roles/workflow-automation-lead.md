@@ -29,7 +29,7 @@ secondary_skills: process-audit
 4. 默认先定义 `skills`、`roles` 或 typed workflow metadata；
    只有存在明确收益时才加 hooks、command aliases 或多 agent fan-out。
 5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode
-   必须落成 config、policy 或 typed metadata，不能只写在自由文本 handoff 里；其中 `MCP roots` 还应视为 discovery scope + operational boundary，root 暴露、变更与 path mapping 必须可审计。
+   必须落成 config、policy 或 typed metadata，不能只写在自由文本 handoff 里；其中 `MCP roots` 还应视为 discovery scope + operational boundary，root 暴露、变更与 path mapping 必须可审计；`roots/list` 等 discovery request 只属于 request scope，不自动升级为 durable capability grant；敏感授权默认优先 host-managed auth 或 out-of-band elicitation，不把 bearer token 继续 passthrough 给上游；trace correlation 应尽量通过 `traceparent` / `baggage` 与 `tool_use` / `tool_result` `_meta` 透传。
 6. `SKILL.md`、prompt 与 workflow prose
    默认属于 steerability surface；
    真正高风险约束要落成 config、policy、schema 或 wrapper 检查。

@@ -238,22 +238,11 @@ wait / wakeup 是 runtime contract，不是活着的线程偶然还在。
 
 默认要求：
 
-1. webhook、queue、async callback、
-   background job completion
-   这类跨 run 唤醒，应留下显式 wakeup handle
-   或 event reference
-2. 外部 wakeup 默认按 at-least-once delivery 设计，
-   恢复链路应带 dedupe / idempotency key
-3. provider thread、response、stream cursor
-   这类 transport handle 只服务 reconnect / resume /
-   correlation，不构成 exactly-once 保证
-4. provider background / pollable response
-   若依赖 provider-side stored state
-   才能轮询或恢复，
-   这仍只是 transport continuity，
-   不是 zero-retention truth；默认要显式考虑 retention / privacy / ZDR 边界；
-   若底层 protocol 已返回 task object / background handle（如 `task_id`、poll interval、TTL / expiry、stream cursor、cancel handle），
-   默认优先复用这些 receiver-generated handle 写入 recovery / wait record，不在本地 transcript 外再造 shadow polling state
+1. webhook、queue、async callback、background job completion 这类跨 run 唤醒，应留下显式 wakeup handle + deadline / expiry，或 event reference
+2. 外部 wakeup 默认按 at-least-once delivery 设计，恢复链路应带 dedupe / idempotency key
+3. 审批、中断与 async callback 这类恢复点默认带 stable operation id 与 version marker；resume 按 ID 配对，不按显示顺序猜测
+4. provider thread、response、stream cursor 这类 transport handle 只服务 reconnect / resume / correlation，不构成 exactly-once 保证
+5. provider background / pollable response 若依赖 provider-side stored state 才能轮询或恢复，这仍只是 transport continuity，不是 zero-retention truth；默认要显式考虑 retention / privacy / ZDR 边界；若底层 protocol 已返回 task object / background handle（如 `task_id`、poll interval、TTL / expiry、stream cursor、cancel handle），默认优先复用这些 receiver-generated handle 写入 recovery / wait record，不在本地 transcript 外再造 shadow polling state
 
 ## Session Continuity Boundary
 
@@ -405,6 +394,7 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
 4. source / provenance metadata 例如 `tool`、`human approval`、`external evidence`、`framework note` 应独立于 message / transcript / trace display surface 保留，不要在转换视图时丢失 trust analysis 所需来源
 5. tracing backend 不应成为第二套 canonical task memory 或高敏感语料库
 6. 若 runtime 默认开启内建 tracing 或 agent SDK tracing，就必须显式声明 capture policy、redaction policy 与 disable path；不要假设 vendor default 天然满足 least-data，还要避免与外部 instrumentation 双重上报或语义冲突
+7. trace correlation 最好走协议元数据透传，例如 `traceparent` / `baggage` 与 `tool_use` / `tool_result` `_meta`，不只依赖 transport log 或 vendor-side 拼接
 
 ## Verification / Eval Boundary
 
@@ -422,6 +412,8 @@ observability / replay 的默认职责是解释执行过程、支持 trace corre
 2. guardrail coverage 必须按具体 pipeline 说明；handoff、hosted tool、built-in execution path 可能不走同一 guardrail 链路
 3. `MCP OAuth` 默认按 audience-bound token 设计；client 在授权与 token 请求中显式带 `resource`
 4. server 不得把 client token passthrough 给上游 API
+5. `roots/list` 等 server-to-client discovery request 只属于 request scope，不自动升级为 durable capability grant 或更宽的 trust boundary
+6. 敏感授权默认优先 host-managed auth 或 out-of-band elicitation，不把 bearer token 继续透传给上游服务
 
 ## Non-Goals
 

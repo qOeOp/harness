@@ -1,6 +1,6 @@
 # Work Item Recovery Protocol
 
-更新日期：`2026-03-27`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -25,13 +25,10 @@
 6. 长回合任务、worker run 或后台执行，
    Recovery notes 应显式写明 budget / stop boundary，
    不把 bounded autonomy 只留在聊天里
-7. 等待 human approval / review / feedback 跨 session 时，
-   先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态
-8. steady-state 恢复时，先读 task truth，再做 cheap baseline check，
-   不要跳过环境校验直接续跑旧命令
-9. `resume` 默认是 checkpoint-relative re-entry，
-   不是 instruction-pointer continuation；
-   边界前副作用要么 idempotent，要么放到边界之后
+7. 等待 human approval / review / feedback 跨 session 时，先 pause 再写 Recovery，不要把恢复协议伪装成隐藏等待态；Recovery notes 里应写清 wakeup handle + deadline / expiry
+8. 审批、中断与 async callback 若会成为恢复点，默认带 stable operation id 与 version marker；resume 按 ID 配对，不按显示顺序猜测
+9. steady-state 恢复时，先读 task truth，再做 cheap baseline check，不要跳过环境校验直接续跑旧命令
+10. `resume` 默认是 checkpoint-relative re-entry，不是 instruction-pointer continuation；边界前副作用要么 idempotent，要么放到边界之后
 
 ## 存储规则
 
@@ -58,6 +55,8 @@ Recovery 至少记录：
 2. wall-clock timebox
 3. tool / write budget
 4. pause / cancel / kill semantics
+5. wakeup handle + deadline / expiry
+6. stable operation id + version marker
 
 ## Steady-State Resume Sequence
 
@@ -78,7 +77,8 @@ Recovery 至少记录：
 5. 任务因 Founder / manual / risk review 进入 `paused` 后，应把 resume 命令和恢复条件刷进 `## Recovery`
 6. 任务 budget、timebox 或 stop boundary 发生变化时，
    应同步刷新 Recovery
-7. 长回合准备结束时，应至少留下：
+7. wakeup handle、deadline / expiry、stable operation id 或 version marker 发生变化时，应同步刷新 Recovery
+8. 长回合准备结束时，应至少留下：
    - 可执行的 next command
    - 已验证的完成边界
    - checkpoint、acceptance status 或等价 reviewable artifact 之一

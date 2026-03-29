@@ -63,15 +63,10 @@
 - [docs/workflows/surface-audit.md](./surface-audit.md)
 - [skills/os-audit/templates/surface-audit.md](../../skills/os-audit/templates/surface-audit.md)
 
-若 source repo budget breach：
-
-1. 默认进入 `compaction-only mode`
-2. 当周 surface audit 必须先回答
-   哪些 active surface 应被
-   `compress / merge / archive / delete`
-3. 若确实需要提高 budget，
-   必须先有 reviewable rationale，
-   再修改 budget contract
+若 source repo budget breach，默认进入 `compaction-only mode`；
+当周 surface audit 先回答哪些 active surface 应被
+`compress / merge / archive / delete`；
+若确实需要提高 budget，必须先有 reviewable rationale，再修改 budget contract
 
 ### Escalation Rule
 

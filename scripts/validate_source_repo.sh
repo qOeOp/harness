@@ -55,12 +55,62 @@ forbidden_path() {
   [ ! -e "$1" ] || fail "source repo must not contain consumer/runtime surface: $1"
 }
 
-require_file "SKILL.md"
-require_dir "skills"
-require_dir "roles"
-require_dir "scripts"
-require_dir "docs"
-require_dir "references"
+require_files() {
+  for path in "$@"; do
+    require_file "$path"
+  done
+}
+
+require_dirs() {
+  for path in "$@"; do
+    require_dir "$path"
+  done
+}
+
+require_execs() {
+  for path in "$@"; do
+    require_exec "$path"
+  done
+}
+
+forbidden_paths() {
+  for path in "$@"; do
+    forbidden_path "$path"
+  done
+}
+
+require_patterns() {
+  file="$1"
+  shift
+  for pattern in "$@"; do
+    require_contains "$file" "$pattern"
+  done
+}
+
+forbid_patterns() {
+  file="$1"
+  shift
+  for pattern in "$@"; do
+    forbid_contains "$file" "$pattern"
+  done
+}
+
+require_redirect_pairs() {
+  while [ "$#" -gt 1 ]; do
+    require_redirect_stub "$1" "$2"
+    shift 2
+  done
+}
+
+require_legacy_redirect_pairs() {
+  while [ "$#" -gt 1 ]; do
+    require_legacy_redirect_stub "$1" "$2"
+    shift 2
+  done
+}
+
+require_files "SKILL.md"
+require_dirs "skills" "roles" "scripts" "docs" "references"
 
 for skill_dir in skills/*; do
   [ -d "$skill_dir" ] || continue
@@ -69,120 +119,62 @@ for skill_dir in skills/*; do
   require_file "$skill_dir/refs/README.md"
 done
 
-require_file "docs/project-structure.md"
-require_file "docs/charter/harness-charter.md"
-require_file "docs/memory/memory-architecture.md"
-require_file "references/layering.md"
-require_file "references/runtime-workspace.md"
-require_dir "references/contracts"
-require_file "references/contracts/task-record-runtime-tree-v2.toml"
-require_file "references/contracts/active-surface-entropy-budget-v1.toml"
-require_file "references/top-level-surface.md"
-require_file "references/specs/README.md"
-require_file "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md"
-require_file "docs/organization/decision-rights.md"
-require_file "roles/README.md"
-require_file "roles/runtime-role-manager.md"
-require_dir "skills/research"
-require_file "skills/research/SKILL.md"
-require_file "skills/research/manifest.toml"
-require_file "skills/research/refs/README.md"
-require_file "skills/research/templates/research-dispatch.md"
-require_file "skills/research/templates/research-brief.md"
-require_file "skills/research/templates/research-memo.md"
-require_file "skills/research/templates/source-note.md"
-require_file "skills/research/templates/evidence-ledger.md"
-require_file "skills/acceptance-review/templates/acceptance-ledger.md"
-require_file "scripts/research/browser_extract.py"
-require_file "scripts/research/crawl4ai_extract.py"
-require_file "scripts/research/lib_extract.py"
-require_file "scripts/research/lib_local_browser.py"
-require_file "scripts/research/lib_runtime_paths.py"
-require_file "scripts/research/lib_search.py"
-require_file "scripts/research/local_browser_profiles.py"
-require_file "scripts/research/run_crawl4ai_isolated.sh"
-require_file "scripts/research/search_auto.py"
-require_file "docs/workflows/agent-operator-contract.md"
-require_file "docs/workflows/consumer-runtime-routing.md"
-require_file "docs/workflows/task-artifact-routing.md"
-require_file "docs/workflows/post-acceptance-compounding-loop.md"
-require_file "docs/workflows/surface-audit.md"
-require_file "docs/workflows/provider-deltas/gemini.md"
-require_file "docs/workflows/tool-adapter-capability-map.md"
-require_file "roles/README.md"
-require_file "docs/templates/role-change-proposal.md"
-require_file "skills/os-audit/templates/surface-audit.md"
+require_dirs "references/contracts" "skills/research"
+require_files \
+  "docs/project-structure.md" "docs/charter/harness-charter.md" \
+  "docs/memory/memory-architecture.md" "references/layering.md" \
+  "references/runtime-workspace.md" "references/contracts/task-record-runtime-tree-v2.toml" \
+  "references/contracts/active-surface-entropy-budget-v1.toml" "references/top-level-surface.md" \
+  "references/specs/README.md" "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" \
+  "docs/organization/decision-rights.md" "roles/README.md" \
+  "roles/runtime-role-manager.md" "skills/research/SKILL.md" \
+  "skills/research/manifest.toml" "skills/research/refs/README.md" \
+  "skills/research/templates/research-dispatch.md" "skills/research/templates/research-brief.md" \
+  "skills/research/templates/research-memo.md" "skills/research/templates/source-note.md" \
+  "skills/research/templates/evidence-ledger.md" "skills/acceptance-review/templates/acceptance-ledger.md" \
+  "scripts/research/browser_extract.py" "scripts/research/crawl4ai_extract.py" \
+  "scripts/research/lib_extract.py" "scripts/research/lib_local_browser.py" \
+  "scripts/research/lib_runtime_paths.py" "scripts/research/lib_search.py" \
+  "scripts/research/local_browser_profiles.py" "scripts/research/run_crawl4ai_isolated.sh" \
+  "scripts/research/search_auto.py" "docs/workflows/agent-operator-contract.md" \
+  "docs/workflows/consumer-runtime-routing.md" "docs/workflows/task-artifact-routing.md" \
+  "docs/workflows/post-acceptance-compounding-loop.md" "docs/workflows/surface-audit.md" \
+  "docs/workflows/provider-deltas/gemini.md" "docs/workflows/tool-adapter-capability-map.md" \
+  "docs/templates/role-change-proposal.md" "skills/os-audit/templates/surface-audit.md"
 
-require_exec "scripts/materialize_runtime_fixture.sh"
-require_exec "scripts/run_surface_diagnostic.sh"
-require_exec "scripts/run_governance_surface_diagnostic.sh"
-require_exec "scripts/run_shared_writeback_surface_diagnostic.sh"
-require_exec "scripts/audit_entropy_budget.sh"
-require_exec "scripts/run_state_validation_slice.sh"
-require_exec "scripts/audit_role_schema.sh"
-require_exec "scripts/new_role.sh"
-require_exec "scripts/edit_role.sh"
-require_exec "scripts/enforce_role_policy.sh"
-require_exec "scripts/resolve_consumer_runtime_root.sh"
-require_exec "scripts/new_role_change_proposal.sh"
-require_exec "scripts/runtime_role_manager.sh"
-require_exec "scripts/research_ctl.sh"
-require_exec "scripts/research/run_crawl4ai_isolated.sh"
-require_exec "skills/research/scripts/new_dispatch.sh"
-require_exec "skills/research/scripts/new_brief.sh"
-require_exec "skills/research/scripts/new_memo.sh"
-require_exec "skills/research/scripts/new_source_note.sh"
-require_exec "skills/research/scripts/new_ledger.sh"
-require_exec "skills/decision-pack/scripts/new_decision.sh"
-require_exec "skills/memory-checkpoint/scripts/new_checkpoint.sh"
-require_exec "skills/acceptance-review/scripts/new_acceptance_ledger.sh"
-require_exec "scripts/new_acceptance_ledger.sh"
+require_execs \
+  "scripts/materialize_runtime_fixture.sh" "scripts/run_surface_diagnostic.sh" \
+  "scripts/run_governance_surface_diagnostic.sh" "scripts/run_shared_writeback_surface_diagnostic.sh" \
+  "scripts/audit_entropy_budget.sh" "scripts/run_state_validation_slice.sh" \
+  "scripts/audit_role_schema.sh" "scripts/new_role.sh" \
+  "scripts/edit_role.sh" "scripts/enforce_role_policy.sh" \
+  "scripts/resolve_consumer_runtime_root.sh" "scripts/new_role_change_proposal.sh" \
+  "scripts/runtime_role_manager.sh" "scripts/research_ctl.sh" \
+  "scripts/research/run_crawl4ai_isolated.sh" "skills/research/scripts/new_dispatch.sh" \
+  "skills/research/scripts/new_brief.sh" "skills/research/scripts/new_memo.sh" \
+  "skills/research/scripts/new_source_note.sh" "skills/research/scripts/new_ledger.sh" \
+  "skills/decision-pack/scripts/new_decision.sh" "skills/memory-checkpoint/scripts/new_checkpoint.sh" \
+  "skills/acceptance-review/scripts/new_acceptance_ledger.sh" "scripts/new_acceptance_ledger.sh"
 
-forbidden_path ".harness"
-forbidden_path ".agents/skills/harness"
-forbidden_path "AGENTS.md"
-forbidden_path "CLAUDE.md"
-forbidden_path "GEMINI.md"
-forbidden_path "README_CLAUDE.md"
-forbidden_path "README_CODEX.md"
-forbidden_path "README_GEMINI.md"
-forbidden_path ".claude"
-forbidden_path ".codex"
-forbidden_path ".gemini"
-forbidden_path "roles/learning-evolution-lead.md"
-forbidden_path "roles/market-intelligence-lead.md"
-forbidden_path "roles/position-operations-lead.md"
-forbidden_path "roles/risk-office-lead.md"
-forbidden_path "roles/strategy-research-lead.md"
-forbidden_path "skills/research-memo"
-forbidden_path "skills/research-dispatch"
-forbidden_path "skills/researcher"
-forbidden_path "skills/daily-digest"
-forbidden_path "skills/governance-meeting"
-forbidden_path "skills/retro"
-forbidden_path "scripts/researcher"
-forbidden_path "scripts/researcher_ctl.sh"
-forbidden_path "scripts/new_researcher_brief.sh"
-forbidden_path "scripts/new_company_digest.sh"
-forbidden_path "scripts/new_daily_report.sh"
-forbidden_path "scripts/new_retro.sh"
-forbidden_path "docs/workflows/founder-governance-meeting-loop.md"
-forbidden_path "docs/workflows/company-bootstrap-loop.md"
-forbidden_path "docs/charter/company-charter.md"
-forbidden_path "docs/organization/org-chart.md"
-forbidden_path "docs/organization/workstream-map.md"
-forbidden_path "docs/organization/governance-capability-map.md"
-forbidden_path "docs/organization/company-os-runtime-data-map.md"
-forbidden_path "docs/organization/compounding-engineering-lead.md"
-forbidden_path "docs/templates/company-daily-digest.md"
-forbidden_path "docs/templates/governance-meeting-brief.md"
-forbidden_path "docs/templates/daily-workstream-report.md"
-forbidden_path "docs/templates/workstream-bootstrap-brief.md"
-forbidden_path "docs/templates/workstream-retro.md"
-forbidden_path "references/specs/2026-03-25-harness-invoke-first-vnext-spec-v1.md"
-forbidden_path "references/specs/2026-03-25-harness-vnext-round1-reduction-inventory-v1.toml"
-forbidden_path "references/specs/2026-03-26-harness-surface-buckets-v1.md"
-forbidden_path "references/specs/2026-03-27-codex-worktree-convergence-matrix-v1.md"
+forbidden_paths \
+  ".harness" ".agents/skills/harness" "AGENTS.md" "CLAUDE.md" "GEMINI.md" \
+  "README_CLAUDE.md" "README_CODEX.md" "README_GEMINI.md" ".claude" ".codex" ".gemini" \
+  "roles/learning-evolution-lead.md" "roles/market-intelligence-lead.md" "roles/position-operations-lead.md" \
+  "roles/risk-office-lead.md" "roles/strategy-research-lead.md" "skills/research-memo" \
+  "skills/research-dispatch" "skills/researcher" "skills/daily-digest" "skills/governance-meeting" \
+  "skills/retro" "scripts/researcher" "scripts/researcher_ctl.sh" \
+  "scripts/new_researcher_brief.sh" "scripts/new_company_digest.sh" "scripts/new_daily_report.sh" \
+  "scripts/new_retro.sh" "docs/workflows/founder-governance-meeting-loop.md" \
+  "docs/workflows/company-bootstrap-loop.md" "docs/charter/company-charter.md" \
+  "docs/organization/org-chart.md" "docs/organization/workstream-map.md" \
+  "docs/organization/governance-capability-map.md" "docs/organization/company-os-runtime-data-map.md" \
+  "docs/organization/compounding-engineering-lead.md" "docs/templates/company-daily-digest.md" \
+  "docs/templates/governance-meeting-brief.md" "docs/templates/daily-workstream-report.md" \
+  "docs/templates/workstream-bootstrap-brief.md" "docs/templates/workstream-retro.md" \
+  "references/specs/2026-03-25-harness-invoke-first-vnext-spec-v1.md" \
+  "references/specs/2026-03-25-harness-vnext-round1-reduction-inventory-v1.toml" \
+  "references/specs/2026-03-26-harness-surface-buckets-v1.md" \
+  "references/specs/2026-03-27-codex-worktree-convergence-matrix-v1.md"
 
 require_contains "docs/memory/memory-architecture.md" '默认 runtime memory 是 `task-scoped`'
 require_contains "docs/memory/memory-architecture.md" '.harness/tasks/<task-id>/task.md'
@@ -224,15 +216,14 @@ require_contains "docs/workflows/provider-deltas/gemini.md" 'harness 不生成�
 require_contains "docs/workflows/provider-deltas/gemini.md" 'Projection Config Changes Are Explicit Boundaries'
 require_contains "docs/workflows/tool-adapter-capability-map.md" 'harness 不生成、不修改、不校验'
 require_contains "docs/workflows/tool-adapter-capability-map.md" '名字路由 / 地址簿同样属于 user-owned integration'
-for needle in 'discovery scope + operational boundary' 'path 映射' 'tool annotation / execution metadata' 'untrusted server' 'planning + safety surface' 'cheap、idempotent、re-entrant'; do require_contains "docs/workflows/tool-adapter-capability-map.md" "$needle"; done; for needle in 'discovery scope + operational boundary' 'path mapping'; do require_contains "roles/workflow-automation-lead.md" "$needle"; done
+require_contains "docs/workflows/tool-adapter-capability-map.md" '`roots/list`'
+for needle in '`roots/list`' 'host-managed auth' '`tool_use` / `tool_result` `_meta`'; do require_contains "docs/workflows/tool-adapter-capability-map.md" "$needle"; done
+for needle in 'discovery scope + operational boundary' 'path 映射' 'tool annotation / execution metadata' 'untrusted server' 'planning + safety surface' 'cheap、idempotent、re-entrant'; do require_contains "docs/workflows/tool-adapter-capability-map.md" "$needle"; done
+for needle in 'discovery scope + operational boundary' 'path mapping' '`roots/list`' 'host-managed auth'; do require_contains "roles/workflow-automation-lead.md" "$needle"; done
 require_contains "skills/research/refs/runtime-contract.md" 'configured SearXNG instance'
 require_contains "skills/research/refs/runtime-contract.md" 'optional heavy-duty headless crawler'
 require_contains "skills/research/refs/runtime-contract.md" '.harness/runtime/research/'
-require_contains "references/runtime-workspace.md" '.harness/runtime/'
-require_contains "references/runtime-workspace.md" 'explicit schema / format version'
-require_contains "references/runtime-workspace.md" 'migrate or fail closed'
-require_contains "references/runtime-workspace.md" 'provider-side stored state'
-require_contains "references/runtime-workspace.md" 'zero-retention / ZDR-safe 前提'
+for needle in '.harness/runtime/' 'explicit schema / format version' 'migrate or fail closed' 'provider-side stored state' 'zero-retention / ZDR-safe 前提' 'wakeup handle + deadline / expiry' 'stable operation id' 'shadow polling state'; do require_contains "references/runtime-workspace.md" "$needle"; done
 require_contains "docs/project-structure.md" '.harness/runtime/'
 require_contains "docs/project-structure.md" 'capability-specific templates 默认放在 `skills/*/templates/`'
 require_contains "skills/research/manifest.toml" '.harness/runtime/research/'
@@ -304,6 +295,7 @@ require_contains "docs/workflows/agent-operator-contract.md" 'instruction contin
 require_contains "docs/workflows/agent-operator-contract.md" 'serialized app / agent / session context'
 require_contains "docs/workflows/agent-operator-contract.md" 'provider-side stored state'
 require_contains "docs/workflows/agent-operator-contract.md" 'subagent memory directory /'
+for needle in 'wakeup handle + deadline' 'stable operation id' 'version marker' '`roots/list`' 'host-managed auth' 'out-of-band elicitation' '`tool_use` / `tool_result` `_meta`'; do require_contains "docs/workflows/agent-operator-contract.md" "$needle"; done
 require_contains "docs/workflows/agent-operator-contract.md" 'capture policy、'
 require_contains "docs/workflows/agent-operator-contract.md" 'blocking preflight、'
 require_contains "docs/workflows/agent-operator-contract.md" 'guardrail coverage'
@@ -334,6 +326,7 @@ require_contains "docs/workflows/document-routing-and-lifecycle.md" 'audit_entro
 require_contains "docs/workflows/work-item-recovery-protocol.md" '等待 human approval / review / feedback 跨 session 时'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'cheap baseline check'
 require_contains "docs/workflows/work-item-recovery-protocol.md" 'checkpoint-relative re-entry'
+for needle in 'wakeup handle + deadline' 'stable operation id'; do require_contains "docs/workflows/work-item-recovery-protocol.md" "$needle"; done
 require_contains "docs/workflows/work-item-interrupt-protocol.md" 'instruction-pointer continuation'
 require_contains "roles/runtime-role-manager.md" 'policy_allowed_entrypoints: scripts/runtime_role_manager.sh'
 require_contains "references/specs/README.md" '`references/specs/` 只保留仍贴近当前 contract 或实现收敛方向的 spec。'
@@ -355,6 +348,7 @@ require_contains "references/specs/2026-03-27-harness-task-record-runtime-contra
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'serialized app / agent / session context'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'provider-side stored state'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'subagent memory directory /'
+for needle in 'wakeup handle' 'stable operation id' 'version marker' '`roots/list`' 'host-managed auth' 'out-of-band elicitation' '`tool_use` / `tool_result` `_meta`'; do require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" "$needle"; done
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'capture policy、'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'blocking preflight、'
 require_contains "references/specs/2026-03-27-harness-task-record-runtime-contract-v2.md" 'audience-bound token'
@@ -435,6 +429,7 @@ require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'auto_i
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'builtin_tracing_defaults_require_explicit_capture_policy = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'side_effect_prevention_requires_blocking_preflight_or_wrapper = true'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'mcp_oauth_tokens_must_be_audience_bound = true'
+for needle in 'cross_run_wait_requires_deadline_or_expiry = true' 'approval_interrupt_and_async_resume_require_stable_operation_id = true' 'approval_interrupt_and_async_resume_require_version_marker = true' 'resume_pairs_by_operation_id_not_display_order = true' 'server_to_client_discovery_requests_are_request_scoped_only = true' 'sensitive_auth_should_prefer_host_managed_or_out_of_band = true' 'trace_correlation_should_flow_via_protocol_metadata = true'; do require_contains "references/contracts/task-record-runtime-tree-v2.toml" "$needle"; done
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'tool outputs should prefer handles, locators, or page tokens over inline blobs when large or paged'
 require_contains "references/contracts/task-record-runtime-tree-v2.toml" 'update-only acceptance ledger under attachments/ with status/checklist plus evidence references rather than full-spec rewrites'
 for needle in 'builtin_tracing_must_avoid_double_reporting_or_semantic_conflict = true' 'deterministic_gate_precedes_trace_or_llm_eval = true' 'exact_trajectory_is_not_default_pass_condition = true' 'multi_component_eval_may_award_partial_credit = true' 'mcp_roots_are_operational_boundary_not_just_discovery_scope = true' 'mcp_root_exposure_and_path_mapping_require_explicit_validation = true' 'receiver_generated_background_handles_should_be_reused = true' 'runtime_must_not_create_shadow_polling_state_when_protocol_exposes_handle = true' 'resume_or_compact_may_retrigger_dynamic_hooks = true' 'hook_logic_should_be_cheap_idempotent_and_reentrant = true' 'untrusted_tool_annotations_are_planning_or_routing_hints_only = true'; do require_contains "references/contracts/task-record-runtime-tree-v2.toml" "$needle"; done

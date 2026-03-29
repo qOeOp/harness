@@ -150,16 +150,11 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
 
 1. 完整 prompt、instruction、tool payload 与 model output 默认不采集
 2. 内容级捕获必须显式 opt-in，而不是静默默认开启
-3. 优先记录 artifact path、evidence reference、object handle 或 content hash；
-   若 tool output 体积大、可分页或高保真，默认让 tool contract 优先返回
-   handle / locator / page token，不把大 blob 直接塞回上下文
-4. source / provenance metadata
-   例如 `tool`、`human approval`、`external evidence`、
-   `framework note`
-   应独立于 message / transcript / trace display surface 保留，
-   不要在转换视图时把信任来源抹平
+3. 优先记录 artifact path、evidence reference、object handle 或 content hash；若 tool output 体积大、可分页或高保真，默认让 tool contract 优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
+4. source / provenance metadata 例如 `tool`、`human approval`、`external evidence`、`framework note` 应独立于 message / transcript / trace display surface 保留，不要在转换视图时把信任来源抹平
 5. tracing backend 不应承担第二份 canonical task memory 的职责
 6. 若 runtime 默认开启内建 tracing 或 agent SDK tracing，必须显式声明 capture policy、redaction policy 与 disable path；不要假设 vendor default 天然满足 least-data，也不要与外部 instrumentation 双重上报或默默复用冲突语义
+7. trace correlation 最好走协议元数据透传，例如 `traceparent` / `baggage` 与 `tool_use` / `tool_result` `_meta`，不只依赖 transport log 或 vendor-side 拼接
 
 ## Default Operating Loop
 
@@ -299,16 +294,13 @@ locator、content hash
 
 默认要求：
 
-1. resume 后前置代码可能重跑，
-   不要假设 exactly-once execution
-2. 边界前的外部副作用必须具备 effect fence，
-   例如 idempotency key、expected version、write intent
-   或被移到边界之后
-3. webhook、queue、async callback
-   默认按 at-least-once delivery 设计，
-   唤醒链路必须带 dedupe / idempotency 语义
-4. 不要把活着的线程、socket、stream
-   当成跨 session 的 wakeup contract
+1. resume 后前置代码可能重跑，不要假设 exactly-once execution
+2. 边界前的外部副作用必须具备 effect fence，例如 idempotency key、expected version、write intent，或被移到边界之后
+3. webhook、queue、async callback 默认按 at-least-once delivery 设计，唤醒链路必须带 dedupe / idempotency 语义
+4. 不要把活着的线程、socket、stream 当成跨 session 的 wakeup contract
+5. 外部等待必须显式落成 wakeup handle + deadline 或 expiry 的 transition / recovery record，不把“稍后再看”只留在 prose
+6. 审批、中断与 async callback 这类恢复点默认带 stable operation id 与 version marker；resume 按 ID 配对，不按显示顺序猜测
+7. 若底层 protocol 已返回 `task object / background handle`，例如 `task_id`、poll interval、TTL / expiry、stream cursor、cancel handle，默认复用 receiver-generated handle，不在本地 transcript 外另造 shadow polling state
 
 ## Session Continuity Rule
 
@@ -402,23 +394,11 @@ provider / SDK continuation handle
 
 默认要求：
 
-1. 若目标是阻止副作用，
-   默认使用 blocking preflight、
-   tool wrapper 或外层 approval gate；
-   不要把 input / output guardrail
-   或 parallel guardrail
-   当成唯一防线
-2. guardrail coverage
-   必须按具体 pipeline 说明；
-   handoff、hosted tool、
-   built-in execution path
-   可能不走同一 guardrail 链路
-3. `MCP OAuth` 默认按
-   audience-bound token 设计；
-   client 在授权与 token 请求中
-   显式带 `resource`，
-   server 不得把 client token
-   passthrough 给上游 API
+1. 若目标是阻止副作用，默认使用 blocking preflight、tool wrapper 或外层 approval gate；不要把 input / output guardrail 或 parallel guardrail 当成唯一防线
+2. guardrail coverage 必须按具体 pipeline 说明；handoff、hosted tool、built-in execution path 可能不走同一 guardrail 链路
+3. `MCP OAuth` 默认按 audience-bound token 设计；client 在授权与 token 请求中显式带 `resource`，server 不得把 client token passthrough 给上游 API
+4. `roots/list` 等 server-to-client discovery request 只属于 request scope，不自动升级为 durable capability grant 或更宽的 trust boundary
+5. 敏感授权默认优先 host-managed auth 或 out-of-band elicitation，而不是把 bearer token 继续透传给上游服务
 
 ## Worktree Rules
 

@@ -1,6 +1,6 @@
 # Tool Adapter Capability Map
 
-更新日期：`2026-03-28`
+更新日期：`2026-03-29`
 
 ## 目的
 
@@ -24,7 +24,7 @@
 3. 任何关键能力都不能只活在某个 provider 的 `command` 或 `hook` 里
 4. consumer runtime 的名字路由 / 地址簿同样属于 user-owned integration，不属于 runtime contract
 5. `MCP roots`、OAuth scope / audience、tool allowlist、permission mode 属于 capability grant / transport policy，
-   应落在 config、policy 或 typed metadata；其中 `MCP roots` 更像 discovery scope + operational boundary，不是单独充分的安全边界，client / server 都应显式校验 root 暴露、变更与 path 映射；tool name、description、argument schema、output contract 与 tool annotation / execution metadata 也是 agent-facing runtime surface，默认短、明确、typed；来自 untrusted server 的 hint 只辅助 planning + safety surface / UX / routing，不直接充当 enforcement 依据；大输出优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
+   应落在 config、policy 或 typed metadata；其中 `MCP roots` 更像 discovery scope + operational boundary，不是单独充分的安全边界，client / server 都应显式校验 root 暴露、变更与 path 映射；`roots/list` 等 server-to-client discovery request 只属于 request scope，不自动升级为 durable capability grant；tool name、description、argument schema、output contract 与 tool annotation / execution metadata 也是 agent-facing runtime surface，默认短、明确、typed；来自 untrusted server 的 hint 只辅助 planning + safety surface / UX / routing，不直接充当 enforcement 依据；敏感授权默认优先 host-managed auth 或 out-of-band elicitation，不把 bearer token 继续 passthrough 给上游；trace correlation 最好随协议元数据透传，例如 `traceparent` / `baggage` 与 `tool_use` / `tool_result` `_meta`；大输出优先返回 handle / locator / page token，不把大 blob 直接塞回上下文
 
 ## Adapter-Only Surface
 

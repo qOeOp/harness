@@ -129,9 +129,13 @@ checkpoint_crash_safety_scope_must_not_be_implicit = true
 
 [wakeup]
 cross_run_wait_requires_explicit_handle_or_event = true
+cross_run_wait_requires_deadline_or_expiry = true
 async_delivery_model = "at-least-once"
 async_wakeup_requires_dedupe_or_idempotency_key = true
 live_socket_or_stream_is_not_a_wakeup_contract = true
+approval_interrupt_and_async_resume_require_stable_operation_id = true
+approval_interrupt_and_async_resume_require_version_marker = true
+resume_pairs_by_operation_id_not_display_order = true
 receiver_generated_background_handles_should_be_reused = true
 runtime_must_not_create_shadow_polling_state_when_protocol_exposes_handle = true
 
@@ -193,6 +197,8 @@ builtin_tracing_defaults_require_explicit_capture_policy = true
 builtin_tracing_defaults_require_explicit_redaction_policy = true
 builtin_tracing_defaults_require_disable_path = true
 builtin_tracing_must_avoid_double_reporting_or_semantic_conflict = true
+trace_correlation_should_flow_via_protocol_metadata = true
+trace_correlation_metadata_examples = ["traceparent", "baggage", "tool_use._meta", "tool_result._meta"]
 
 [verification]
 deterministic_gate_precedes_trace_or_llm_eval = true
@@ -209,10 +215,12 @@ guardrail_pipeline_coverage_must_be_explicit = true
 [capability_grants]
 mcp_roots_are_operational_boundary_not_just_discovery_scope = true
 mcp_root_exposure_and_path_mapping_require_explicit_validation = true
+server_to_client_discovery_requests_are_request_scoped_only = true
 untrusted_tool_annotations_are_planning_or_routing_hints_only = true
 mcp_oauth_tokens_must_be_audience_bound = true
 mcp_oauth_client_must_send_resource = true
 mcp_oauth_server_must_not_passthrough_client_token = true
+sensitive_auth_should_prefer_host_managed_or_out_of_band = true
 
 [claims]
 active_statuses_require_assignee_worktree_claim = true

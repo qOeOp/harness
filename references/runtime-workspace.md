@@ -82,15 +82,14 @@ Recommended non-canonical support root:
 7. `interrupt / resume` 默认是 checkpoint-relative re-entry，
    不是 instruction-pointer continuation；
    边界前的外部副作用应有 idempotency 或 effect fence
-8. webhook、queue、async callback
-   这类外部 wakeup 默认按 at-least-once delivery 设计，
-   恢复链路应带 dedupe / idempotency key，
-   不把活着的 socket / stream 当成 contract
-9. `in-progress` / `paused` task 默认应带显式 claim lease：
+8. webhook、queue、async callback 这类外部 wakeup 默认按 at-least-once delivery 设计，恢复链路应带 dedupe / idempotency key，不把活着的 socket / stream 当成 contract
+9. 跨 run wait 默认应记录 wakeup handle + deadline / expiry；审批、中断与 async callback 应带 stable operation id 与 version marker，resume 按 ID 配对
+10. 若底层 protocol 已返回 task object / background handle，例如 `task_id`、poll interval、stream cursor 或 cancel handle，默认复用这些 receiver-generated handle，不另造 shadow polling state
+11. `in-progress` / `paused` task 默认应带显式 claim lease：
    `Assignee`、`Worktree`、`Claimed at`、`Claim expires at`、`Lease version`
-10. `.harness/locks/` 负责短生命周期 mutation guard；
-   `task.md` 头部 claim 字段负责 task-level claim snapshot，
-   两者不能互相替代
+12. `.harness/locks/` 负责短生命周期 mutation guard；
+    `task.md` 头部 claim 字段负责 task-level claim snapshot，
+    两者不能互相替代
 
 Machine-readable contract:
 

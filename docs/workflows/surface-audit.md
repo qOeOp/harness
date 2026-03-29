@@ -66,18 +66,9 @@ source repo 的 active surface
 1. budget 按 active source 计数，
    默认不把 `references/archive/`
    计入 source working set
-2. budget breach 不是“提醒”，
-   而是进入 `compaction-only mode`
-3. `compaction-only mode`
-   默认只允许：
-   - `compress`
-   - `merge`
-   - `archive`
-   - `delete`
-   - 必须的 bug fix
-   - 必须的 contract tightening
-   - 把 prose rule 下沉到
-     更硬 control surface
+2. budget breach 不是“提醒”，而是进入 `compaction-only mode`
+3. `compaction-only mode` 默认只允许 `compress / merge / archive / delete`，
+   或必须的 bug fix、contract tightening、把 prose rule 下沉到更硬 control surface
 4. 若要提高 budget，
    必须显式修改 contract，
    并附 reviewable rationale；
