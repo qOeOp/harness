@@ -251,9 +251,9 @@ wait / wakeup 是 runtime contract，不是活着的线程偶然还在。
    若依赖 provider-side stored state
    才能轮询或恢复，
    这仍只是 transport continuity，
-   不是 zero-retention truth；
-   默认要显式考虑 retention / privacy /
-   ZDR 边界
+   不是 zero-retention truth；默认要显式考虑 retention / privacy / ZDR 边界；
+   若底层 protocol 已返回 task object / background handle（如 `task_id`、poll interval、TTL / expiry、stream cursor、cancel handle），
+   默认优先复用这些 receiver-generated handle 写入 recovery / wait record，不在本地 transcript 外再造 shadow polling state
 
 ## Session Continuity Boundary
 
@@ -291,6 +291,8 @@ provider / SDK continuation handle
    仍必须回落到 `task.md`、
    `attachments/` 或
    `history/transitions/`
+8. dynamic hook / session-start context 在 resume / compact / session restore 时可能再次触发；
+   因此 hook 逻辑默认 cheap、idempotent、re-entrant，不把一次性 side effect 或隐藏状态迁移藏进启动钩子
 
 ## Prompt Shape / Runtime Config Boundary
 

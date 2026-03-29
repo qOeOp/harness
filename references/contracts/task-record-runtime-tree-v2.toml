@@ -132,6 +132,8 @@ cross_run_wait_requires_explicit_handle_or_event = true
 async_delivery_model = "at-least-once"
 async_wakeup_requires_dedupe_or_idempotency_key = true
 live_socket_or_stream_is_not_a_wakeup_contract = true
+receiver_generated_background_handles_should_be_reused = true
+runtime_must_not_create_shadow_polling_state_when_protocol_exposes_handle = true
 
 [transport_state]
 provider_or_sdk_handles_are_transport_state_only = true
@@ -175,6 +177,10 @@ auto_injected_memory_is_persisted_data = true
 auto_injected_memory_is_capability_grant = true
 durable_facts_must_fall_back_to_task_truth = true
 
+[hooks]
+resume_or_compact_may_retrigger_dynamic_hooks = true
+hook_logic_should_be_cheap_idempotent_and_reentrant = true
+
 [observability]
 source_provenance_must_survive_display_projection = true
 provenance_examples = [
@@ -203,6 +209,7 @@ guardrail_pipeline_coverage_must_be_explicit = true
 [capability_grants]
 mcp_roots_are_operational_boundary_not_just_discovery_scope = true
 mcp_root_exposure_and_path_mapping_require_explicit_validation = true
+untrusted_tool_annotations_are_planning_or_routing_hints_only = true
 mcp_oauth_tokens_must_be_audience_bound = true
 mcp_oauth_client_must_send_resource = true
 mcp_oauth_server_must_not_passthrough_client_token = true
