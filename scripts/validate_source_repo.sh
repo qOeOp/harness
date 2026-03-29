@@ -17,7 +17,6 @@ require_file() {
 require_dir() {
   [ -d "$1" ] || fail "missing directory: $1"
 }
-
 require_exec() {
   [ -x "$1" ] || fail "not executable: $1"
 }
@@ -117,6 +116,10 @@ for skill_dir in skills/*; do
   require_file "$skill_dir/SKILL.md"
   require_file "$skill_dir/manifest.toml"
   require_file "$skill_dir/refs/README.md"
+done
+for manifest in skills/*/manifest.toml; do
+  owner_role=$(sed -n 's/^owner_role = "\(.*\)"$/\1/p' "$manifest" | head -n 1)
+  [ -n "$owner_role" ] && require_file "roles/$owner_role.md" || fail "missing owner_role target in $manifest"
 done
 
 require_dirs "references/contracts" "skills/research"

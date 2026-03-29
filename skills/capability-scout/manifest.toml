@@ -4,7 +4,7 @@ bundle_version = 1
 bundle_kind = "task-skill"
 summary = "Scout external capabilities and convert the best patterns into bounded local harness skills."
 
-owner_role = "capability-architect"
+owner_role = "compounding-engineering-lead"
 scope = "source-baseline"
 maturity = "candidate"
 
