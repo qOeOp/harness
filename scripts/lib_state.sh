@@ -1121,7 +1121,7 @@ is_valid_trace_event_type() {
 
 is_valid_type() {
   case "$1" in
-    vision|governance|company-init|research|demo) return 0 ;;
+    vision|control|bootstrap|governance|company-init|research|demo) return 0 ;;
     *) return 1 ;;
   esac
 }

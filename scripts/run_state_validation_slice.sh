@@ -87,7 +87,7 @@ run_node_free_control_loop_regression() {
       field_value "$(canonical_work_item_path "$task_id")" "State version"
     }
 
-    control_item=$("$script_dir/new_work_item.sh" governance "Node-Free Task Record Control Loop")
+    control_item=$("$script_dir/new_work_item.sh" control "Node-Free Task Record Control Loop")
     control_id=$(field_value "$control_item" "ID")
 
     "$script_dir/update_work_item_fields.sh" \
@@ -210,7 +210,7 @@ trap cleanup EXIT HUP INT TERM
     fi
   done
 
-  validation_item=$("$script_dir/new_work_item.sh" governance "Harness Task Record Smoke Chain" "Workflow & Automation Lead" high general-manager)
+  validation_item=$("$script_dir/new_work_item.sh" control "Harness Task Record Smoke Chain" "Workflow & Automation Lead" high general-manager)
   validation_id=$(field_value "$validation_item" "ID")
 
   if [ "$validation_item" != "$(canonical_work_item_path "$validation_id")" ]; then

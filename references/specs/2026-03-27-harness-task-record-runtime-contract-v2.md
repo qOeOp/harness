@@ -43,7 +43,7 @@
 1. `runtime/` 是按需出现的 non-canonical support root，用于 cache、tool home、isolated env 等 operational state
 2. `attachments/`、`closure/`、`history/transitions/` 按需创建
 3. 默认 query 直接从 `task.md` header 派生
-4. board 不属于默认 runtime contract
+4. board / digest / org chart 不属于默认 runtime contract
 
 ## Runtime Support State Boundary
 

@@ -43,13 +43,13 @@
 - `SKILL.md`
   - 根 skill 入口
 - `skills/`
-  - 可复用 skill 包
+  - 按 capability family 组织的自包含 skill bundle
 - `roles/`
   - `harness` 内置责任主体与默认路由基线
 - `scripts/`
   - runtime、audit、source maintenance 脚本
 - `docs/`
-  - workflow、charter、memory 与跨-skill 共享模板
+  - 只保留跨-skill 都承重的 workflow、charter、memory 与审计入口
   - capability-specific templates 默认放在 `skills/*/templates/`
   - `docs/templates/` 若保留 skill template 同名文件，应只作为 legacy redirect stub
 - `references/`

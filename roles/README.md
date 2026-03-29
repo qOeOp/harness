@@ -28,7 +28,7 @@
 
 `roles/*` 定义责任主体，不定义能力 bundle。
 
-一个 baseline role 通常会组合多个 `skills/*`：
+一个 baseline role 通常按 capability family 组合多个 `skills/*`：
 
 1. `general-manager`
    - 常用 `founder-brief`, `meeting-router`, `decision-pack`, `research`
