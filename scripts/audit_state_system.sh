@@ -42,8 +42,8 @@ done
 
 if [ -z "$mode" ]; then
   runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "")
-  advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "")
-  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
+  shared_writeback_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "")
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$shared_writeback_enabled" = "true" ]; then
     mode="shared"
   else
     mode="core"

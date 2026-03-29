@@ -45,7 +45,7 @@ fi
 
 board_path=""
 
-if runtime_governance_enabled; then
+if runtime_shared_writeback_enabled; then
   board_path=$(board_path_for_scope "$scope") || { usage; exit 1; }
 else
   board_path="none"

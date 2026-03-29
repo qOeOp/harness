@@ -135,7 +135,7 @@ if [ -n "$runtime_root" ]; then
   if [ "$deprecated_runtime_root_flag" -eq 1 ]; then
     echo "warning: --runtime-root is deprecated; use --consumer-runtime-root instead." >&2
   fi
-  require_advanced_governance_consumer_runtime_root "$resolved_runtime_root" "new_role.sh" "$repo_root"
+  require_shared_writeback_consumer_runtime_root "$resolved_runtime_root" "new_role.sh" "$repo_root"
   role_dir="$resolved_runtime_root/.harness/workspace/roles"
   instructions_heading="## Runtime Instructions"
 else

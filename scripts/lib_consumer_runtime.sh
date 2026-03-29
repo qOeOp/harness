@@ -38,17 +38,19 @@ consumer_runtime_manifest_value() {
   ' "$manifest_path"
 }
 
-consumer_runtime_governance_enabled() {
+consumer_runtime_shared_writeback_enabled() {
   runtime_root="$1"
   runtime_mode=$(consumer_runtime_manifest_value "$runtime_root" "runtime_mode" || printf '%s\n' "")
-  governance_enabled=$(consumer_runtime_manifest_value "$runtime_root" "advanced_governance_enabled" || printf '%s\n' "")
+  shared_writeback_enabled=$(consumer_runtime_manifest_value "$runtime_root" "advanced_governance_enabled" || printf '%s\n' "")
 
-  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$shared_writeback_enabled" = "true" ]; then
     return 0
   fi
 
   return 1
 }
+
+consumer_runtime_governance_enabled() { consumer_runtime_shared_writeback_enabled "$1"; }
 
 require_materialized_consumer_runtime_root() {
   runtime_root="$1"
@@ -77,14 +79,14 @@ require_materialized_consumer_runtime_root() {
   }
 }
 
-require_advanced_governance_consumer_runtime_root() {
+require_shared_writeback_consumer_runtime_root() {
   runtime_root="$1"
   caller_name="$2"
   source_repo_root="${3:-}"
 
   require_materialized_consumer_runtime_root "$runtime_root" "$caller_name" "$source_repo_root"
 
-  consumer_runtime_governance_enabled "$runtime_root" || {
+  consumer_runtime_shared_writeback_enabled "$runtime_root" || {
     echo "$caller_name requires a consumer runtime with shared writeback enabled: $runtime_root" >&2
     exit 1
   }
@@ -94,3 +96,5 @@ require_advanced_governance_consumer_runtime_root() {
     exit 1
   }
 }
+
+require_advanced_governance_consumer_runtime_root() { require_shared_writeback_consumer_runtime_root "$@"; }

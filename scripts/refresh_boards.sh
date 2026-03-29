@@ -26,14 +26,14 @@ fi
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 ensure_core_runtime_dirs
 
-if ! runtime_governance_enabled; then
+if ! runtime_shared_writeback_enabled; then
   if [ "$check_only" -eq 1 ]; then
     echo "boards disabled in core runtime"
   fi
   exit 0
 fi
 
-ensure_governance_runtime_dirs
+ensure_shared_writeback_runtime_dirs
 runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "$default_runtime_mode")
 refresh_command=$(default_harness_command "refresh_boards.sh")
 

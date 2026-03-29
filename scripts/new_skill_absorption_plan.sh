@@ -38,7 +38,7 @@ render_template() {
 }
 
 work_item_id=""
-promote_governance=0
+promote_shared_writeback=0
 actor="${STATE_ACTOR:-}"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
@@ -57,7 +57,7 @@ while [ "$#" -gt 0 ]; do
       shift 2
       ;;
     --promote-shared-writeback|--promote-governance)
-      promote_governance=1
+      promote_shared_writeback=1
       shift
       ;;
     --help|-h)
@@ -74,11 +74,11 @@ slug=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '
 date=$(date +%F)
 resolved_work_item_id=""
 
-if [ "$promote_governance" -eq 1 ]; then
+if [ "$promote_shared_writeback" -eq 1 ]; then
   if [ -n "$work_item_id" ]; then
     require_work_item "$work_item_id" >/dev/null
   fi
-  require_governance_mode_for_workspace_artifact "$artifact_label" || exit 1
+  require_shared_writeback_mode_for_workspace_artifact "$artifact_label" || exit 1
   target="$workspace_dir/${date}-${slug}-${artifact_suffix}.md"
 else
   if [ -z "$work_item_id" ]; then
@@ -92,7 +92,7 @@ if [ -n "$resolved_work_item_id" ]; then
   require_work_item "$work_item_id" >/dev/null
   ensure_task_directory_skeleton "$work_item_id"
   target="$(canonical_work_item_attachments_dir "$work_item_id")/${date}-${slug}-${artifact_suffix}.md"
-elif [ "$promote_governance" -ne 1 ]; then
+elif [ "$promote_shared_writeback" -ne 1 ]; then
   require_explicit_promotion_for_workspace_artifact "$artifact_label" || exit 1
 fi
 

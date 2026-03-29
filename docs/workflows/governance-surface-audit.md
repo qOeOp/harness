@@ -1,4 +1,4 @@
-# Governance Surface Audit Redirect
+# Legacy Surface Audit Redirect
 
 Legacy redirect only.
 

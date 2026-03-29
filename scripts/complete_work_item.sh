@@ -12,7 +12,7 @@ usage() {
 resolve_board_path() {
   scope=$(normalize_work_item_scope "$1") || return 1
 
-  if ! runtime_governance_enabled; then
+  if ! runtime_shared_writeback_enabled; then
     printf '%s\n' "none"
     return 0
   fi

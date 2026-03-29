@@ -31,7 +31,7 @@ render_checkpoint_template() {
 }
 
 work_item_id=""
-promote_governance=0
+promote_shared_writeback=0
 actor="${STATE_ACTOR:-}"
 export STATE_INVOKER="${STATE_INVOKER:-$(default_state_invoker "$0")}"
 
@@ -55,7 +55,7 @@ while [ "$#" -gt 0 ]; do
       shift 2
       ;;
     --promote-shared-writeback|--promote-governance)
-      promote_governance=1
+      promote_shared_writeback=1
       shift
       ;;
     --help|-h)
@@ -73,11 +73,11 @@ date=$(date +%F)
 target=""
 resolved_work_item_id=""
 
-if [ "$promote_governance" -eq 1 ]; then
+if [ "$promote_shared_writeback" -eq 1 ]; then
   if [ -n "$work_item_id" ]; then
     require_work_item "$work_item_id" >/dev/null
   fi
-  require_governance_mode_for_workspace_artifact "checkpoint" || exit 1
+  require_shared_writeback_mode_for_workspace_artifact "checkpoint" || exit 1
   target=".harness/workspace/status/snapshots/${date}-${slug}-checkpoint.md"
 else
   if [ -z "$work_item_id" ]; then

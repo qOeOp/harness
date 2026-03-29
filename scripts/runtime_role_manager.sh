@@ -80,7 +80,7 @@ resolved_runtime_root=$(normalize_consumer_runtime_root "$runtime_root")
   exit 1
 }
 
-require_advanced_governance_consumer_runtime_root \
+require_shared_writeback_consumer_runtime_root \
   "$resolved_runtime_root" \
   "runtime_role_manager.sh" \
   "$repo_root"

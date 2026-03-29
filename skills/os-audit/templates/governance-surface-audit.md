@@ -1,4 +1,4 @@
-# Governance Surface Audit Template Redirect
+# Legacy Surface Audit Template Redirect
 
 Legacy redirect only.
 

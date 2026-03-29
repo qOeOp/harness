@@ -58,49 +58,41 @@ runtime_manifest_value() {
   ' "$runtime_manifest_path"
 }
 
-runtime_governance_enabled() {
+runtime_shared_writeback_enabled() {
   runtime_mode=$(runtime_manifest_value "runtime_mode" || printf '%s\n' "$default_runtime_mode")
-  advanced_governance_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "false")
+  shared_writeback_enabled=$(runtime_manifest_value "advanced_governance_enabled" || printf '%s\n' "false")
 
-  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$advanced_governance_enabled" = "true" ]; then
+  if [ "$runtime_mode" = "shared-writeback" ] || [ "$runtime_mode" = "advanced-governance" ] || [ "$shared_writeback_enabled" = "true" ]; then
     return 0
   fi
 
   return 1
 }
 
-runtime_shared_writeback_enabled() {
-  runtime_governance_enabled
-}
+runtime_governance_enabled() { runtime_shared_writeback_enabled; }
 
 ensure_core_runtime_dirs() {
   mkdir -p "$state_locks_dir" "$task_runtime_dir"
   ensure_runtime_manifest
 }
 
-ensure_governance_runtime_dirs() {
-  :
-}
+ensure_shared_writeback_runtime_dirs() { :; }
 
 ensure_state_dirs() {
   ensure_core_runtime_dirs
 
-  if runtime_governance_enabled; then
-    ensure_governance_runtime_dirs
+  if runtime_shared_writeback_enabled; then
+    ensure_shared_writeback_runtime_dirs
   fi
 }
 
-ensure_boards_in_sync() {
-  :
-}
+ensure_governance_runtime_dirs() { ensure_shared_writeback_runtime_dirs; }
 
-refresh_boards_if_enabled() {
-  :
-}
+ensure_boards_in_sync() { :; }
 
-sync_recovery_snapshot_if_present() {
-  :
-}
+refresh_boards_if_enabled() { :; }
+
+sync_recovery_snapshot_if_present() { :; }
 
 now_iso_timestamp() {
   date '+%Y-%m-%dT%H:%M:%S%z'
@@ -938,10 +930,10 @@ resolve_task_artifact_work_item_id() {
   return 1
 }
 
-require_governance_mode_for_workspace_artifact() {
+require_shared_writeback_mode_for_workspace_artifact() {
   artifact_kind="$1"
 
-  if runtime_governance_enabled; then
+  if runtime_shared_writeback_enabled; then
     return 0
   fi
 
@@ -953,14 +945,12 @@ EOF
   return 1
 }
 
-require_shared_writeback_mode_for_workspace_artifact() {
-  require_governance_mode_for_workspace_artifact "$1"
-}
+require_governance_mode_for_workspace_artifact() { require_shared_writeback_mode_for_workspace_artifact "$1"; }
 
-require_advanced_governance_runtime_artifact() {
+require_shared_writeback_runtime_artifact() {
   artifact_kind="$1"
 
-  if runtime_governance_enabled; then
+  if runtime_shared_writeback_enabled; then
     return 0
   fi
 
@@ -970,6 +960,8 @@ Enable shared writeback mode before writing workspace-scoped cadence artifacts.
 EOF
   return 1
 }
+
+require_advanced_governance_runtime_artifact() { require_shared_writeback_runtime_artifact "$1"; }
 
 require_explicit_promotion_for_workspace_artifact() {
   artifact_kind="$1"

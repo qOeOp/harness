@@ -109,8 +109,8 @@ function readManifestValue(key) {
 
 function runtimeValidationMode() {
   const runtimeMode = readManifestValue("runtime_mode");
-  const governanceEnabled = readManifestValue("advanced_governance_enabled");
-  if (runtimeMode === "shared-writeback" || runtimeMode === "advanced-governance" || governanceEnabled === "true") {
+  const sharedWritebackEnabled = readManifestValue("advanced_governance_enabled");
+  if (runtimeMode === "shared-writeback" || runtimeMode === "advanced-governance" || sharedWritebackEnabled === "true") {
     return "shared";
   }
   return "core";

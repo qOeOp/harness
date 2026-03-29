@@ -4,7 +4,7 @@
 
 ## 目的
 
-定义 `harness` 在 v2 task-record runtime 下的记忆分层，避免把 task truth、恢复协议、prompt-shape 配置、治理投影和 source repo 文档混成一套叙事。
+定义 `harness` 在 v2 task-record runtime 下的记忆分层，避免把 task truth、恢复协议、prompt-shape 配置、shared-writeback 投影和 source repo 文档混成一套叙事。
 
 ## 核心原则
 
