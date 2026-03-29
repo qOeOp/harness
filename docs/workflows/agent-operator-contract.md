@@ -18,7 +18,7 @@
 ## 与其他文件的边界
 
 1. 仓库级 first hop、routing 与 active truth
-   - 在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`
+   - 在 framework source repo 中，先看 `README.md`、`SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`
    - 在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`
    - 详细 workflow source 再看 [document-routing-and-lifecycle.md](./document-routing-and-lifecycle.md)
 2. 跨 agent 的 review contract

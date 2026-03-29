@@ -31,10 +31,11 @@ Do not introduce a third functional layer such as:
 
 ## Read In This Order
 
-1. [references/layering.md](references/layering.md)
-2. [references/runtime-workspace.md](references/runtime-workspace.md)
-3. [references/contracts/task-record-runtime-tree-v2.toml](references/contracts/task-record-runtime-tree-v2.toml)
-4. [references/top-level-surface.md](references/top-level-surface.md)
+1. [README.md](README.md)
+2. [references/layering.md](references/layering.md)
+3. [references/runtime-workspace.md](references/runtime-workspace.md)
+4. [references/contracts/task-record-runtime-tree-v2.toml](references/contracts/task-record-runtime-tree-v2.toml)
+5. [references/top-level-surface.md](references/top-level-surface.md)
 
 Only read additional framework specs if the task needs historical derivation.
 

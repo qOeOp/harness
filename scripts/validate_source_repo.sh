@@ -183,7 +183,7 @@ require_patterns "docs/memory/memory-architecture.md" \
 require_patterns "README.md" \
   'control surfaces' 'audit_entropy_budget.sh' 'active-surface entropy budget' 'compaction-only mode'
 require_patterns "docs/workflows/agent-operator-contract.md" \
-  '在 framework source repo 中，先看 `SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`' \
+  '在 framework source repo 中，先看 `README.md`、`SKILL.md`、`references/layering.md` 与 `references/runtime-workspace.md`' \
   '在 materialized consumer runtime 中，先看 `.harness/entrypoint.md`' '`prompt shape / runtime config surface`' 'exact-prefix 稳定' \
   'scripts/runtime_role_manager.sh' '`policy_*`' 'paused + interrupt metadata + formal resume transition' 'schema / format version' \
   'capability packet' 'full parent session transcript' '`max turns / iterations`' 'deterministic / code-graded gate' 'content hash' \
@@ -195,6 +195,7 @@ require_patterns "docs/workflows/agent-operator-contract.md" \
   '`tool_use` / `tool_result` `_meta`' 'capture policy、' 'blocking preflight、' 'guardrail coverage' 'audience-bound token' \
   'passthrough 给上游 API' '20-50 个来自真实失败' 'regression sample' 'tool name / description /' 'argument schema / output contract' \
   'page token' '双重上报或默默复用冲突语义' 'exact trajectory /' 'path 映射' 'partial credit'
+require_contains "SKILL.md" '[README.md](README.md)'
 require_patterns "docs/workflows/task-artifact-routing.md" \
   '`task-local first, shared writeback by explicit promotion`' '.harness/tasks/<task-id>/attachments/<date>-<slug>-research-dispatch.md' \
   'role-change-proposal.md' 'Acceptance Ledger' 'update-only'
