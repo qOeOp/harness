@@ -6,6 +6,6 @@
 - Key conclusions:
 - Founder decisions:
 - Improvement directions approved:
-- Departments impacted:
+- Roles or surfaces impacted:
 - Owners:
 - Follow-up review date:

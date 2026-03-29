@@ -452,7 +452,7 @@ forbid_contains "docs/research/frontier-practices-2026.md" '根级宪法文件�
 if command -v markdownlint >/dev/null 2>&1; then
   markdownlint README.md >/dev/null 2>&1 || fail "README.md failed markdownlint"
 else
-  fail "missing command: markdownlint (required subtractive-governance control)"
+  fail "missing command: markdownlint (required entropy-reduction control)"
 fi
 
 if ! ./scripts/audit_entropy_budget.sh --quiet >/dev/null 2>&1; then

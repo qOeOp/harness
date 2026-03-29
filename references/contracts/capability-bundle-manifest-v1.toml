@@ -34,7 +34,7 @@ required = [
 allowed_bundle_kinds = [
   "task-skill",
   "review-skill",
-  "governance-skill",
+  "control-skill",
   "runtime-skill",
   "adapter-skill",
 ]
@@ -137,7 +137,7 @@ recommended_task_local_paths = [
   ".harness/tasks/<task-id>/closure/",
 ]
 
-governance_paths_require_explicit_promotion = true
+shared_writeback_paths_require_explicit_promotion = true
 default_artifact_path_must_not_point_to_runtime_support_state = true
 
 [loading]

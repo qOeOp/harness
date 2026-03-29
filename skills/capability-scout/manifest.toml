@@ -44,7 +44,7 @@ operation_modes = [
   "absorb",
 ]
 
-governance_promotion_required = true
+shared_writeback_promotion_required = true
 preferred_scripts = [
   "skills/capability-scout/scripts/new_scout_report.sh",
   "skills/capability-scout/scripts/new_absorption_plan.sh",

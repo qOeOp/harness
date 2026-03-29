@@ -81,7 +81,7 @@ Owner: `general-manager`
 
 由 `general-manager` 汇总成决策包。
 
-若只是局部流程优化，可在治理层批准后执行。
+若只是局部流程优化，可在默认 approval boundary 内批准后执行。
 若需要跨越已批准产品边界，则升级给 Founder。
 
 ### Step 6: Rollout and Writeback

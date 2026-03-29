@@ -176,7 +176,7 @@ observability / replay 默认服务的是解释执行、关联证据与调试，
    - internal-only
    - volatile external
    - code change
-   - governance / state mutation
+   - control-surface / state mutation
 4. 再决定：
    - 本地处理
    - parallel delegation
@@ -277,7 +277,7 @@ locator、content hash
 
 只有当下一步明确被同一段上下文直接阻塞时，才升级为更厚的上下文传递，并显式说明原因。
 
-如果当前 provider 不支持并行 delegation，则按同样原则顺序执行，不要强行模拟第二套治理语义。
+如果当前 provider 不支持并行 delegation，则按同样原则顺序执行，不要强行模拟第二套控制面语义。
 
 ## Bounded Autonomy Rule
 

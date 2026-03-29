@@ -41,7 +41,7 @@
 2. pre-merge review
 3. self-review before handoff
 4. review of agent-generated patches
-5. governance / state-system code review
+5. control-surface / state-system code review
 
 本 contract 不替代：
 

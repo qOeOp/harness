@@ -1,7 +1,7 @@
 # Improvement Plan
 
 - Date:
-- Department:
+- Surface:
 - Owner:
 - Trigger:
 - Problem to fix:

@@ -51,7 +51,7 @@ operation_modes = [
   "memo",
 ]
 
-governance_promotion_required = true
+shared_writeback_promotion_required = true
 preferred_scripts = [
   "skills/research/scripts/new_dispatch.sh",
   "skills/research/scripts/new_brief.sh",
